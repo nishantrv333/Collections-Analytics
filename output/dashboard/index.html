@@ -1,843 +1,1298 @@
 <style>
-/* Layout: summary tiles first, then recovery and drop off side by side, then the
-   monthly table, the v4.3 test, and invoices with data checks. One column when narrow. */
-.ca { display: grid; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); color: var(--color-fg); }
-.ca-head { display: grid; gap: var(--cds-gap-sm); max-width: 62rem; }
-.ca-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
-.ca-lede { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); line-height: 1.55; max-width: 65ch; }
-.ca-lede b, .ca-dec b { font-weight: 600; color: var(--color-fg); }
-.ca-tiles { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); }
-.ca-tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-xs); align-content: start; }
-.ca-tile .lbl { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
-.ca-tile .big { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); line-height: 1.15; font-variant-numeric: tabular-nums; min-height: 1.2em; }
-.ca-tile .sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
-.ca-up { color: var(--color-ok); } .ca-down { color: var(--color-bad); }
-.ca-sec { display: grid; gap: var(--cds-gap-md); }
-.ca-sec > h2 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
-.ca-grid { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); }
-.ca-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-sm); align-content: start; min-width: 0; }
-.ca-card h3 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
-.ca-note { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.5; max-width: 70ch; }
-.ca-chips { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); }
-.ca-chip { font: inherit; font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-radius: 999px; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg-muted); cursor: pointer; }
-.ca-chip[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
-.ca-chip:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
-.ca-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
-.ca-legend span { display: inline-flex; align-items: center; gap: 6px; }
-.ca-legend i { width: 12px; height: 3px; border-radius: 2px; display: inline-block; }
-.ca-legend b { color: var(--color-fg); font-weight: 500; }
-.ca-chart { position: relative; min-height: 280px; }
-.ca-chart.small { min-height: 200px; }
-.ca-chart svg { display: block; overflow: visible; }
-.ca-chart text { fill: var(--color-fg-muted); font-size: 11px; font-family: var(--font-anthropic-sans); }
-.ca-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; white-space: nowrap; z-index: 2; }
-.ca-tip .t { color: var(--cds-text-secondary); margin-bottom: 2px; }
-.ca-tip .r { display: flex; align-items: center; gap: 6px; }
-.ca-tip .r i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
-.ca-fun { display: grid; gap: 2px; }
-.ca-step { display: grid; grid-template-columns: minmax(7rem, 9rem) 1fr; gap: var(--cds-gap-sm); align-items: center; font-size: var(--cds-font-size-caption); }
-.ca-step .name { color: var(--color-fg); }
-.ca-bar { position: relative; height: 22px; }
-.ca-bar > i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--ca-fill); }
-.ca-bar > span { position: absolute; top: 50%; transform: translateY(-50%); font-variant-numeric: tabular-nums; color: var(--color-fg); white-space: nowrap; padding-left: 6px; }
-.ca-loss { grid-column: 2; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); padding: 1px 0 3px; font-variant-numeric: tabular-nums; }
-.ca-loss.worst { color: var(--color-bad); }
-.ca-tbl { overflow-x: auto; max-width: 100%; }
-.ca-tbl table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
-.ca-tbl th { text-align: right; font-weight: 500; color: var(--color-fg-muted); padding: 6px 8px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; position: sticky; top: 0; background: var(--color-panel); }
-.ca-tbl td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
-.ca-tbl th:first-child, .ca-tbl td:first-child, .ca-tbl .l { text-align: left; }
-.ca-tbl td.wrap { white-space: normal; min-width: 14rem; color: var(--color-fg-muted); text-align: left; }
-.ca-pill { display: inline-flex; align-items: center; gap: 5px; font-weight: 500; }
-.ca-pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-.ca-pill.pass { color: var(--color-ok); } .ca-pill.warn { color: var(--color-warn); } .ca-pill.fail { color: var(--color-bad); }
-.ca-exp { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
-.ca-dec { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.55; max-width: 70ch; }
-.ca-ivl { display: grid; gap: var(--cds-gap-sm); }
-.ca-ivl-row { display: grid; grid-template-columns: minmax(0, 15rem) minmax(8rem, 1fr) 7.5rem; gap: var(--cds-gap-sm); align-items: center; font-size: var(--cds-font-size-caption); }
-.ca-ivl-row .m { color: var(--color-fg); }
-.ca-ivl-row .m small { display: block; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
-.ca-track { position: relative; height: 18px; }
-.ca-track .zero { position: absolute; top: -4px; bottom: -4px; width: 1px; background: var(--cds-chart-axis); }
-.ca-track .grid { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--cds-chart-grid); }
-.ca-track .ci { position: absolute; top: 8px; height: 2px; border-radius: 1px; background: var(--ca-c); }
-.ca-track .dot { position: absolute; top: 4px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--ca-c); box-shadow: 0 0 0 2px var(--color-panel); }
-.ca-ivl-row .v { font-variant-numeric: tabular-nums; text-align: right; }
-.ca-ivl-row .v small { display: block; color: var(--color-fg-muted); }
-.ca-axis { position: relative; height: 16px; font-size: 11px; color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
-.ca-axis span { position: absolute; transform: translateX(-50%); }
-.ca-fail { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
-.ca-fail i { width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); display: inline-block; }
-.ca-hb { display: grid; gap: var(--cds-gap-sm); min-height: 14rem; }
-.ca-hb-group { display: grid; gap: 3px; }
-.ca-hb-title { font-size: var(--cds-font-size-caption); color: var(--color-fg); font-weight: 500; }
-.ca-hb-row { display: grid; grid-template-columns: 4.2rem 1fr 8.5rem; gap: var(--cds-gap-sm); align-items: center; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
-.ca-hb-row .k { color: var(--color-fg-muted); }
-.ca-hb-row .v { text-align: right; color: var(--color-fg); white-space: nowrap; }
-.ca-hb-row .v small { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
-.ca-hb-track { position: relative; height: 14px; }
-.ca-hb-track > i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--ca-fill); }
-.ca-hb-track > b { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--cds-chart-reference); }
-[data-dash-source-state=empty] { color: transparent; }
-[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+/* Layout: a header, one row of section tabs, one row of filters that every chart below obeys,
+   then a grid of cards per section. Cards wrap to one column on narrow screens. */
+.cx { --cx-good: #0ca30c; --cx-warn: #fab219; --cx-bad: #d03b3b; --cx-gap: var(--cds-gap-md);
+  display: grid; gap: var(--cx-gap); font-family: var(--font-anthropic-sans); color: var(--color-fg); font-size: var(--cds-font-size-body); }
+.cx * { box-sizing: border-box; }
+.cx [hidden] { display: none !important; }
+.cx h1, .cx h2, .cx h3 { margin: 0; font-weight: var(--cds-font-weight-medium); text-wrap: balance; }
+.cx-head { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: flex-end; justify-content: space-between; }
+.cx-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); line-height: 1.15; }
+.cx-sub { margin: 6px 0 0; color: var(--color-fg-muted); max-width: 72ch; line-height: 1.5; }
+.cx-meta { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; text-align: right; line-height: 1.6; }
+.cx-meta b { color: var(--color-fg); font-weight: 600; }
+.cx-bar { position: sticky; top: 0; z-index: 5; background: var(--color-bg); padding-block: 6px; display: grid; gap: 8px; border-bottom: 1px solid var(--color-border-line); }
+.cx-tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+.cx-tabs::-webkit-scrollbar { display: none; }
+.cx-tab { font: inherit; font-size: 14px; padding: 8px 12px; border: 0; border-radius: 6px; background: transparent; color: var(--color-fg-muted); cursor: pointer; white-space: nowrap; }
+.cx-tab:hover { color: var(--color-fg); background: var(--color-panel); }
+.cx-tab[aria-selected="true"] { color: var(--color-fg); background: var(--color-panel); box-shadow: inset 0 -2px 0 var(--cx-accent, currentColor); font-weight: 500; }
+.cx-filters { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: var(--cds-font-size-caption); }
+.cx-filters[data-off="true"] .cx-fgroup { opacity: .45; pointer-events: none; }
+.cx-fgroup { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.cx-flabel { color: var(--color-fg-muted); margin-right: 2px; }
+.cx-chip { font: inherit; font-size: var(--cds-font-size-caption); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg-muted); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.cx-chip:hover { color: var(--color-fg); }
+.cx-chip[aria-pressed="true"] { color: var(--color-fg); border-color: var(--color-fg); }
+.cx-chip i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.cx-seg { display: inline-flex; border: 1px solid var(--color-border-line); border-radius: 7px; overflow: hidden; background: var(--color-panel); }
+.cx-seg button { font: inherit; font-size: var(--cds-font-size-caption); padding: 4px 10px; border: 0; background: transparent; color: var(--color-fg-muted); cursor: pointer; }
+.cx-seg button + button { border-left: 1px solid var(--color-border-line); }
+.cx-seg button[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); }
+.cx-reset { font: inherit; font-size: var(--cds-font-size-caption); border: 0; background: none; color: var(--color-fg-muted); text-decoration: underline; cursor: pointer; padding: 4px; }
+.cx-fnote { color: var(--color-fg-muted); }
+.cx button:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+.cx-panel { display: grid; gap: var(--cx-gap); }
+.cx-lead { margin: 0; max-width: 80ch; line-height: 1.55; }
+.cx-lead b { font-weight: 600; }
+.cx-tiles { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr)); }
+.cx-tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 12px 14px 10px; display: grid; gap: 2px; align-content: start; min-width: 0; }
+.cx-tile .l { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.cx-tile .v { font-family: var(--font-anthropic-serif); font-size: 26px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.cx-tile .s { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; min-height: 1.3em; }
+.cx-tile .up { color: var(--color-ok); } .cx-tile .down { color: var(--color-bad); }
+.cx-tile svg { display: block; margin-top: 4px; overflow: visible; }
+.cx-grid { display: grid; gap: var(--cx-gap); grid-template-columns: repeat(auto-fit, minmax(min(100%, 27rem), 1fr)); }
+.cx-grid.wide-left { grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); }
+@media (max-width: 900px) { .cx-grid.wide-left { grid-template-columns: minmax(0, 1fr); } }
+.cx-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 16px 18px; display: grid; gap: 10px; align-content: start; min-width: 0; position: relative; }
+.cx-card.span { grid-column: 1 / -1; }
+.cx-card-h { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; justify-content: space-between; }
+.cx-card h3 { font-size: var(--cds-font-size-heading); }
+.cx-note { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.5; max-width: 78ch; }
+.cx-chart { position: relative; min-height: 120px; }
+.cx-chart svg { display: block; overflow: visible; }
+.cx-chart text, .cx-tile text { fill: var(--color-fg-muted); font-size: 11px; font-family: var(--font-anthropic-sans); font-variant-numeric: tabular-nums; }
+.cx-chart text.ink { fill: var(--color-fg); }
+.cx-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.cx-legend button { font: inherit; border: 0; background: none; color: inherit; padding: 2px 0; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.cx-legend button[aria-pressed="false"] { opacity: .4; text-decoration: line-through; }
+.cx-legend span { display: inline-flex; gap: 6px; align-items: center; }
+.cx-legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.cx-legend i.line { height: 3px; border-radius: 2px; }
+.cx-tip { position: absolute; z-index: 10; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: 6px 9px; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; white-space: nowrap; line-height: 1.5; }
+.cx-tip .t { color: var(--cds-text-secondary); margin-bottom: 2px; }
+.cx-tip .r { display: flex; gap: 6px; align-items: center; justify-content: space-between; }
+.cx-tip .r span:first-child { display: inline-flex; gap: 6px; align-items: center; }
+.cx-tip .r b { font-weight: 600; margin-left: 12px; }
+.cx-tip i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.cx-stack { display: grid; gap: 8px; }
+.cx-srow { display: grid; grid-template-columns: minmax(6rem, 9.5rem) 1fr 4.5rem; gap: 10px; align-items: center; font-size: var(--cds-font-size-caption); }
+.cx-srow .k { color: var(--color-fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cx-srow .n { text-align: right; color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.cx-sbar { display: flex; height: 22px; border-radius: 4px; overflow: hidden; background: var(--cds-chart-grid); }
+.cx-sbar span { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-variant-numeric: tabular-nums; border-right: 2px solid var(--color-panel); overflow: hidden; white-space: nowrap; cursor: default; }
+.cx-sbar span:last-child { border-right: 0; }
+.cx-sbar span.lt { color: #fff; } .cx-sbar span.dk { color: #15181d; }
+.cx-hb { display: grid; gap: 6px; }
+.cx-hrow { display: grid; grid-template-columns: minmax(5.5rem, 8.5rem) 1fr 10rem; gap: 10px; align-items: center; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.cx-hrow .k { color: var(--color-fg); }
+.cx-hrow .v { text-align: right; white-space: nowrap; }
+.cx-hrow .v small { color: var(--color-fg-muted); font-size: inherit; }
+.cx-htrack { position: relative; height: 14px; }
+.cx-htrack i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+.cx-htrack b { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--cds-chart-reference); }
+.cx-hgroup { font-size: var(--cds-font-size-caption); font-weight: 500; margin-top: 4px; }
+.cx-fun { display: grid; gap: 2px; }
+.cx-fstep { display: grid; grid-template-columns: minmax(7rem, 9rem) 1fr; gap: 10px; align-items: center; font-size: var(--cds-font-size-caption); }
+.cx-fbar { position: relative; height: 22px; }
+.cx-fbar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; }
+.cx-fbar span { position: absolute; top: 50%; transform: translateY(-50%); white-space: nowrap; font-variant-numeric: tabular-nums; padding-left: 6px; }
+.cx-floss { grid-column: 2; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); padding: 0 0 2px; font-variant-numeric: tabular-nums; }
+.cx-floss.worst { color: var(--color-bad); }
+.cx-tbl { overflow-x: auto; max-width: 100%; }
+.cx-tbl table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.cx-tbl th { text-align: right; font-weight: 500; color: var(--color-fg-muted); padding: 6px 8px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; background: var(--color-panel); position: sticky; top: 0; }
+.cx-tbl th button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.cx-tbl th[aria-sort="ascending"] button::after { content: " \2191"; } .cx-tbl th[aria-sort="descending"] button::after { content: " \2193"; }
+.cx-tbl td { text-align: right; padding: 7px 8px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.cx-tbl .l { text-align: left; }
+.cx-tbl td.wrap { white-space: normal; min-width: 16rem; color: var(--color-fg-muted); text-align: left; line-height: 1.45; }
+.cx-tbl tr.click { cursor: pointer; } .cx-tbl tr.click:hover td { background: var(--color-bg); }
+.cx-tbl tr.total td { font-weight: 600; border-top: 1px solid var(--color-fg-muted); }
+.cx-tbl tr.sel td { background: var(--color-bg); }
+.cx-cellbar { display: inline-grid; grid-template-columns: 48px auto; gap: 6px; align-items: center; justify-content: end; }
+.cx-cellbar i { height: 6px; border-radius: 3px; background: var(--cds-chart-grid); position: relative; overflow: hidden; display: block; }
+.cx-cellbar i b { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+.cx-dot { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
+.cx-pill { display: inline-flex; align-items: center; gap: 5px; font-weight: 500; }
+.cx-pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.cx-pill.pass { color: var(--color-ok); } .cx-pill.warn { color: var(--color-warn); } .cx-pill.fail { color: var(--color-bad); }
+.cx-heat { display: grid; gap: 2px; font-size: 11px; font-variant-numeric: tabular-nums; }
+.cx-heat .hc { height: 30px; border-radius: 3px; display: flex; align-items: center; justify-content: center; }
+.cx-heat .hl { display: flex; align-items: center; color: var(--color-fg); font-size: var(--cds-font-size-caption); padding-right: 6px; white-space: nowrap; }
+.cx-heat .hh { text-align: center; color: var(--color-fg-muted); }
+.cx-scale { display: flex; align-items: center; gap: 8px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.cx-scale i { width: 140px; height: 8px; border-radius: 4px; display: inline-block; }
+.cx-ivl { display: grid; gap: 10px; }
+.cx-irow { display: grid; grid-template-columns: minmax(0, 14rem) minmax(8rem, 1fr) 7.5rem; gap: 10px; align-items: center; font-size: var(--cds-font-size-caption); }
+.cx-irow .m small { display: block; color: var(--color-fg-muted); }
+.cx-itrack { position: relative; height: 18px; }
+.cx-itrack .z { position: absolute; top: -4px; bottom: -4px; width: 1px; background: var(--cds-chart-axis); }
+.cx-itrack .g { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--cds-chart-grid); }
+.cx-itrack .ci { position: absolute; top: 8px; height: 2px; border-radius: 1px; }
+.cx-itrack .d { position: absolute; top: 4px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; box-shadow: 0 0 0 2px var(--color-panel); }
+.cx-irow .v { text-align: right; font-variant-numeric: tabular-nums; }
+.cx-irow .v small { display: block; color: var(--color-fg-muted); }
+.cx-iaxis { position: relative; height: 14px; font-size: 11px; color: var(--color-fg-muted); }
+.cx-iaxis span { position: absolute; transform: translateX(-50%); }
+.cx-callout { border-left: 3px solid var(--cx-accent, var(--color-fg)); padding: 2px 0 2px 12px; margin: 0; line-height: 1.55; max-width: 80ch; }
+.cx-callout b { font-weight: 600; }
+.cx-inv { display: grid; gap: var(--cx-gap); grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); }
+.cx-invcard { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 14px 16px; display: grid; gap: 8px; align-content: start; }
+.cx-invcard .no { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.cx-invcard .tot { font-family: var(--font-anthropic-serif); font-size: 24px; font-variant-numeric: tabular-nums; }
+.cx-invcard ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: var(--cds-font-size-caption); }
+.cx-invcard li { display: flex; justify-content: space-between; gap: 10px; }
+.cx-invcard li span:first-child { color: var(--color-fg-muted); }
+.cx-invcard li.corr span { color: var(--color-warn); }
+.cx-invcard li span:last-child { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cx-search { font: inherit; font-size: var(--cds-font-size-caption); padding: 5px 9px; border: 1px solid var(--color-border-line); border-radius: 6px; background: var(--color-bg); color: var(--color-fg); min-width: 12rem; }
+.cx-links { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: var(--cds-font-size-caption); }
+.cx-fail { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 120px; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.cx-fail i { width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); display: inline-block; }
 @media (max-width: 560px) {
-  .ca-ivl-row { grid-template-columns: 1fr 6.5rem; }
-  .ca-ivl-row .ca-track { grid-column: 1 / -1; grid-row: 2; }
-  .ca-axis-row { grid-template-columns: 1fr; }
-  .ca-axis-row > div:first-child, .ca-axis-row > div:last-child { display: none; }
+  .cx-srow { grid-template-columns: 5.5rem 1fr 3.8rem; }
+  .cx-hrow { grid-template-columns: 5rem 1fr 6.5rem; }
+  .cx-irow { grid-template-columns: 1fr 6.5rem; }
+  .cx-irow .cx-itrack { grid-column: 1 / -1; grid-row: 2; }
+  .cx-iaxisrow > div:first-child, .cx-iaxisrow > div:last-child { display: none; }
+  .cx-iaxisrow { grid-template-columns: 1fr !important; }
+  .cx-meta { text-align: left; }
 }
+@media (prefers-reduced-motion: no-preference) { .cx-panel { animation: cx-in var(--cds-dur-slow) ease-out; } }
+@keyframes cx-in { from { opacity: .4; } to { opacity: 1; } }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 </style>
 
-<div class="ca">
-  <header class="ca-head" id="summary">
-    <h1>Collections Analytics</h1>
-    <p class="ca-lede">An AI collections agent working for four banks: Northgate in the UK, Desert Finance in the UAE, Banco Meridia in Spain and Lumen Pay in Mexico, June to September 2026. Platform data is simulated; exchange rates, holidays and calling rules are real. Agent v4.3 added
-      <b class="dash-skeleton" data-source="experiment_results" data-field="difference" data-where="metric_id=rec60_31_90" data-fmt="pts">&nbsp;</b>
-      for debt 31 to 90 days past due and should go live there. In the UAE, Hindi conversations end in a promise only
-      <b class="dash-skeleton" data-source="uae_languages" data-field="promise_to_pay_rate" data-where="language=hi" data-fmt="pct">&nbsp;</b>
-      of the time, which explains the UAE's lower promise rate.</p>
+<div class="cx" id="cx">
+  <header class="cx-head">
+    <div>
+      <h1 id="title">Collections Analytics</h1>
+      <p class="cx-sub">An AI collections agent working for four banks: Northgate (UK), Desert Finance (UAE), Banco Meridia (Spain) and Lumen Pay (Mexico), June to September 2026. The platform data is simulated; exchange rates, public holidays and calling rules are real, and customer behaviour is calibrated on real bank data.</p>
+    </div>
+    <div class="cx-meta" id="meta" data-source="cube_accounts markets"></div>
   </header>
 
-  <section class="ca-tiles" aria-label="Headline figures">
-    <div class="ca-tile">
-      <span class="lbl">Collected, all banks, 1 to 29 September</span>
-      <span class="big dash-skeleton" data-source="monthly_totals" data-field="net_collected_eur" data-where="month=2026-09" data-fmt="eur">&nbsp;</span>
-      <span class="sub">August, full month: <span class="dash-skeleton" data-source="monthly_totals" data-field="net_collected_eur" data-where="month=2026-08" data-fmt="eur">&nbsp;</span></span>
+  <div class="cx-bar">
+    <nav class="cx-tabs" role="tablist" aria-label="Sections" id="tabs"></nav>
+    <div class="cx-filters" id="filters" aria-label="Filters"></div>
+  </div>
+
+  <section class="cx-panel" id="p-overview" role="tabpanel" aria-labelledby="t-overview">
+    <p class="cx-lead" id="ov-lead" data-source="cube_accounts"></p>
+    <div class="cx-tiles" id="ov-tiles" data-source="cube_accounts"></div>
+    <div class="cx-grid wide-left">
+      <div class="cx-card" id="ov-curve-card">
+        <div class="cx-card-h"><h3 id="h-recovery">Recovery curve</h3><div class="cx-seg" id="ov-compare" role="group" aria-label="Compare"></div></div>
+        <p class="cx-note">Share of the placed balance collected by each day after the bank placed the account, net of reversals, in euros at the placement date rate. Each day only counts accounts old enough to have reached it, so younger months drop out as the line goes on.</p>
+        <div class="cx-legend" id="ov-curve-legend"></div>
+        <div class="cx-chart" id="ov-curve" data-source="cube_curves curve_cells" style="min-height:300px"></div>
+      </div>
+      <div class="cx-card">
+        <div class="cx-card-h"><h3 id="h-funnel">Collections funnel</h3></div>
+        <p class="cx-note">Accounts in the current filter and where they stop. The biggest drop is in red.</p>
+        <div class="cx-fun" id="ov-funnel" data-source="cube_accounts"></div>
+      </div>
     </div>
-    <div class="ca-tile">
-      <span class="lbl">Balance collected within 60 days, July cohort</span>
-      <span class="big dash-skeleton" data-source="cohort_recovery" data-field="recovery_rate" data-where="client_id=ALL&amp;placed_month=2026-07&amp;days_since_placement=60" data-fmt="pct">&nbsp;</span>
-      <span class="sub"><span class="dash-skeleton" id="t-rec-chg" data-source="rec60_change" data-fmt="ptsdelta">&nbsp;</span> against the June cohort</span>
-    </div>
-    <div class="ca-tile">
-      <span class="lbl">First instalments kept, due in September</span>
-      <span class="big dash-skeleton" data-source="monthly_totals" data-field="promise_kept_rate" data-where="month=2026-09" data-fmt="pct">&nbsp;</span>
-      <span class="sub"><span class="dash-skeleton" id="t-kept-chg" data-source="kept_change" data-fmt="ptsdelta">&nbsp;</span> against August</span>
-    </div>
-    <div class="ca-tile">
-      <span class="lbl">Invoiced for September, before tax</span>
-      <span class="big dash-skeleton" data-source="invoice_total" data-fmt="eur">&nbsp;</span>
-      <span class="sub">Includes a credit of <span class="dash-skeleton" data-source="invoices" data-field="correction" data-where="invoice_number=INV-202609-C03" data-fmt="eurabs">&nbsp;</span> to Banco Meridia for August</span>
+    <div class="cx-card">
+      <div class="cx-card-h"><h3 id="h-markets">Markets side by side</h3><span class="cx-note">Click a row to focus on that market. Click a header to sort.</span></div>
+      <div class="cx-tbl" id="ov-table" data-source="cube_accounts markets"></div>
     </div>
   </section>
 
-  <section class="ca-sec" id="markets">
-    <h2>Markets side by side</h2>
-    <div class="ca-card">
-      <p class="ca-note">Accounts on the current agent (v4.2) placed June to August, so every one has had 30 days. Promise rate and paid on the call are out of conversations with the customer.</p>
-      <div class="ca-tbl">
-        <table id="score-table" data-source="market_scorecard" data-row-key="bank">
-          <thead><tr>
-            <th data-field="bank">Bank</th>
-            <th data-field="country" class="l">Market</th>
-            <th data-field="accounts">Accounts</th>
-            <th data-field="reach_rate">Reached</th>
-            <th data-field="calls_to_reach">Calls to reach</th>
-            <th data-field="promise_rate">Promise rate</th>
-            <th data-field="paid_on_call_rate">Paid on the call</th>
-            <th data-field="first_instalment_kept">First instalment kept</th>
-            <th data-field="recovery_30d">Collected in 30 days</th>
-            <th data-field="dispute_rate">Disputes</th>
-          </tr></thead>
-          <tbody></tbody>
-        </table>
+  <section class="cx-panel" id="p-contact" role="tabpanel" aria-labelledby="t-contact" hidden>
+    <p class="cx-lead">Reaching the right person is the first job. These views follow every call and message, and check each call against the market's calling rules.</p>
+    <div class="cx-tiles" id="ct-tiles" data-source="cube_accounts cube_calls cube_messages checks"></div>
+    <div class="cx-grid">
+      <div class="cx-card">
+        <div class="cx-card-h"><h3 id="h-outcomes">How calls end</h3></div>
+        <p class="cx-note">Every voice call in the filter. A wrong person or an invalid number means the number on file needs replacing, so a falling share of those means skip tracing is working.</p>
+        <div class="cx-legend" id="ct-out-legend"></div>
+        <div class="cx-stack" id="ct-outcomes" data-source="cube_calls"></div>
+      </div>
+      <div class="cx-card">
+        <div class="cx-card-h"><h3 id="h-attempts">Each extra call is worth less</h3></div>
+        <p class="cx-note">Chance that call number k is the first to reach the customer, as a share of the first call's chance. Dashed: 41,188 real outbound calls by a Portuguese bank (UCI Bank Marketing). Current agent, all placements.</p>
+        <div class="cx-legend" id="ct-att-legend"></div>
+        <div class="cx-chart" id="ct-attempts" data-source="cube_attempts real_bank_calls" style="min-height:250px"></div>
+        <p class="cx-note" id="ct-att-note"></p>
       </div>
     </div>
-  </section>
-
-  <section class="ca-grid" aria-label="Recovery and drop off">
-    <div class="ca-card" id="recovery">
-      <h3>Recovery by placement month</h3>
-      <p class="ca-note">Share of the placed balance collected by each day after the bank placed the account, net of reversals. A line stops on the last day every account in that month has lived through.</p>
-      <div class="ca-chips" role="group" aria-label="Placement month" id="cohort-chips"></div>
-      <div class="ca-legend" id="cohort-legend" data-source="cohort_recovery"></div>
-      <div class="ca-chart" id="cohort-chart" data-source="cohort_recovery"></div>
-    </div>
-    <div class="ca-card" id="funnel">
-      <h3>Where accounts drop out</h3>
-      <p class="ca-note">Accounts placed June to August, outcomes to 29 September. The biggest drop between two steps is in red.</p>
-      <div class="ca-chips" role="group" aria-label="Bank" id="funnel-chips"></div>
-      <div class="ca-fun" id="funnel-steps" style="min-height: 280px"></div>
-    </div>
-  </section>
-
-  <section class="ca-sec" id="product">
-    <h2>Product findings</h2>
-    <div class="ca-grid">
-      <div class="ca-card" id="hindi">
-        <h3>The agent struggles in Hindi</h3>
-        <p class="ca-note">How conversations end at Desert Finance (UAE), by language. Hindi calls stall into "call me back" while refusals barely move, which points at speech recognition rather than the customers.</p>
-        <div class="ca-hb" id="hindi-bars" data-source="uae_languages"></div>
+    <div class="cx-grid">
+      <div class="cx-card">
+        <div class="cx-card-h"><h3 id="h-hours">When calls reach people</h3><div class="cx-seg" id="ct-hour-mode" role="group" aria-label="Measure"></div></div>
+        <p class="cx-note" id="ct-hour-note"></p>
+        <div class="cx-heat" id="ct-heat" data-source="cube_hours"></div>
+        <div class="cx-scale" id="ct-heat-scale"></div>
       </div>
-      <div class="ca-card" id="hours">
-        <h3>Evening calls reach more people</h3>
-        <p class="ca-note">Reach at each local hour against what its mix of first and later calls predicts (1 is as expected). Raw numbers favour the afternoon only because first calls are made then.</p>
-        <div class="ca-hb" id="hour-bars" data-source="call_hours"></div>
-      </div>
-      <div class="ca-card" id="real-calls" style="grid-column: 1 / -1">
-        <h3>Each extra call is worth less, as in real bank data</h3>
-        <p class="ca-note">Chance a call reaches the customer, as a share of the first call's chance. The grey line is 41,188 real calls by a Portuguese bank (UCI Bank Marketing).</p>
-        <div class="ca-chart small" id="calls-chart" data-source="calls_vs_real"></div>
+      <div class="cx-card">
+        <div class="cx-card-h"><h3 id="h-messages">Messages</h3></div>
+        <p class="cx-note">Reminders and follow ups sent alongside calls. The UK bank has no WhatsApp, so it gets SMS instead.</p>
+        <div class="cx-hb" id="ct-messages" data-source="cube_messages"></div>
       </div>
     </div>
   </section>
 
-  <section class="ca-sec" id="by-bank">
-    <h2>Monthly numbers by bank</h2>
-    <div class="ca-card">
-      <p class="ca-note">Calendar months in each bank's own time zone. Reached per call: calls answered by the customer, out of all calls. Promise rate and paid on the call: out of calls that reached the customer. First instalment kept: out of first instalments due that month, paid within 3 days of the due date. September runs to the 29th.</p>
-      <div class="ca-chips" role="group" aria-label="Bank" id="month-chips"></div>
-      <div class="ca-tbl">
-        <table id="month-table" data-source="client_month" data-row-key="client_id,month">
-          <thead><tr>
-            <th data-field="client_name">Bank</th>
-            <th data-field="month">Month</th>
-            <th data-field="accounts_placed">Accounts placed</th>
-            <th data-field="calls">Calls</th>
-            <th data-field="rpc_rate_per_call">Reached per call</th>
-            <th data-field="promise_rate">Promise rate</th>
-            <th data-field="paid_on_call_rate">Paid on the call</th>
-            <th data-field="promise_kept_rate">First instalment kept</th>
-            <th data-field="net_collected_eur">Collected (EUR)</th>
-          </tr></thead>
-          <tbody></tbody>
-        </table>
+  <section class="cx-panel" id="p-conversations" role="tabpanel" aria-labelledby="t-conversations" hidden>
+    <div class="cx-card-h"><p class="cx-lead">What happens once the agent reaches the customer.</p>
+      <div class="cx-fgroup"><span class="cx-flabel">Agent</span><div class="cx-seg" id="cv-agent" role="group" aria-label="Agent version"></div>
+      <span class="cx-flabel" style="margin-left:10px">Group by</span><div class="cx-seg" id="cv-group" role="group" aria-label="Group by"></div></div></div>
+    <div class="cx-tiles" id="cv-tiles" data-source="cube_conversations"></div>
+    <div class="cx-grid wide-left">
+      <div class="cx-card">
+        <div class="cx-card-h"><h3 id="h-conv">How conversations end</h3></div>
+        <p class="cx-note">Share of conversations with the customer ending each way. Hover a segment for counts.</p>
+        <div class="cx-legend" id="cv-legend"></div>
+        <div class="cx-stack" id="cv-stack" data-source="cube_conversations"></div>
+      </div>
+      <div class="cx-card" style="--cx-accent: var(--cx-a1)">
+        <div class="cx-card-h"><h3 id="h-hindi">Finding: the agent struggles in Hindi</h3></div>
+        <p class="cx-callout" id="cv-hindi-text" data-source="cube_conversations"></p>
+        <div class="cx-hb" id="cv-hindi" data-source="cube_conversations"></div>
+        <p class="cx-note">Desert Finance (UAE), current agent. Refusals barely move while call backs jump and calls run longer, which points at speech recognition, not unwilling customers. Next step: listen to 50 Hindi call backs and check the recognition error rate.</p>
+      </div>
+    </div>
+    <div class="cx-card">
+      <div class="cx-card-h"><h3 id="h-plans">Plans agreed</h3></div>
+      <p class="cx-note" id="cv-plan-note" data-source="cube_promises"></p>
+      <div class="cx-legend" id="cv-plan-legend"></div>
+      <div class="cx-stack" id="cv-plans" data-source="cube_promises"></div>
+    </div>
+  </section>
+
+  <section class="cx-panel" id="p-payments" role="tabpanel" aria-labelledby="t-payments" hidden>
+    <p class="cx-lead">Every promise is checked against the money that actually arrives. An instalment counts as kept when at least 95% of what was due lands within 3 days of the due date; a payment that is later reversed does not count.</p>
+    <div class="cx-tiles" id="pm-tiles" data-source="cube_promises cube_instalments cube_payments"></div>
+    <div class="cx-grid">
+      <div class="cx-card">
+        <div class="cx-card-h"><h3 id="h-inst">What happened to each instalment</h3></div>
+        <p class="cx-note">Instalments whose grace period is over, by their place in the plan. Most broken plans break at the first instalment.</p>
+        <div class="cx-legend" id="pm-inst-legend"></div>
+        <div class="cx-chart" id="pm-inst" data-source="cube_instalments" style="min-height:240px"></div>
+      </div>
+      <div class="cx-card">
+        <div class="cx-card-h"><h3 id="h-cash">Money collected by month</h3></div>
+        <p class="cx-note">Net of reversals, in euros at the payment date rate, by the month the customer paid. Follows the market filter only. September runs to the 29th.</p>
+        <div class="cx-legend" id="pm-cash-legend"></div>
+        <div class="cx-chart" id="pm-cash" data-source="cube_payments" style="min-height:240px"></div>
+      </div>
+    </div>
+    <div class="cx-card">
+      <div class="cx-card-h"><h3 id="h-rev">Reversals by payment method</h3></div>
+      <p class="cx-note">Share of payments later returned. A returned direct debit reopens the instalment it paid. Follows the market filter only.</p>
+      <div class="cx-hb" id="pm-rev" data-source="cube_payments"></div>
+    </div>
+  </section>
+
+  <section class="cx-panel" id="p-experiment" role="tabpanel" aria-labelledby="t-experiment" hidden>
+    <p class="cx-callout" id="ex-lead" style="--cx-accent: var(--cx-a1)" data-source="experiment_results experiment_summary"></p>
+    <div class="cx-tiles" id="ex-tiles" data-source="experiment_results experiment_summary"></div>
+    <div class="cx-grid">
+      <div class="cx-card">
+        <div class="cx-card-h"><h3 id="h-ivl">Every metric, with its 95% interval</h3></div>
+        <p class="cx-note">v4.3 minus v4.2, in percentage points. Right of zero means v4.3 is higher. Recovery intervals come from 2,000 stratified bootstrap resamples.</p>
+        <div class="cx-ivl" id="ex-ivl" data-source="experiment_results"></div>
+      </div>
+      <div class="cx-card">
+        <div class="cx-card-h"><h3 id="h-arms">Collected by day, each arm</h3><div class="cx-seg" id="ex-age" role="group" aria-label="Debt age"></div></div>
+        <p class="cx-note">Share of placed balance collected, accounts placed 15 June to 31 July. Hover to read the gap on any day.</p>
+        <div class="cx-legend" id="ex-arm-legend"></div>
+        <div class="cx-chart" id="ex-arms" data-source="experiment_curves" style="min-height:250px"></div>
+      </div>
+    </div>
+    <div class="cx-grid">
+      <div class="cx-card">
+        <div class="cx-card-h"><h3 id="h-exmk">Older debt, market by market</h3></div>
+        <p class="cx-note">31 to 90 days past due. Not planned in advance and not sized per market, so a consistency check: positive everywhere, least certain in the UAE and Mexico.</p>
+        <div class="cx-ivl" id="ex-markets" data-source="experiment_markets"></div>
+      </div>
+      <div class="cx-card">
+        <div class="cx-card-h"><h3 id="h-clean">Is the test clean?</h3></div>
+        <div class="cx-hb" id="ex-split" data-source="experiment_summary"></div>
+        <p class="cx-note" id="ex-split-note" data-source="experiment_summary"></p>
       </div>
     </div>
   </section>
 
-  <section class="ca-sec" id="experiment">
-    <h2>Agent v4.3 test: affordability first negotiation</h2>
-    <div class="ca-exp">
-      <div class="ca-tile">
-        <span class="lbl">All debt (primary metric)</span>
-        <span class="big dash-skeleton" data-source="experiment_results" data-field="difference" data-where="metric_id=rec60" data-fmt="pts">&nbsp;</span>
-        <span class="sub" id="ci-rec60">&nbsp;</span>
-      </div>
-      <div class="ca-tile">
-        <span class="lbl">31 to 90 days past due</span>
-        <span class="big dash-skeleton" data-source="experiment_results" data-field="difference" data-where="metric_id=rec60_31_90" data-fmt="pts">&nbsp;</span>
-        <span class="sub" id="ci-rec60_31_90">&nbsp;</span>
-      </div>
-      <div class="ca-tile">
-        <span class="lbl">0 to 30 days past due</span>
-        <span class="big dash-skeleton" data-source="experiment_results" data-field="difference" data-where="metric_id=rec60_0_30" data-fmt="pts">&nbsp;</span>
-        <span class="sub" id="ci-rec60_0_30">&nbsp;</span>
-      </div>
+  <section class="cx-panel" id="p-billing" role="tabpanel" aria-labelledby="t-billing" hidden>
+    <div class="cx-card-h"><p class="cx-lead">September invoices, built from the banks' own payment files and each contract's terms. Every invoice ties back to the files before it is written.</p>
+      <div class="cx-fgroup"><span class="cx-flabel">Show amounts in</span><div class="cx-seg" id="bl-cur" role="group" aria-label="Currency"></div></div></div>
+    <div class="cx-tiles" id="bl-tiles" data-source="invoices invoice_lines bank_files"></div>
+    <div class="cx-inv" id="bl-cards" data-source="invoices invoice_lines"></div>
+    <div class="cx-card">
+      <div class="cx-card-h"><h3 id="h-files">Fee base, file by file</h3><div class="cx-seg" id="bl-bank" role="group" aria-label="Bank"></div></div>
+      <p class="cx-note" id="bl-files-note"></p>
+      <div class="cx-chart" id="bl-files" data-source="bank_files" style="min-height:220px"></div>
     </div>
-    <p class="ca-dec">Change in the share of balance collected within 60 days, v4.3 minus v4.2. Overall the interval still includes zero. Split the way we agreed before the test, older debt gains clearly and the newest debt does not. Going live for 31 to 90 days past due is worth about
-      <b class="dash-skeleton" data-source="experiment_value" data-field="extra_collected_per_month_eur" data-row="0" data-fmt="eur">&nbsp;</b>
-      more collected within 60 days for each month of placements.</p>
-    <div class="ca-grid">
-      <div class="ca-card" id="intervals">
-        <h3>Every metric, with its 95% interval</h3>
-        <p class="ca-note">Percentage points, v4.3 minus v4.2. Right of zero means v4.3 is higher. Promises jump, but the money moves far less than the promise rate suggests.</p>
-        <div class="ca-ivl" id="ivl" data-source="experiment_results"></div>
-      </div>
-      <div class="ca-card" id="arms">
-        <h3>Collected by day, each arm</h3>
-        <p class="ca-note">Share of placed balance, accounts placed 15 June to 31 July.</p>
-        <div class="ca-grid" style="--cds-gap-md: var(--cds-gap-sm)">
-          <div><p class="ca-note">0 to 30 days past due</p><div class="ca-chart small" id="arm-a" data-source="experiment_curves"></div></div>
-          <div><p class="ca-note">31 to 90 days past due</p><div class="ca-chart small" id="arm-b" data-source="experiment_curves"></div></div>
-        </div>
-      </div>
-    </div>
-    <div class="ca-card" id="exp-markets">
-      <h3>Older debt, market by market</h3>
-      <p class="ca-note">Recovery within 60 days for accounts 31 to 90 days past due. Not planned in advance and not sized per market, so this is a consistency check: positive everywhere, least certain in the UAE and Mexico.</p>
-      <div class="ca-tbl">
-        <table id="mkt-table" data-source="older_debt_by_market" data-row-key="bank">
-          <thead><tr>
-            <th data-field="bank">Bank</th>
-            <th data-field="accounts">Accounts</th>
-            <th data-field="control">v4.2</th>
-            <th data-field="treatment">v4.3</th>
-            <th data-field="difference">Difference</th>
-            <th data-field="ci_low">95% low</th>
-            <th data-field="ci_high">95% high</th>
-          </tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-    <p class="ca-note">Split check: accounts were assigned
-      <span class="dash-skeleton" data-source="experiment_split" data-field="control" data-where="stage=assigned" data-fmt="int">&nbsp;</span> to v4.2 and
-      <span class="dash-skeleton" data-source="experiment_split" data-field="treatment" data-where="stage=assigned" data-fmt="int">&nbsp;</span> to v4.3, too uneven for a 50/50 split (p =
-      <span class="dash-skeleton" data-source="experiment_split" data-field="split_p_value" data-where="stage=assigned" data-fmt="p">&nbsp;</span>). A Lumen deploy sent every new account to v4.2 from 20 to 23 July, so those
-      <span class="dash-skeleton" data-source="experiment_value" data-field="excluded_accounts" data-row="0" data-fmt="int">&nbsp;</span> accounts are left out. After that the split is fine (p =
-      <span class="dash-skeleton" data-source="experiment_split" data-field="split_p_value" data-where="stage=analysed" data-fmt="p2">&nbsp;</span>). Before the test, random splits of June accounts showed the smallest lift it could reliably detect was
-      <span class="dash-skeleton" data-source="experiment_value" data-field="minimum_detectable_effect_points" data-row="0" data-fmt="ptsraw">&nbsp;</span>.</p>
   </section>
 
-  <section class="ca-sec" aria-label="Invoices and data checks">
-    <div class="ca-card" id="invoices">
-      <h3>September invoices</h3>
-      <p class="ca-note">Success fee base is net money in the bank's own payment files dated in September. Each invoice is worked out in the contract currency and converted once at the 30 September rate.</p>
-      <div class="ca-tbl">
-        <table id="inv-table" data-source="invoices" data-row-key="invoice_number">
-          <thead><tr>
-            <th data-field="invoice_number">Invoice</th>
-            <th data-field="client_name" class="l">Bank</th>
-            <th data-field="success_fee_base">Fee base</th>
-            <th data-field="correction">Correction</th>
-            <th data-field="total_invoice_currency">Total</th>
-            <th data-field="total_eur">In EUR</th>
-          </tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
+  <section class="cx-panel" id="p-quality" role="tabpanel" aria-labelledby="t-quality" hidden>
+    <p class="cx-lead">Each check is a query that returns the rows breaking a rule, run on every build. An error stops the run; a warning is known and handled.</p>
+    <div class="cx-tiles" id="dq-tiles" data-source="checks cube_calls duplicate_file_days weekend_fx_impact"></div>
+    <div class="cx-card">
+      <div class="cx-card-h"><h3 id="h-checks">Data checks</h3><input class="cx-search" id="dq-search" type="search" placeholder="Search checks" aria-label="Search checks"></div>
+      <div class="cx-tbl" id="dq-table" data-source="checks"></div>
     </div>
-    <div class="ca-card" id="checks">
-      <h3>Data checks</h3>
-      <p class="ca-note"><span class="dash-skeleton" data-source="checks_summary" data-field="passed" data-row="0">&nbsp;</span> passed,
-        <span class="dash-skeleton" data-source="checks_summary" data-field="warnings" data-row="0">&nbsp;</span> warning,
-        <span class="dash-skeleton" data-source="checks_summary" data-field="failed" data-row="0">&nbsp;</span> failed. Each check returns the rows that break a rule; a warning is known and handled.</p>
-      <div class="ca-tbl" style="max-height: 26rem; overflow: auto">
-        <table id="chk-table" data-source="checks" data-row-key="check">
-          <thead><tr>
-            <th data-field="check">Check</th>
-            <th data-field="status" class="l">Result</th>
-            <th data-field="rows_found">Rows</th>
-            <th data-field="what_it_checks" class="l">What it checks</th>
-          </tr></thead>
-          <tbody></tbody>
-        </table>
+    <div class="cx-grid">
+      <div class="cx-card">
+        <div class="cx-card-h"><h3 id="h-dup">A bank file loaded twice</h3></div>
+        <p class="cx-note" id="dq-dup-note" data-source="duplicate_file_days"></p>
+        <div class="cx-legend" id="dq-dup-legend"></div>
+        <div class="cx-chart" id="dq-dup" data-source="duplicate_file_days" style="min-height:220px"></div>
+      </div>
+      <div class="cx-card">
+        <div class="cx-card-h"><h3 id="h-fx">Weekend payments missing from euro totals</h3></div>
+        <p class="cx-note">Share of each bank's money that the first version dropped, because ECB rates are only published on weekdays. Fixed by carrying the last rate forward over weekends and holidays.</p>
+        <div class="cx-hb" id="dq-fx" data-source="weekend_fx_impact markets"></div>
       </div>
     </div>
   </section>
 </div>
 
 <script>
-dash.calc('monthly_totals', {
-  inputs: ['client_month'],
-  title: 'All banks by month',
-  description: 'Euros collected and first instalments kept, added up across the four banks for each month.',
-  fn: (client_month) => {
-    const by = {};
-    for (const r of client_month) {
-      const m = r.month;
-      if (!by[m]) by[m] = { month: m, net_collected_eur: 0, first_instalments_due: 0, first_instalments_kept: 0 };
-      const due = Number(r.first_instalments_due) || 0;
-      by[m].net_collected_eur += Number(r.net_collected_eur) || 0;
-      by[m].first_instalments_due += due;
-      by[m].first_instalments_kept += Math.round((Number(r.promise_kept_rate) || 0) * due);
-    }
-    return Object.values(by).map(o => ({
-      month: o.month,
-      net_collected_eur: Math.round(o.net_collected_eur * 100) / 100,
-      first_instalments_due: o.first_instalments_due,
-      first_instalments_kept: o.first_instalments_kept,
-      promise_kept_rate: o.first_instalments_due ? o.first_instalments_kept / o.first_instalments_due : null
-    }));
-  }
-});
-
-dash.calc('rec60_change', {
-  inputs: ['cohort_recovery'],
-  title: '60 day recovery, July against June',
-  description: 'All banks: share of balance collected within 60 days, July cohort minus June cohort.',
-  fn: (cohort_recovery) => {
-    const at = m => Number(cohort_recovery.find(r => r.client_id === 'ALL' && r.placed_month === m && Number(r.days_since_placement) === 60).recovery_rate);
-    return at('2026-07') - at('2026-06');
-  }
-});
-
-dash.calc('kept_change', {
-  inputs: ['monthly_totals'],
-  title: 'First instalments kept, September against August',
-  description: 'All banks: share of first instalments kept in September minus August.',
-  fn: (monthly_totals) => {
-    const at = m => monthly_totals.find(r => r.month === m).promise_kept_rate;
-    return at('2026-09') - at('2026-08');
-  }
-});
-
-dash.calc('invoice_total', {
-  inputs: ['invoices'],
-  title: 'September invoices in euros',
-  description: 'The four September invoices added up, each converted to euros at the 30 September rate.',
-  fn: (invoices) => Math.round(invoices.reduce((s, r) => s + Number(r.total_eur), 0) * 100) / 100
-});
-
-dash.calc('funnel_steps', {
-  inputs: ['funnel'],
-  title: 'Funnel steps',
-  description: 'Each step as a share of accounts placed, and the share lost since the step before, per bank.',
-  fn: (funnel) => {
-    const steps = ['accounts_placed', 'called', 'reached', 'agreed_to_pay', 'paid_something', 'paid_in_full'];
-    const out = [];
-    for (const r of funnel.filter(r => r.dpd_bucket === 'ALL')) {
-      const placed = Number(r.accounts_placed);
-      steps.forEach((s, i) => {
-        const v = Number(r[s]);
-        const prev = i ? Number(r[steps[i - 1]]) : null;
-        out.push({ client_id: r.client_id, step: s, accounts: v, share_of_placed: v / placed,
-                   lost_from_previous: prev ? 1 - v / prev : null });
-      });
-    }
-    return out;
-  }
-});
-
-dash.calc('checks_summary', {
-  inputs: ['checks'],
-  title: 'Checks by result',
-  description: 'How many data checks passed, warned or failed on the last run.',
-  fn: (checks) => [{
-    passed: checks.filter(r => r.status === 'pass').length,
-    warnings: checks.filter(r => r.status === 'warn').length,
-    failed: checks.filter(r => r.status === 'fail').length
-  }]
-});
-
 (function () {
-  const BANKS = [['C01', 'Northgate Bank'], ['C02', 'Desert Finance'], ['C03', 'Banco Meridia'], ['C04', 'Lumen Pay']];
-  const MONTHS = [['2026-06', 'June'], ['2026-07', 'July'], ['2026-08', 'August'], ['2026-09', 'September']];
-  const MINUS = '−';
-  const pct = d3.format('.1%');
-  const int = d3.format(',');
-  const eurC = new Intl.NumberFormat('en', { style: 'currency', currency: 'EUR', notation: 'compact', maximumFractionDigits: 1 });
-  const eur0 = new Intl.NumberFormat('en', { maximumFractionDigits: 0 });
-  const signed = (v, d = 1) => (v > 0 ? '+' : v < 0 ? MINUS : '') + Math.abs(v).toFixed(d);
-  const pts = v => signed(v * 100) + ' pts';
-  const monthName = m => (MONTHS.find(x => x[0] === m) || [m, m])[1];
-  const state = { cohort: '2026-07', funnelBank: 'ALL', tableBank: 'ALL' };
+  /* ---------- basics ---------- */
+  var MINUS = '−';
+  var TABS = [['overview', 'Overview'], ['contact', 'Contact'], ['conversations', 'Conversations'], ['payments', 'Promises and payments'],
+              ['experiment', 'Agent v4.3 test'], ['billing', 'Billing'], ['quality', 'Data quality']];
+  var FILTERED = { overview: 1, contact: 1, conversations: 1, payments: 1 };
+  var DPD = [['all', 'All'], ['0_30', '0 to 30'], ['31_60', '31 to 60'], ['61_90', '61 to 90']];
+  var DPD_NAME = { '0_30': '0 to 30 days', '31_60': '31 to 60 days', '61_90': '61 to 90 days' };
+  var MONTHS = [['all', 'All'], ['2026-06', 'Jun'], ['2026-07', 'Jul'], ['2026-08', 'Aug'], ['2026-09', 'Sep']];
+  var MONTH_NAME = { '2026-06': 'June', '2026-07': 'July', '2026-08': 'August', '2026-09': 'September' };
+  var LANG = { ar: 'Arabic', en: 'English', hi: 'Hindi', es: 'Spanish', ca: 'Catalan', 'es-MX': 'Spanish' };
+  var CODES = ['C01', 'C02', 'C03', 'C04'];
+  var S = { tab: 'overview', markets: CODES.slice(), dpd: 'all', month: 'all', compare: 'month', hourMode: 'adjusted',
+            agent: 'v4.2', group: 'market', age: '31 to 90 days', cur: 'invoice', bank: 'C01', sort: { key: null, dir: -1 },
+            hidden: {}, search: '' };
 
-  const FMT = {
-    eur: v => eurC.format(v), eurabs: v => eurC.format(Math.abs(v)), pct: v => pct(v), int: v => int(v),
-    pts: v => pts(v), ptsraw: v => Number(v).toFixed(1) + ' pts',
-    p: v => (v < 0.0001 ? 'below 0.0001' : Number(Number(v).toPrecision(2)).toString()), p2: v => Number(v).toFixed(2),
-    ptsdelta: v => pts(v)
-  };
-
-  function ok(id) { return dash.data(id).status === 'ok'; }
-  function rows(id) { return ok(id) ? dash.data(id).data : []; }
-  function failedLine(el) {
-    el.textContent = '';
-    const s = document.createElement('span'); s.className = 'ca-fail';
-    const i = document.createElement('i'); s.append(i, document.createTextNode('Failed to load'));
-    el.append(s);
+  var C = dash.colors;
+  var MCOL = { C01: C[0], C02: C[1], C03: C[2], C04: C[3] };
+  var fmtInt = d3.format(','), fmtPct = d3.format('.1%'), fmtPct0 = d3.format('.0%');
+  var numC = new Intl.NumberFormat('en-GB', { notation: 'compact', maximumFractionDigits: 1 });
+  var eurC = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'EUR', notation: 'compact', maximumFractionDigits: 1 });
+  var eur0 = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+  function money(v, cur, compact) {
+    var out;
+    try { out = new Intl.NumberFormat('en-GB', { style: 'currency', currency: cur, notation: compact ? 'compact' : 'standard', maximumFractionDigits: compact ? 1 : 2 }).format(Math.abs(v)); }
+    catch (e) { out = cur + ' ' + d3.format(',.2f')(Math.abs(v)); }
+    return (v < 0 ? MINUS : '') + out;
   }
-  function settled(id) { const st = dash.data(id).status; return st === 'ok' || st === 'error' || st === 'missing'; }
-
-  function parseWhere(w) {
-    const o = {};
-    (w || '').split('&').forEach(p => { if (!p) return; const [k, v] = p.split('='); o[decodeURIComponent(k)] = decodeURIComponent(v); });
-    return o;
+  function sgn(v, d) { d = d == null ? 1 : d; var a = Math.abs(v).toFixed(d); return (v > 0 ? '+' : v < 0 ? MINUS : '') + a; }
+  function pts(v) { return sgn(v * 100) + ' pts'; }
+  function N(v) { var n = +v; return isFinite(n) ? n : 0; }
+  function rows(id) { var d = dash.data(id); return d.status === 'ok' && Array.isArray(d.data) ? d.data : []; }
+  function status(id) { return dash.data(id).status; }
+  function sum(arr, k) { var t = 0; for (var i = 0; i < arr.length; i++) t += N(typeof k === 'function' ? k(arr[i]) : arr[i][k]); return t; }
+  function div(a, b) { return b ? a / b : null; }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function $(id) { return document.getElementById(id); }
+  function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); return n; }
+  function mname(code) { var m = rows('markets').find(function (r) { return r.client_id === code; }); return m ? m.client_name : code; }
+  function mkt(code) { var m = rows('markets').find(function (r) { return r.client_id === code; }); return m ? m.market : code; }
+  var probe;
+  function resolve(color) {
+    if (!probe) { probe = el('span'); probe.style.display = 'none'; $('cx').appendChild(probe); }
+    probe.style.color = ''; probe.style.color = color; return getComputedStyle(probe).color;
   }
-  function lookup(el) {
-    const id = el.dataset.source.split(' ')[0];
-    const d = dash.data(id);
-    if (d.status !== 'ok') return { status: d.status };
-    let v = d.data;
-    if (Array.isArray(v)) {
-      let row;
-      if (el.dataset.row != null) row = v[Number(el.dataset.row)];
-      else if (el.dataset.where) { const w = parseWhere(el.dataset.where); row = v.find(r => Object.keys(w).every(k => String(r[k]) === w[k])); }
-      v = row && el.dataset.field ? row[el.dataset.field] : undefined;
-    } else if (el.dataset.field && v && typeof v === 'object') v = v[el.dataset.field];
-    return { status: 'ok', value: v };
+  function failed(node, ids) {
+    var bad = ids.filter(function (id) { var s = status(id); return s === 'error' || s === 'missing' || s === 'connect' || s === 'declined'; });
+    if (!bad.length) return false;
+    clear(node); var f = el('div', 'cx-fail'); f.append(el('i'), document.createTextNode('Failed to load')); node.appendChild(f); return true;
+  }
+  function waiting(ids) { return ids.some(function (id) { return status(id) === 'loading'; }); }
+
+  /* ---------- filters ---------- */
+  function inFilter(r, opt) {
+    opt = opt || {};
+    if (r.client_id && S.markets.indexOf(r.client_id) < 0) return false;
+    if (!opt.noDpd && S.dpd !== 'all' && r.dpd_bucket && r.dpd_bucket !== S.dpd) return false;
+    if (!opt.noMonth && S.month !== 'all' && r.placed_month && r.placed_month !== S.month) return false;
+    return true;
+  }
+  function filtered(id, opt) { return rows(id).filter(function (r) { return inFilter(r, opt); }); }
+  function filterText() {
+    var parts = [];
+    parts.push(S.markets.length === 4 ? 'all markets' : S.markets.map(mkt).join(', '));
+    if (S.dpd !== 'all') parts.push(DPD_NAME[S.dpd] + ' past due');
+    if (S.month !== 'all') parts.push('placed in ' + MONTH_NAME[S.month]);
+    return parts.join(' · ');
   }
 
-  // Single values marked in the markup
-  function fillValues() {
-    document.querySelectorAll('.ca [data-source]').forEach(el => {
-      if (el.tagName === 'TABLE' || el.classList.contains('ca-chart') || el.classList.contains('ca-legend') || el.classList.contains('ca-hb') || el.id === 'ivl') return;
-      const r = lookup(el);
-      if (r.status !== 'ok') { if (settled(el.dataset.source.split(' ')[0])) el.classList.remove('dash-skeleton'); if (r.status === 'error') el.textContent = ''; return; }
-      el.classList.remove('dash-skeleton');
-      if (r.value == null || r.value === '') { el.textContent = ''; return; }
-      const n = Number(r.value);
-      const f = FMT[el.dataset.fmt];
-      el.textContent = f && !Number.isNaN(n) ? f(n) : String(r.value);
-      if (el.dataset.fmt === 'ptsdelta') { el.classList.toggle('ca-up', n > 0); el.classList.toggle('ca-down', n < 0); }
+  function seg(holder, options, key, after) {
+    var h = $(holder);
+    if (!h.childElementCount) options.forEach(function (o) {
+      var b = el('button', null, o[1]); b.type = 'button'; b.dataset.v = o[0];
+      b.addEventListener('click', function () { S[key] = o[0]; if (after) after(); render(); });
+      h.appendChild(b);
     });
-    for (const id of ['rec60', 'rec60_31_90', 'rec60_0_30']) {
-      const el = document.getElementById('ci-' + id);
-      const r = rows('experiment_results').find(x => x.metric_id === id);
-      if (!r) { el.textContent = ' '; continue; }
-      const lo = Number(r.ci_low), hi = Number(r.ci_high), p = Number(r.p_value);
-      el.textContent = `95% interval ${signed(lo * 100)} to ${signed(hi * 100)} pts, ${p < 0.0001 ? 'p below 0.0001' : 'p = ' + Number(p.toPrecision(2))}. ` +
-        (lo > 0 ? 'Clear gain.' : hi < 0 ? 'Clear loss.' : 'Includes zero.');
-    }
+    Array.prototype.forEach.call(h.children, function (b) { b.setAttribute('aria-pressed', String(b.dataset.v === S[key])); });
   }
 
-  function chips(holderId, items, key, onPick) {
-    const holder = document.getElementById(holderId);
-    if (!holder.childElementCount) {
-      items.forEach(([v, label]) => {
-        const b = document.createElement('button');
-        b.type = 'button'; b.className = 'ca-chip'; b.textContent = label; b.dataset.v = v;
-        b.addEventListener('click', () => { state[key] = v; onPick(); });
-        holder.append(b);
+  function drawTabs() {
+    var nav = $('tabs');
+    if (!nav.childElementCount) TABS.forEach(function (t) {
+      var b = el('button', 'cx-tab', t[1]); b.type = 'button'; b.id = 't-' + t[0]; b.setAttribute('role', 'tab'); b.dataset.tab = t[0];
+      b.addEventListener('click', function () { go(t[0]); });
+      nav.appendChild(b);
+    });
+    Array.prototype.forEach.call(nav.children, function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === S.tab)); });
+    TABS.forEach(function (t) { $('p-' + t[0]).hidden = t[0] !== S.tab; });
+  }
+  function go(tab) {
+    S.tab = tab;
+    try { if (dash.setLink) dash.setLink('p-' + tab); } catch (e) {}
+    render();
+  }
+
+  function drawFilters() {
+    var f = $('filters');
+    if (!f.childElementCount) {
+      var g1 = el('div', 'cx-fgroup'); g1.appendChild(el('span', 'cx-flabel', 'Market'));
+      var all = el('button', 'cx-chip', 'All'); all.type = 'button'; all.id = 'f-all';
+      all.addEventListener('click', function () { S.markets = CODES.slice(); render(); });
+      g1.appendChild(all);
+      CODES.forEach(function (c) {
+        var b = el('button', 'cx-chip'); b.type = 'button'; b.dataset.v = c; b.id = 'f-' + c;
+        var sw = el('i'); sw.style.background = MCOL[c]; b.append(sw, el('span'));
+        b.addEventListener('click', function () {
+          var on = S.markets.indexOf(c) >= 0;
+          if (S.markets.length === 4) S.markets = [c];
+          else if (on && S.markets.length > 1) S.markets = S.markets.filter(function (x) { return x !== c; });
+          else if (!on) S.markets = CODES.filter(function (x) { return x === c || S.markets.indexOf(x) >= 0; });
+          render();
+        });
+        g1.appendChild(b);
       });
+      var g2 = el('div', 'cx-fgroup'); g2.appendChild(el('span', 'cx-flabel', 'Days past due')); var s2 = el('div', 'cx-seg'); s2.id = 'f-dpd'; s2.setAttribute('role', 'group'); g2.appendChild(s2);
+      var g3 = el('div', 'cx-fgroup'); g3.appendChild(el('span', 'cx-flabel', 'Placed')); var s3 = el('div', 'cx-seg'); s3.id = 'f-month'; s3.setAttribute('role', 'group'); g3.appendChild(s3);
+      var reset = el('button', 'cx-reset', 'Reset'); reset.type = 'button'; reset.id = 'f-reset';
+      reset.addEventListener('click', function () { S.markets = CODES.slice(); S.dpd = 'all'; S.month = 'all'; render(); });
+      var note = el('span', 'cx-fnote'); note.id = 'f-note';
+      f.append(g1, g2, g3, reset, note);
     }
-    holder.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === state[key])));
+    seg('f-dpd', DPD, 'dpd'); seg('f-month', MONTHS, 'month');
+    $('f-all').setAttribute('aria-pressed', String(S.markets.length === 4));
+    CODES.forEach(function (c) {
+      var b = $('f-' + c); b.lastChild.textContent = mkt(c);
+      b.setAttribute('aria-pressed', String(S.markets.length < 4 && S.markets.indexOf(c) >= 0));
+    });
+    var on = !!FILTERED[S.tab];
+    f.dataset.off = String(!on);
+    $('f-note').textContent = on ? '' : 'Filters apply to Overview, Contact, Conversations and Promises and payments.';
   }
 
-  function tip(container) {
-    let t = container.querySelector('.ca-tip');
-    if (!t) { t = document.createElement('div'); t.className = 'ca-tip'; t.hidden = true; container.append(t); }
+  /* ---------- small building blocks ---------- */
+  function tipFor(container) {
+    var t = container.querySelector(':scope > .cx-tip');
+    if (!t) { t = el('div', 'cx-tip'); t.hidden = true; container.appendChild(t); }
     return t;
   }
-
-  // Recovery curves by cohort
-  function drawCohort() {
-    chips('cohort-chips', MONTHS, 'cohort', drawCohort);
-    const el = document.getElementById('cohort-chart');
-    const legend = document.getElementById('cohort-legend');
-    el.querySelectorAll('svg').forEach(n => n.remove());
-    legend.textContent = '';
-    const st = dash.data('cohort_recovery').status;
-    if (st === 'error') { failedLine(el); return; }
-    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
-    el.classList.remove('dash-skeleton');
-    el.querySelectorAll('.ca-fail').forEach(n => n.remove());
-    const data = rows('cohort_recovery').filter(r => r.placed_month === state.cohort);
-    const series = [...BANKS, ['ALL', 'All banks']].map(([id, name], i) => ({
-      id, name, color: id === 'ALL' ? 'var(--color-fg)' : dash.colors[i],
-      pts: data.filter(r => r.client_id === id).map(r => ({ d: Number(r.days_since_placement), v: Number(r.recovery_rate) })).sort((a, b) => a.d - b.d)
-    })).filter(s => s.pts.length);
-    series.forEach(s => {
-      const last = s.pts[s.pts.length - 1];
-      const item = document.createElement('span');
-      const sw = document.createElement('i'); sw.style.background = s.color;
-      if (s.id === 'ALL') sw.style.height = '2px';
-      const b = document.createElement('b'); b.textContent = pct(last.v);
-      item.append(sw, document.createTextNode(s.name + ' '), b, document.createTextNode(` by day ${last.d}`));
-      legend.append(item);
+  function fillTip(t, title, lines) {
+    clear(t); if (title) t.appendChild(el('div', 't', title));
+    lines.forEach(function (ln) {
+      var r = el('div', 'r'); var a = el('span');
+      if (ln.color) { var i = el('i'); i.style.background = ln.color; a.appendChild(i); }
+      a.appendChild(document.createTextNode(ln.name)); r.appendChild(a); r.appendChild(el('b', null, ln.value)); t.appendChild(r);
     });
-    const W = el.clientWidth; if (!W || !series.length) return;
-    const H = 280, m = { t: 10, r: 12, b: 26, l: 40 };
-    const maxD = d3.max(series, s => d3.max(s.pts, p => p.d));
-    const x = d3.scaleLinear([1, Math.max(maxD, 2)], [m.l, W - m.r]);
-    const y = d3.scaleLinear([0, Math.max(0.1, d3.max(series, s => d3.max(s.pts, p => p.v)) * 1.08)], [H - m.b, m.t]).nice();
-    const svg = d3.select(el).insert('svg', ':first-child').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
-    svg.append('g').selectAll('line').data(y.ticks(5)).join('line')
-      .attr('x1', m.l).attr('x2', W - m.r).attr('y1', d => y(d)).attr('y2', d => y(d)).attr('stroke', 'var(--cds-chart-grid)');
-    svg.append('g').selectAll('text').data(y.ticks(5)).join('text')
-      .attr('x', m.l - 6).attr('y', d => y(d)).attr('dy', '0.32em').attr('text-anchor', 'end').text(d3.format('.0%'));
-    const xt = x.ticks(Math.max(2, Math.min(8, Math.floor(W / 70))));
-    svg.append('g').selectAll('text').data(xt).join('text')
-      .attr('x', d => x(d)).attr('y', H - 8).attr('text-anchor', 'middle').text(d => d === xt[xt.length - 1] ? `day ${d}` : d);
-    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', H - m.b).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-axis)');
-    const line = d3.line().x(p => x(p.d)).y(p => y(p.v));
-    series.forEach(s => svg.append('path').attr('d', line(s.pts)).attr('fill', 'none').attr('stroke', s.color)
-      .attr('stroke-width', s.id === 'ALL' ? 2 : 2).attr('stroke-dasharray', s.id === 'ALL' ? '5 4' : null)
-      .attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round'));
-    const rule = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-reference)').style('display', 'none');
-    const dots = svg.append('g');
-    const t = tip(el);
-    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).attr('fill', 'transparent')
-      .on('mousemove', (ev) => {
-        const [mx] = d3.pointer(ev);
-        const d = Math.max(1, Math.min(maxD, Math.round(x.invert(mx))));
-        rule.style('display', null).attr('x1', x(d)).attr('x2', x(d));
-        const at = series.map(s => ({ s, p: s.pts.find(p => p.d === d) })).filter(o => o.p);
-        dots.selectAll('circle').data(at).join('circle').attr('cx', o => x(o.p.d)).attr('cy', o => y(o.p.v)).attr('r', 4)
-          .attr('fill', o => o.s.color).attr('stroke', 'var(--color-panel)').attr('stroke-width', 2);
-        t.textContent = '';
-        const head = document.createElement('div'); head.className = 't'; head.textContent = `${monthName(state.cohort)} cohort, day ${d}`; t.append(head);
-        at.forEach(o => { const r = document.createElement('div'); r.className = 'r'; const i = document.createElement('i'); i.style.background = o.s.color; r.append(i, document.createTextNode(`${o.s.name}  ${pct(o.p.v)}`)); t.append(r); });
-        t.hidden = false;
-        const tw = t.offsetWidth;
-        t.style.left = Math.min(Math.max(0, x(d) + 12), W - tw) + 'px';
-        t.style.top = '8px';
-      })
-      .on('mouseleave', () => { rule.style('display', 'none'); dots.selectAll('circle').remove(); t.hidden = true; });
+    t.hidden = false;
   }
-
-  // Funnel
-  const STEP_NAMES = { accounts_placed: 'Placed', called: 'Called', reached: 'Reached the customer', agreed_to_pay: 'Agreed to pay', paid_something: 'Paid something', paid_in_full: 'Paid in full' };
-  function drawFunnel() {
-    chips('funnel-chips', [['ALL', 'All banks'], ...BANKS.map(([id, n]) => [id, n.split(' ')[0] === 'Banco' ? 'Meridia' : n.split(' ')[0]])], 'funnelBank', drawFunnel);
-    const el = document.getElementById('funnel-steps');
-    el.textContent = '';
-    const st = dash.data('funnel_steps').status;
-    if (st === 'error' || dash.data('funnel').status === 'error') { failedLine(el); return; }
-    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
-    el.classList.remove('dash-skeleton');
-    const steps = rows('funnel_steps').filter(r => r.client_id === state.funnelBank);
-    const worst = d3.max(steps, s => s.lost_from_previous || 0);
-    const where = `client_id=${state.funnelBank}&dpd_bucket=ALL`;
-    steps.forEach((s, i) => {
-      if (i) {
-        const loss = document.createElement('div');
-        loss.className = 'ca-loss' + (s.lost_from_previous === worst ? ' worst' : '');
-        const v = document.createElement('span');
-        v.dataset.source = 'funnel_steps'; v.dataset.field = 'lost_from_previous'; v.dataset.where = `client_id=${s.client_id}&step=${s.step}`;
-        v.textContent = pct(Math.abs(s.lost_from_previous));
-        if (s.lost_from_previous < 0) loss.append(document.createTextNode('↑ '), v, document.createTextNode(' more: some customers pay without agreeing first'));
-        else loss.append(document.createTextNode('↓ '), v, document.createTextNode(' lost'));
-        const row0 = document.createElement('div'); row0.className = 'ca-step';
-        row0.append(document.createElement('span'), loss);
-        el.append(row0);
+  function placeTip(t, container, x, y) {
+    var w = container.clientWidth, tw = t.offsetWidth, th = t.offsetHeight;
+    var left = x + 14; if (left + tw > w) left = Math.max(0, x - tw - 14);
+    t.style.left = left + 'px'; t.style.top = Math.max(0, y - th / 2) + 'px';
+  }
+  function legend(holder, items, chartKey) {
+    var h = $(holder); clear(h);
+    items.forEach(function (it) {
+      var hid = chartKey && S.hidden[chartKey] && S.hidden[chartKey][it.key];
+      var b = el(chartKey ? 'button' : 'span');
+      var sw = el('i', it.line ? 'line' : null);
+      if (it.dashed) { sw.style.background = 'repeating-linear-gradient(90deg,' + it.color + ' 0 4px, transparent 4px 7px)'; } else sw.style.background = it.color;
+      b.append(sw, document.createTextNode(it.name));
+      if (chartKey) {
+        b.type = 'button'; b.setAttribute('aria-pressed', String(!hid));
+        b.addEventListener('click', function () { var m = S.hidden[chartKey] = S.hidden[chartKey] || {}; m[it.key] = !m[it.key]; render(); });
       }
-      const row = document.createElement('div'); row.className = 'ca-step';
-      const name = document.createElement('span'); name.className = 'name'; name.textContent = STEP_NAMES[s.step];
-      const bar = document.createElement('div'); bar.className = 'ca-bar';
-      const fill = document.createElement('i');
-      fill.style.width = (s.share_of_placed * 100) + '%';
-      fill.style.setProperty('--ca-fill', dash.colors[0]);
-      const lab = document.createElement('span');
-      lab.style.left = `min(${s.share_of_placed * 100}%, calc(100% - 8.5rem))`;
-      const n = document.createElement('span'); n.dataset.source = 'funnel'; n.dataset.field = s.step; n.dataset.where = where; n.textContent = int(s.accounts);
-      const sh = document.createElement('span'); sh.dataset.source = 'funnel_steps'; sh.dataset.field = 'share_of_placed'; sh.dataset.where = `client_id=${s.client_id}&step=${s.step}`; sh.textContent = pct(s.share_of_placed);
-      lab.append(n, document.createTextNode(i ? '  ·  ' : ''), i ? sh : document.createTextNode(''));
-      bar.append(fill, lab);
-      row.append(name, bar);
-      el.append(row);
+      h.appendChild(b);
     });
   }
+  function isHidden(chartKey, key) { return !!(S.hidden[chartKey] && S.hidden[chartKey][key]); }
 
-  // Monthly table
-  function drawMonthTable() {
-    chips('month-chips', [['ALL', 'All banks'], ...BANKS.map(([id, n]) => [id, n])], 'tableBank', drawMonthTable);
-    const tb = document.querySelector('#month-table tbody');
-    tb.textContent = '';
-    const st = dash.data('client_month').status;
-    if (st !== 'ok') { const tr = tb.insertRow(); const td = tr.insertCell(); td.colSpan = 9; td.style.minHeight = '3rem'; if (st === 'error') failedLine(td); return; }
-    const r = rows('client_month').filter(x => state.tableBank === 'ALL' || x.client_id === state.tableBank);
-    const P = v => (v === '' || v == null) ? 'n/a' : pct(Number(v));
-    r.forEach(x => {
-      const tr = tb.insertRow(); tr.dataset.key = `${x.client_id},${x.month}`;
-      const cells = [x.client_name, monthName(x.month), int(+x.accounts_placed), int(+x.calls), P(x.rpc_rate_per_call), P(x.promise_rate), P(x.paid_on_call_rate), P(x.promise_kept_rate), eur0.format(+x.net_collected_eur)];
-      cells.forEach(c => { tr.insertCell().textContent = c; });
+  function sparkline(svgHolder, values, active) {
+    var W = 120, H = 26, p = 3;
+    var pts_ = values.map(function (v, i) { return { i: i, v: v }; }).filter(function (d) { return d.v != null; });
+    var svg = d3.select(svgHolder).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', '0 0 ' + W + ' ' + H).attr('preserveAspectRatio', 'none');
+    if (pts_.length < 1) return;
+    var ext = d3.extent(pts_, function (d) { return d.v; }); if (ext[0] === ext[1]) { ext[0] -= 1e-9; ext[1] += 1e-9; }
+    var x = d3.scaleLinear([0, values.length - 1], [p, W - p]), y = d3.scaleLinear(ext, [H - p, p]);
+    svg.append('path').attr('d', d3.line().x(function (d) { return x(d.i); }).y(function (d) { return y(d.v); })(pts_))
+      .attr('fill', 'none').attr('stroke', 'var(--cds-chart-muted)').attr('stroke-width', 1.5).attr('vector-effect', 'non-scaling-stroke');
+    pts_.forEach(function (d) {
+      svg.append('circle').attr('cx', x(d.i)).attr('cy', y(d.v)).attr('r', d.i === active ? 3 : 1.6)
+        .attr('fill', d.i === active ? C[0] : 'var(--cds-chart-muted)');
     });
   }
-
-  // Interval chart
-  function drawIntervals() {
-    const el = document.getElementById('ivl');
-    el.textContent = '';
-    const st = dash.data('experiment_results').status;
-    if (st === 'error') { failedLine(el); return; }
-    if (st !== 'ok') { el.classList.add('dash-skeleton'); el.style.minHeight = '18rem'; return; }
-    el.classList.remove('dash-skeleton'); el.style.minHeight = '';
-    const r = rows('experiment_results');
-    const lo = Math.min(0, d3.min(r, x => +x.ci_low)) * 100, hi = Math.max(0, d3.max(r, x => +x.ci_high)) * 100;
-    const sc = d3.scaleLinear([lo, hi], [0, 100]).nice();
-    const pos = v => sc(v * 100) + '%';
-    const ticks = sc.ticks(5);
-    const KIND = { primary: 'Primary', 'by debt age': 'Agreed split', secondary: 'Secondary', guardrail: 'Guardrail' };
-    r.forEach(x => {
-      const row = document.createElement('div'); row.className = 'ca-ivl-row';
-      const m = document.createElement('div'); m.className = 'm';
-      const nm = x.metric.replace(' (primary)', '').replace(' (guardrail)', '');
-      const small = document.createElement('small'); small.textContent = KIND[x.kind] || '';
-      m.append(document.createTextNode(nm), small);
-      const tr = document.createElement('div'); tr.className = 'ca-track';
-      const good = +x.ci_low > 0 || +x.ci_high < 0;
-      const color = x.kind === 'guardrail' ? 'var(--cds-chart-muted)' : (good ? dash.colors[0] : 'var(--cds-chart-muted)');
-      tr.style.setProperty('--ca-c', color);
-      ticks.forEach(t => { const g = document.createElement('i'); g.className = 'grid'; g.style.left = sc(t) + '%'; tr.append(g); });
-      const z = document.createElement('i'); z.className = 'zero'; z.style.left = sc(0) + '%'; tr.append(z);
-      const ci = document.createElement('i'); ci.className = 'ci'; ci.style.left = pos(+x.ci_low); ci.style.width = `calc(${pos(+x.ci_high)} - ${pos(+x.ci_low)})`; tr.append(ci);
-      const dot = document.createElement('i'); dot.className = 'dot'; dot.style.left = pos(+x.difference); tr.append(dot);
-      const v = document.createElement('div'); v.className = 'v';
-      const dv = document.createElement('span'); dv.dataset.source = 'experiment_results'; dv.dataset.field = 'difference'; dv.dataset.where = `metric_id=${x.metric_id}`; dv.textContent = pts(+x.difference);
-      const sm = document.createElement('small'); sm.textContent = `${signed(+x.ci_low * 100)} to ${signed(+x.ci_high * 100)}`;
-      v.append(dv, sm);
-      row.append(m, tr, v);
-      el.append(row);
-    });
-    const axisRow = document.createElement('div'); axisRow.className = 'ca-ivl-row ca-axis-row';
-    const ax = document.createElement('div'); ax.className = 'ca-axis';
-    ticks.forEach(t => { const s = document.createElement('span'); s.style.left = sc(t) + '%'; s.textContent = t === 0 ? '0' : signed(t, 0); ax.append(s); });
-    axisRow.append(document.createElement('div'), ax, document.createElement('div'));
-    el.append(axisRow);
+  function tile(holder, label, value, sub, spark, active, subClass) {
+    var t = el('div', 'cx-tile'); t.appendChild(el('span', 'l', label)); t.appendChild(el('span', 'v', value));
+    var s = el('span', 's' + (subClass ? ' ' + subClass : ''), sub || ' '); t.appendChild(s);
+    if (spark) { var sp = el('div'); t.appendChild(sp); sparkline(sp, spark, active); }
+    $(holder).appendChild(t);
   }
 
-  // Arms over time
-  function drawArm(id, group) {
-    const el = document.getElementById(id);
-    el.querySelectorAll('svg, .ca-fail').forEach(n => n.remove());
-    const st = dash.data('experiment_curves').status;
-    if (st === 'error') { failedLine(el); return; }
-    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
-    el.classList.remove('dash-skeleton');
-    const r = rows('experiment_curves').filter(x => x.age_group === group);
-    const arms = [['control', 'v4.2', 'var(--cds-chart-muted)'], ['treatment', 'v4.3', dash.colors[0]]].map(([v, label, color]) => ({
-      v, label, color, pts: r.filter(x => x.variant === v).map(x => ({ d: +x.day, y: +x.recovery })).sort((a, b) => a.d - b.d)
-    }));
-    const W = el.clientWidth; if (!W) return;
-    const H = 200;
-    const svg = d3.select(el).insert('svg', ':first-child').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
-    const labels = arms.map(a => `${a.label} ${pct(a.pts[a.pts.length - 1].y)}`);
-    const probe = svg.append('text').text(labels.reduce((a, b) => a.length > b.length ? a : b));
-    const lw = probe.node().getComputedTextLength(); probe.remove();
-    const m = { t: 8, r: lw + 10, b: 22, l: 34 };
-    const x = d3.scaleLinear([1, 60], [m.l, W - m.r]);
-    const y = d3.scaleLinear([0, 0.6], [H - m.b, m.t]);
-    svg.append('g').selectAll('line').data(y.ticks(3)).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', d => y(d)).attr('y2', d => y(d)).attr('stroke', 'var(--cds-chart-grid)');
-    svg.append('g').selectAll('text').data(y.ticks(3)).join('text').attr('x', m.l - 6).attr('y', d => y(d)).attr('dy', '0.32em').attr('text-anchor', 'end').text(d3.format('.0%'));
-    svg.append('g').selectAll('text').data([1, 30, 60]).join('text').attr('x', d => x(d)).attr('y', H - 6).attr('text-anchor', 'middle').text(d => d === 60 ? 'day 60' : d);
+  /* Line chart with a hover crosshair and labels at the line ends */
+  function lineChart(node, o) {
+    var tip = tipFor(node);
+    Array.prototype.slice.call(node.childNodes).forEach(function (c) { if (c !== tip) node.removeChild(c); });
+    tip.hidden = true;
+    var series = o.series.filter(function (s) { return s.points.length; });
+    var W = node.clientWidth || 600, H = o.height || 260;
+    if (!series.length) { node.appendChild(el('div', 'cx-fail', 'No accounts in this filter')); return; }
+    var svg = d3.select(node).insert('svg', ':first-child').attr('width', '100%').attr('height', H).attr('viewBox', '0 0 ' + W + ' ' + H);
+    var yf = o.yFmt || fmtPct0, vf = o.valFmt || fmtPct;
+    var labels = series.map(function (s) { return s.name + ' ' + vf(s.points[s.points.length - 1].y); });
+    var probeT = svg.append('text').attr('class', 'ink');
+    var lw = 0; labels.forEach(function (l) { probeT.text(l); lw = Math.max(lw, probeT.node().getComputedTextLength()); }); probeT.remove();
+    var showEnd = W > 420 && series.length <= 6;
+    var m = { t: 10, r: showEnd ? lw + 14 : 14, b: 24, l: 40 };
+    var xMax = o.xMax || d3.max(series, function (s) { return d3.max(s.points, function (p) { return p.x; }); });
+    var xMin = o.xMin == null ? 1 : o.xMin;
+    var yMax = o.yMax || d3.max(series, function (s) { return d3.max(s.points, function (p) { return p.y; }); }) * 1.08 || 1;
+    var x = d3.scaleLinear([xMin, xMax], [m.l, W - m.r]);
+    var y = d3.scaleLinear([0, yMax], [H - m.b, m.t]).nice();
+    var yt = y.ticks(5);
+    svg.append('g').selectAll('line').data(yt).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y).attr('y2', y).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(yt).join('text').attr('x', m.l - 6).attr('y', y).attr('dy', '0.32em').attr('text-anchor', 'end').text(yf);
+    var xt = o.xTicks || x.ticks(Math.max(2, Math.min(9, Math.floor((W - m.l - m.r) / 70))));
+    svg.append('g').selectAll('text').data(xt).join('text').attr('x', x).attr('y', H - 6).attr('text-anchor', 'middle')
+      .text(function (d, i) { return i === xt.length - 1 && o.xLast ? o.xLast(d) : (o.xFmt ? o.xFmt(d) : d); });
     svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', H - m.b).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-axis)');
-    const line = d3.line().x(p => x(p.d)).y(p => y(p.y));
-    const ends = arms.map(a => y(a.pts[a.pts.length - 1].y));
-    if (Math.abs(ends[0] - ends[1]) < 14) { const mid = (ends[0] + ends[1]) / 2; const up = ends[0] < ends[1] ? 0 : 1; ends[up] = mid - 7; ends[1 - up] = mid + 7; }
-    arms.forEach((a, i) => {
-      svg.append('path').attr('d', line(a.pts)).attr('fill', 'none').attr('stroke', a.color).attr('stroke-width', 2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
-      svg.append('text').attr('x', W - m.r + 6).attr('y', ends[i]).attr('dy', '0.32em').style('fill', 'var(--color-fg)').text(labels[i]);
+    var line = d3.line().x(function (p) { return x(p.x); }).y(function (p) { return y(p.y); });
+    series.forEach(function (s) {
+      svg.append('path').attr('d', line(s.points)).attr('fill', 'none').attr('stroke', s.color).attr('stroke-width', s.width || 2)
+        .attr('stroke-dasharray', s.dashed ? '5 4' : null).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
     });
+    if (showEnd) {
+      var ends = series.map(function (s, i) { var p = s.points[s.points.length - 1]; return { i: i, y: y(p.y), x: x(p.x), text: labels[i] }; })
+        .sort(function (a, b) { return a.y - b.y; });
+      for (var k = 1; k < ends.length; k++) if (ends[k].y - ends[k - 1].y < 13) ends[k].y = ends[k - 1].y + 13;
+      var over = ends.length ? ends[ends.length - 1].y - (H - m.b) : 0;
+      if (over > 0) ends.forEach(function (e) { e.y -= over; });
+      ends.forEach(function (e) { svg.append('text').attr('class', 'ink').attr('x', W - m.r + 6).attr('y', e.y).attr('dy', '0.32em').text(e.text); });
+    }
+    var rule = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-reference)').style('display', 'none');
+    var dots = svg.append('g');
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', Math.max(0, W - m.l - m.r)).attr('height', H - m.t - m.b).attr('fill', 'transparent')
+      .on('mousemove', function (ev) {
+        var px = d3.pointer(ev)[0], xv = Math.round(x.invert(px));
+        xv = Math.max(xMin, Math.min(xMax, xv));
+        var at = series.map(function (s) { var p = s.points.find(function (q) { return q.x === xv; }); return p ? { s: s, p: p } : null; }).filter(Boolean);
+        if (!at.length) return;
+        rule.style('display', null).attr('x1', x(xv)).attr('x2', x(xv));
+        dots.selectAll('circle').data(at).join('circle').attr('cx', function (d) { return x(d.p.x); }).attr('cy', function (d) { return y(d.p.y); })
+          .attr('r', 4).attr('fill', function (d) { return d.s.color; }).attr('stroke', 'var(--color-panel)').attr('stroke-width', 2);
+        var lines = at.slice().sort(function (a, b) { return b.p.y - a.p.y; }).map(function (d) { return { name: d.s.name, value: (d.s.tipFmt || vf)(d.p.y, d.p), color: d.s.color }; });
+        if (o.tipExtra) lines = lines.concat(o.tipExtra(xv, at));
+        fillTip(tip, o.tipTitle ? o.tipTitle(xv) : String(xv), lines);
+        placeTip(tip, node, x(xv), d3.pointer(ev)[1]);
+      })
+      .on('mouseleave', function () { rule.style('display', 'none'); dots.selectAll('circle').remove(); tip.hidden = true; });
   }
 
-  // Tables: invoices and checks
-  function drawInvoices() {
-    const tb = document.querySelector('#inv-table tbody'); tb.textContent = '';
-    const st = dash.data('invoices').status;
-    if (st !== 'ok') { const td = tb.insertRow().insertCell(); td.colSpan = 6; if (st === 'error') failedLine(td); return; }
-    const n2 = new Intl.NumberFormat('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    rows('invoices').forEach(x => {
-      const tr = tb.insertRow();
-      const c = Number(x.correction);
-      [x.invoice_number, x.client_name, `${x.contract_currency} ${n2.format(+x.success_fee_base)}`,
-       c ? `${x.contract_currency} ${c < 0 ? MINUS : ''}${n2.format(Math.abs(c))}` : 'None',
-       `${x.invoice_currency} ${n2.format(+x.total_invoice_currency)}`, n2.format(+x.total_eur)]
-        .forEach((v, i) => { const td = tr.insertCell(); td.textContent = v; if (i === 1) td.className = 'l'; });
+  /* Vertical stacked columns (absolute or 100%) */
+  function columns(node, o) {
+    var tip = tipFor(node);
+    Array.prototype.slice.call(node.childNodes).forEach(function (c) { if (c !== tip) node.removeChild(c); });
+    tip.hidden = true;
+    var W = node.clientWidth || 500, H = o.height || 230;
+    var keys = o.keys.filter(function (k) { return !isHidden(o.chartKey, k.key); });
+    var data = o.cats.map(function (c) {
+      var tot = 0, parts = keys.map(function (k) { var v = N(o.value(c.key, k.key)); tot += v; return { k: k, v: v }; });
+      return { c: c, parts: parts, tot: tot, all: o.keys.reduce(function (a, k) { return a + N(o.value(c.key, k.key)); }, 0) };
     });
-  }
-  function drawChecks() {
-    const tb = document.querySelector('#chk-table tbody'); tb.textContent = '';
-    const st = dash.data('checks').status;
-    if (st !== 'ok') { const td = tb.insertRow().insertCell(); td.colSpan = 4; if (st === 'error') failedLine(td); return; }
-    const order = { fail: 0, warn: 1, pass: 2 };
-    rows('checks').slice().sort((a, b) => order[a.status] - order[b.status]).forEach(x => {
-      const tr = tb.insertRow();
-      tr.insertCell().textContent = x.check;
-      const s = tr.insertCell(); s.className = 'l';
-      const pill = document.createElement('span'); pill.className = 'ca-pill ' + x.status;
-      pill.textContent = x.status === 'pass' ? 'Pass' : x.status === 'warn' ? 'Warning' : 'Failed';
-      s.append(pill);
-      tr.insertCell().textContent = int(+x.rows_found);
-      const w = tr.insertCell(); w.className = 'wrap'; w.textContent = x.what_it_checks;
-    });
-  }
-
-  // Markets table
-  function drawScorecard() {
-    const tb = document.querySelector('#score-table tbody'); tb.textContent = '';
-    const st = dash.data('market_scorecard').status;
-    if (st !== 'ok') { const td = tb.insertRow().insertCell(); td.colSpan = 10; if (st === 'error') failedLine(td); return; }
-    const MK = { GB: 'UK', AE: 'UAE', ES: 'Spain', MX: 'Mexico' };
-    rows('market_scorecard').forEach(x => {
-      const tr = tb.insertRow();
-      [x.bank, MK[x.country] || x.country, int(+x.accounts), pct(+x.reach_rate), (+x.calls_to_reach).toFixed(1), pct(+x.promise_rate),
-       pct(+x.paid_on_call_rate), pct(+x.first_instalment_kept), pct(+x.recovery_30d), pct(+x.dispute_rate)]
-        .forEach((v, i) => { const td = tr.insertCell(); td.textContent = v; if (i === 1) td.className = 'l'; });
-    });
-  }
-
-  function hbRow(holder, key, value, max, fill, label, small, mark, ref) {
-    const row = document.createElement('div'); row.className = 'ca-hb-row';
-    const k = document.createElement('span'); k.className = 'k'; k.textContent = key;
-    const tr = document.createElement('div'); tr.className = 'ca-hb-track';
-    const bar = document.createElement('i'); bar.style.width = Math.max(0, Math.min(1, value / max)) * 100 + '%'; bar.style.setProperty('--ca-fill', fill);
-    tr.append(bar);
-    if (ref != null) { const r = document.createElement('b'); r.style.left = (ref / max) * 100 + '%'; tr.append(r); }
-    const v = document.createElement('span'); v.className = 'v';
-    const vv = document.createElement('span'); Object.assign(vv.dataset, mark); vv.textContent = label;
-    v.append(vv);
-    if (small) { const sm = document.createElement('small'); sm.textContent = '  ' + small; v.append(sm); }
-    row.append(k, tr, v);
-    holder.append(row);
-  }
-
-  function drawHindi() {
-    const el = document.getElementById('hindi-bars'); el.textContent = '';
-    const st = dash.data('uae_languages').status;
-    if (st === 'error') { failedLine(el); return; }
-    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
-    el.classList.remove('dash-skeleton');
-    const r = rows('uae_languages');
-    const L = [['ar', 'Arabic'], ['en', 'English'], ['hi', 'Hindi']];
-    [['promise_to_pay_rate', 'Promise to pay'], ['callback_rate', 'Asked to call back'], ['refused_rate', 'Refused']].forEach(([f, title]) => {
-      const g = document.createElement('div'); g.className = 'ca-hb-group';
-      const t = document.createElement('div'); t.className = 'ca-hb-title'; t.textContent = title; g.append(t);
-      L.forEach(([code, name]) => {
-        const x = r.find(y => y.language === code); if (!x) return;
-        hbRow(g, name, +x[f], 0.5, code === 'hi' ? dash.colors[0] : 'var(--cds-chart-muted)', pct(+x[f]), null,
-              { source: 'uae_languages', field: f, where: `language=${code}` });
+    var svg = d3.select(node).insert('svg', ':first-child').attr('width', '100%').attr('height', H).attr('viewBox', '0 0 ' + W + ' ' + H);
+    var m = { t: 16, r: 8, b: 26, l: o.norm ? 40 : 52 };
+    var x = d3.scaleBand(o.cats.map(function (c) { return c.key; }), [m.l, W - m.r]).padding(0.28);
+    var ymax = o.norm ? 1 : (d3.max(data, function (d) { return d.tot; }) || 1) * 1.08;
+    var y = d3.scaleLinear([0, ymax], [H - m.b, m.t]).nice();
+    var yt = y.ticks(5);
+    svg.append('g').selectAll('line').data(yt).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y).attr('y2', y).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(yt).join('text').attr('x', m.l - 6).attr('y', y).attr('dy', '0.32em').attr('text-anchor', 'end').text(o.norm ? fmtPct0 : (o.yFmt || d3.format('~s')));
+    svg.append('g').selectAll('text').data(o.cats).join('text').attr('x', function (c) { return x(c.key) + x.bandwidth() / 2; }).attr('y', H - 8).attr('text-anchor', 'middle').text(function (c) { return c.label; });
+    var bw = Math.min(x.bandwidth(), 56);
+    data.forEach(function (d) {
+      var x0 = x(d.c.key) + (x.bandwidth() - bw) / 2, acc = 0;
+      var denom = o.norm ? (d.tot || 1) : 1;
+      d.parts.forEach(function (p, i) {
+        var v = p.v / denom; if (!v) return;
+        var y1 = y(acc), y2 = y(acc + v); acc += v;
+        svg.append('rect').attr('x', x0).attr('width', bw).attr('y', y2).attr('height', Math.max(0, y1 - y2 - (i < d.parts.length - 1 ? 1.5 : 0)))
+          .attr('rx', i === d.parts.length - 1 ? 3 : 0).attr('fill', p.k.color);
       });
-      el.append(g);
+      if (o.topLabel) svg.append('text').attr('class', 'ink').attr('x', x0 + bw / 2).attr('y', y(o.norm ? 1 : d.tot) - 5).attr('text-anchor', 'middle').text(o.topLabel(d));
+      svg.append('rect').attr('x', x(d.c.key)).attr('width', x.bandwidth()).attr('y', m.t).attr('height', H - m.t - m.b).attr('fill', 'transparent')
+        .on('mousemove', function (ev) {
+          var lines = d.parts.slice().reverse().map(function (p) { return { name: p.k.name, value: o.tipValue ? o.tipValue(p.v, d) : fmtInt(p.v), color: p.k.color }; });
+          if (o.tipTotal) lines.push({ name: 'Total', value: o.tipTotal(d) });
+          fillTip(tip, o.tipTitle ? o.tipTitle(d.c) : d.c.label, lines);
+          var pt = d3.pointer(ev, node); placeTip(tip, node, pt[0], pt[1]);
+        })
+        .on('mouseleave', function () { tip.hidden = true; });
     });
   }
 
-  function drawHours() {
-    const el = document.getElementById('hour-bars'); el.textContent = '';
-    const st = dash.data('call_hours').status;
-    if (st === 'error') { failedLine(el); return; }
-    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
-    el.classList.remove('dash-skeleton');
-    const g = document.createElement('div'); g.className = 'ca-hb-group';
-    rows('call_hours').slice().sort((a, b) => +a.local_hour - +b.local_hour).forEach(x => {
-      const v = +x.reach_vs_expected;
-      hbRow(g, `${String(x.local_hour).padStart(2, '0')}:00`, v, 1.5, v >= 1.1 ? dash.colors[0] : (v < 0.9 ? 'var(--cds-chart-status-critical)' : 'var(--cds-chart-muted)'),
-            v.toFixed(2), `${Math.round(+x.share_of_calls * 100)}% of calls`,
-            { source: 'call_hours', field: 'reach_vs_expected', where: `local_hour=${x.local_hour}` }, 1);
-    });
-    el.append(g);
-  }
-
-  function drawCallsVsReal() {
-    const el = document.getElementById('calls-chart');
-    el.querySelectorAll('svg, .ca-fail').forEach(n => n.remove());
-    const st = dash.data('calls_vs_real').status;
-    if (st === 'error') { failedLine(el); return; }
-    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
-    el.classList.remove('dash-skeleton');
-    const r = rows('calls_vs_real').map(x => ({ k: +x.call_number, sim: +x.simulated_vs_first_call, real: +x.real_vs_first_call })).sort((a, b) => a.k - b.k);
-    const W = el.clientWidth; if (!W || !r.length) return;
-    const H = 200;
-    const svg = d3.select(el).insert('svg', ':first-child').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
-    const last = r[r.length - 1];
-    const labels = [`our calls ${pct(last.sim)}`, `real bank calls ${pct(last.real)}`];
-    const probe = svg.append('text').text(labels[1]); const lw = probe.node().getComputedTextLength(); probe.remove();
-    const m = { t: 8, r: lw + 12, b: 22, l: 36 };
-    const x = d3.scaleLinear([1, last.k], [m.l, W - m.r]);
-    const y = d3.scaleLinear([0, 1.05], [H - m.b, m.t]);
-    svg.append('g').selectAll('line').data([0, 0.5, 1]).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', d => y(d)).attr('y2', d => y(d)).attr('stroke', 'var(--cds-chart-grid)');
-    svg.append('g').selectAll('text').data([0, 0.5, 1]).join('text').attr('x', m.l - 6).attr('y', d => y(d)).attr('dy', '0.32em').attr('text-anchor', 'end').text(d3.format('.0%'));
-    svg.append('g').selectAll('text').data(r.map(p => p.k).filter(k => k === 1 || k % 3 === 1 || k === last.k)).join('text')
-      .attr('x', d => x(d)).attr('y', H - 6).attr('text-anchor', 'middle').text(d => d === last.k ? `call ${d}` : d);
-    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', H - m.b).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-axis)');
-    const ends = [y(last.sim), y(last.real)];
-    if (Math.abs(ends[0] - ends[1]) < 14) { const mid = (ends[0] + ends[1]) / 2; const up = ends[0] < ends[1] ? 0 : 1; ends[up] = mid - 7; ends[1 - up] = mid + 7; }
-    [['sim', dash.colors[0]], ['real', 'var(--cds-chart-muted)']].forEach(([f, color], i) => {
-      svg.append('path').attr('d', d3.line().x(p => x(p.k)).y(p => y(p[f]))(r)).attr('fill', 'none').attr('stroke', color)
-        .attr('stroke-width', 2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
-      svg.append('text').attr('x', W - m.r + 6).attr('y', ends[i]).attr('dy', '0.32em').style('fill', 'var(--color-fg)').text(labels[i]);
+  /* Horizontal 100% stacked bars, one row per group */
+  function stackRows(holder, o) {
+    var h = $(holder); var tip = tipFor(h);
+    Array.prototype.slice.call(h.childNodes).forEach(function (c) { if (c !== tip) h.removeChild(c); });
+    tip.hidden = true;
+    o.rows.forEach(function (r) {
+      var row = el('div', 'cx-srow'); var k = el('span', 'k', r.label); k.title = r.label;
+      var bar = el('div', 'cx-sbar'); var tot = r.total || 0;
+      o.keys.forEach(function (key) {
+        var v = N(r.values[key.key]); if (!v || !tot) return;
+        var share = v / tot; var s = el('span', inkFor(key.color));
+        s.style.width = (share * 100) + '%'; s.style.background = key.color;
+        if (share >= 0.09) s.textContent = fmtPct0(share);
+        s.addEventListener('mousemove', function (ev) {
+          var lines = o.keys.map(function (kk) { var vv = N(r.values[kk.key]); return { name: kk.name, value: fmtPct(vv / tot) + '  ' + fmtInt(vv), color: kk.color }; });
+          fillTip(tip, r.label + ' · ' + fmtInt(tot) + ' ' + (o.unit || ''), lines);
+          var b = h.getBoundingClientRect(); placeTip(tip, h, ev.clientX - b.left, ev.clientY - b.top);
+        });
+        s.addEventListener('mouseleave', function () { tip.hidden = true; });
+        bar.appendChild(s);
+      });
+      row.append(k, bar, el('span', 'n', fmtInt(tot)));
+      h.insertBefore(row, tip);
     });
   }
 
-  function drawMarketExp() {
-    const tb = document.querySelector('#mkt-table tbody'); tb.textContent = '';
-    const st = dash.data('older_debt_by_market').status;
-    if (st !== 'ok') { const td = tb.insertRow().insertCell(); td.colSpan = 7; if (st === 'error') failedLine(td); return; }
-    const order = BANKS.map(b => b[1]);
-    rows('older_debt_by_market').slice().sort((a, b) => order.indexOf(a.bank) - order.indexOf(b.bank)).forEach(x => {
-      const tr = tb.insertRow();
-      [x.bank, int(+x.accounts), pct(+x.control), pct(+x.treatment), pts(+x.difference), pts(+x.ci_low), pts(+x.ci_high)]
-        .forEach(v => { tr.insertCell().textContent = v; });
+  function inkFor(color) {
+    var c = d3.color(resolve(color)); if (!c) return 'dk';
+    var lum = function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+    var L = 0.2126 * lum(c.r) + 0.7152 * lum(c.g) + 0.0722 * lum(c.b);
+    return L > 0.36 ? 'dk' : 'lt';
+  }
+
+  /* Horizontal bars with values on the right */
+  function hbars(holder, items, o) {
+    o = o || {}; var h = $(holder); clear(h);
+    var max = o.max || d3.max(items, function (d) { return d.value; }) || 1;
+    var group = null;
+    items.forEach(function (d) {
+      if (d.group && d.group !== group) { group = d.group; h.appendChild(el('div', 'cx-hgroup', group)); }
+      var row = el('div', 'cx-hrow'); var tr = el('div', 'cx-htrack'); var b = el('i');
+      b.style.width = Math.max(0, Math.min(1, d.value / max)) * 100 + '%'; b.style.background = d.color || C[0];
+      tr.appendChild(b);
+      if (o.ref != null) { var rf = el('b'); rf.style.left = (o.ref / max) * 100 + '%'; tr.appendChild(rf); }
+      var v = el('span', 'v'); v.appendChild(document.createTextNode(d.label)); if (d.small) { v.appendChild(el('small', null, '  ' + d.small)); }
+      row.append(el('span', 'k', d.name), tr, v);
+      h.appendChild(row);
     });
   }
 
-  dash.onData(() => {
-    fillValues();
-    drawCohort();
-    drawFunnel();
-    drawMonthTable();
-    drawIntervals();
-    drawArm('arm-a', '0 to 30 days');
-    drawArm('arm-b', '31 to 90 days');
-    drawInvoices();
-    drawChecks();
-    drawScorecard();
-    drawHindi();
-    drawHours();
-    drawCallsVsReal();
-    drawMarketExp();
-  });
+  /* Interval rows: dot and 95% interval against a zero line */
+  function intervals(holder, items) {
+    var h = $(holder); clear(h);
+    var lo = Math.min(0, d3.min(items, function (d) { return d.lo; })) * 100, hi = Math.max(0, d3.max(items, function (d) { return d.hi; })) * 100;
+    var sc = d3.scaleLinear([lo, hi], [0, 100]).nice(); var ticks = sc.ticks(5);
+    items.forEach(function (d) {
+      var row = el('div', 'cx-irow'); var m = el('div', 'm'); m.appendChild(document.createTextNode(d.name)); if (d.kind) m.appendChild(el('small', null, d.kind));
+      var tr = el('div', 'cx-itrack');
+      var clear_ = d.lo > 0 || d.hi < 0; var col = d.muted || !clear_ ? 'var(--cds-chart-muted)' : C[0];
+      ticks.forEach(function (t) { var g = el('i', 'g'); g.style.left = sc(t) + '%'; tr.appendChild(g); });
+      var z = el('i', 'z'); z.style.left = sc(0) + '%'; tr.appendChild(z);
+      var ci = el('i', 'ci'); ci.style.left = sc(d.lo * 100) + '%'; ci.style.width = (sc(d.hi * 100) - sc(d.lo * 100)) + '%'; ci.style.background = col; tr.appendChild(ci);
+      var dot = el('i', 'd'); dot.style.left = sc(d.v * 100) + '%'; dot.style.background = col; tr.appendChild(dot);
+      var v = el('div', 'v'); v.appendChild(document.createTextNode(pts(d.v))); v.appendChild(el('small', null, sgn(d.lo * 100) + ' to ' + sgn(d.hi * 100)));
+      row.append(m, tr, v); h.appendChild(row);
+    });
+    var ax = el('div', 'cx-irow cx-iaxisrow'); var axis = el('div', 'cx-iaxis');
+    ticks.forEach(function (t) { var s = el('span', null, t === 0 ? '0' : sgn(t, 0)); s.style.left = sc(t) + '%'; axis.appendChild(s); });
+    ax.append(el('div'), axis, el('div')); h.appendChild(ax);
+  }
+
+  /* Sortable table */
+  function table(holder, cols, data, o) {
+    o = o || {}; var h = $(holder); clear(h);
+    var t = el('table'); var thead = el('thead'); var hr = el('tr');
+    var sk = o.sortState;
+    cols.forEach(function (c) {
+      var th = el('th', c.left ? 'l' : null);
+      if (o.sortable && c.sort !== false) {
+        var b = el('button', null, c.name); b.type = 'button';
+        b.addEventListener('click', function () { if (sk.key === c.key) sk.dir = -sk.dir; else { sk.key = c.key; sk.dir = c.left ? 1 : -1; } render(); });
+        th.appendChild(b);
+        if (sk.key === c.key) th.setAttribute('aria-sort', sk.dir > 0 ? 'ascending' : 'descending');
+      } else th.textContent = c.name;
+      hr.appendChild(th);
+    });
+    thead.appendChild(hr); t.appendChild(thead);
+    var rowsData = data.slice();
+    if (o.sortable && sk.key) {
+      var col = cols.find(function (c) { return c.key === sk.key; });
+      rowsData.sort(function (a, b) { var va = col.sortValue ? col.sortValue(a) : a[sk.key], vb = col.sortValue ? col.sortValue(b) : b[sk.key];
+        if (va == null) return 1; if (vb == null) return -1; return (va > vb ? 1 : va < vb ? -1 : 0) * sk.dir; });
+    }
+    var tb = el('tbody');
+    rowsData.concat(o.total ? [o.total] : []).forEach(function (r, i) {
+      var tr = el('tr'); var isTotal = o.total && r === o.total;
+      if (isTotal) tr.className = 'total';
+      else if (o.onRow) { tr.className = 'click' + (o.isSel && o.isSel(r) ? ' sel' : ''); tr.addEventListener('click', function () { o.onRow(r); }); }
+      cols.forEach(function (c) {
+        var td = el('td', (c.left ? 'l' : '') + (c.wrap ? ' wrap' : ''));
+        var v = c.cell ? c.cell(r, isTotal) : r[c.key];
+        if (v instanceof Node) td.appendChild(v); else td.textContent = v == null ? '' : v;
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb); h.appendChild(t);
+  }
+  function cellBar(share, max, label, color) {
+    var w = el('span', 'cx-cellbar'); var tr = el('i'); var b = el('b');
+    b.style.width = Math.max(0, Math.min(1, share / max)) * 100 + '%'; b.style.background = color || C[0];
+    tr.appendChild(b); w.append(tr, el('span', null, label)); return w;
+  }
+
+  /* ---------- account level sums ---------- */
+  function agg(rs) {
+    var a = {};
+    ['accounts', 'balance_eur', 'voice_calls', 'called', 'messages', 'reached', 'calls_to_reach_sum', 'agreed', 'with_promise', 'paid_on_call',
+     'hardship', 'disputes', 'paid_any', 'paid_full', 'collected_eur', 'bal_d30', 'col_d30', 'bal_d60', 'col_d60', 'inst_due', 'inst_kept']
+      .forEach(function (k) { a[k] = sum(rs, k); });
+    a.reach = div(a.reached, a.accounts); a.toReach = div(a.calls_to_reach_sum, a.reached); a.agreeRate = div(a.agreed, a.reached);
+    a.kept = div(a.inst_kept, a.inst_due); a.rec30 = div(a.col_d30, a.bal_d30); a.rec60 = div(a.col_d60, a.bal_d60);
+    a.disputeRate = div(a.disputes, a.accounts); a.collectedShare = div(a.collected_eur, a.balance_eur);
+    return a;
+  }
+
+  /* ---------- OVERVIEW ---------- */
+  function drawOverview() {
+    var need = ['cube_accounts', 'markets', 'cube_curves', 'curve_cells'];
+    if (failed($('ov-tiles'), need) || waiting(need)) return;
+    var cur = agg(filtered('cube_accounts'));
+    var monthIdx = MONTHS.slice(1).map(function (m) { return m[0]; });
+    var byMonth = monthIdx.map(function (m) { return agg(filtered('cube_accounts', { noMonth: true }).filter(function (r) { return r.placed_month === m; })); });
+    var act = S.month === 'all' ? -1 : monthIdx.indexOf(S.month);
+    var h = clear($('ov-tiles'));
+    tile('ov-tiles', 'Balance placed', eurC.format(cur.balance_eur), fmtInt(cur.accounts) + ' accounts', byMonth.map(function (a) { return a.balance_eur; }), act);
+    tile('ov-tiles', 'Collected so far', eurC.format(cur.collected_eur), cur.collectedShare == null ? '' : fmtPct(cur.collectedShare) + ' of balance', byMonth.map(function (a) { return a.collected_eur; }), act);
+    tile('ov-tiles', 'Recovered within 30 days', cur.rec30 == null ? 'n/a' : fmtPct(cur.rec30), cur.rec30 == null ? 'Not 30 days old yet' : 'of balance, accounts 30+ days old', byMonth.map(function (a) { return a.rec30; }), act);
+    tile('ov-tiles', 'Customer reached', cur.reach == null ? 'n/a' : fmtPct(cur.reach), cur.toReach == null ? '' : d3.format('.1f')(cur.toReach) + ' calls to reach on average', byMonth.map(function (a) { return a.reach; }), act);
+    tile('ov-tiles', 'Agreed to pay', cur.agreeRate == null ? 'n/a' : fmtPct(cur.agreeRate), 'of customers reached', byMonth.map(function (a) { return a.agreeRate; }), act);
+    tile('ov-tiles', 'First instalment kept', cur.kept == null ? 'n/a' : fmtPct(cur.kept), 'first promise per account, ' + fmtInt(cur.inst_due) + ' due', byMonth.map(function (a) { return a.kept; }), act);
+
+    var lead = clear($('ov-lead'));
+    lead.appendChild(document.createTextNode('Showing ' + filterText() + '. '));
+    var lb = el('b', null, fmtInt(cur.accounts) + ' accounts'); lead.appendChild(lb);
+    lead.appendChild(document.createTextNode(' worth ' + eurC.format(cur.balance_eur) + ' were placed; '));
+    lead.appendChild(el('b', null, eurC.format(cur.collected_eur)));
+    lead.appendChild(document.createTextNode(' has come back so far. Small charts under each figure run June to September by placement month.'));
+
+    seg('ov-compare', [['month', 'By month'], ['market', 'By market'], ['dpd', 'By debt age']], 'compare');
+    drawCurves();
+    drawFunnel(cur);
+    drawMarketTable();
+  }
+
+  function curveSeries(selector, name, color, key) {
+    var cells = rows('curve_cells').filter(selector);
+    if (!cells.length) return null;
+    var info = {}; cells.forEach(function (c) { info[c.client_id + '|' + c.placed_month + '|' + c.dpd_bucket] = { bal: N(c.balance_eur), max: N(c.max_day) }; });
+    var maxDay = d3.max(cells, function (c) { return N(c.max_day); });
+    var num = new Array(maxDay + 1).fill(0), den = new Array(maxDay + 1).fill(0);
+    rows('cube_curves').forEach(function (r) {
+      var k = info[r.client_id + '|' + r.placed_month + '|' + r.dpd_bucket]; if (!k) return;
+      var d = N(r.day); if (d > k.max) return;
+      num[d] += N(r.cum_eur); den[d] += k.bal;
+    });
+    var points = []; for (var d = 1; d <= maxDay; d++) if (den[d] > 0) points.push({ x: d, y: num[d] / den[d] });
+    return { key: key, name: name, color: color, points: points };
+  }
+  function drawCurves() {
+    var series = [];
+    var base = function (c) { return S.markets.indexOf(c.client_id) >= 0 && (S.dpd === 'all' || c.dpd_bucket === S.dpd) && (S.month === 'all' || c.placed_month === S.month); };
+    if (S.compare === 'month') {
+      MONTHS.slice(1).forEach(function (m, i) {
+        if (S.month !== 'all' && S.month !== m[0]) return;
+        var s = curveSeries(function (c) { return S.markets.indexOf(c.client_id) >= 0 && (S.dpd === 'all' || c.dpd_bucket === S.dpd) && c.placed_month === m[0]; },
+          MONTH_NAME[m[0]], [C[0], C[1], C[2], C[3]][i], m[0]);
+        if (s) series.push(s);
+      });
+    } else if (S.compare === 'market') {
+      S.markets.forEach(function (code) {
+        var s = curveSeries(function (c) { return base(c) && c.client_id === code; }, mkt(code), MCOL[code], code);
+        if (s) series.push(s);
+      });
+    } else {
+      ['0_30', '31_60', '61_90'].forEach(function (b, i) {
+        if (S.dpd !== 'all' && S.dpd !== b) return;
+        var s = curveSeries(function (c) { return S.markets.indexOf(c.client_id) >= 0 && c.dpd_bucket === b && (S.month === 'all' || c.placed_month === S.month); },
+          DPD_NAME[b], [C[0], C[1], C[2]][i], b);
+        if (s) series.push(s);
+      });
+    }
+    legend('ov-curve-legend', series.map(function (s) { return { key: s.key, name: s.name, color: s.color, line: true }; }), 'curve-' + S.compare);
+    lineChart($('ov-curve'), {
+      series: series.filter(function (s) { return !isHidden('curve-' + S.compare, s.key); }), height: 300, xMax: 90,
+      xTicks: [1, 15, 30, 45, 60, 75, 90], xLast: function (d) { return 'day ' + d; },
+      tipTitle: function (d) { return 'Day ' + d + ' after placement'; }
+    });
+  }
+
+  function drawFunnel(a) {
+    var h = clear($('ov-funnel'));
+    var steps = [['Placed', a.accounts], ['Called', a.called], ['Reached the customer', a.reached], ['Agreed to pay', a.agreed],
+                 ['Paid something', a.paid_any], ['Paid in full', a.paid_full]];
+    var losses = steps.map(function (s, i) { return i ? 1 - div(s[1], steps[i - 1][1]) : 0; });
+    var worst = d3.max(losses);
+    steps.forEach(function (s, i) {
+      if (i) {
+        var r0 = el('div', 'cx-fstep'); var l = losses[i];
+        var txt = l < 0 ? '↑ ' + fmtPct(-l) + ' more: some pay without agreeing first' : '↓ ' + fmtPct(l) + ' lost';
+        r0.append(el('span'), el('div', 'cx-floss' + (l === worst && l > 0 ? ' worst' : ''), txt)); h.appendChild(r0);
+      }
+      var r = el('div', 'cx-fstep'); var bar = el('div', 'cx-fbar'); var b = el('i'); var share = div(s[1], a.accounts) || 0;
+      b.style.width = share * 100 + '%'; b.style.background = C[0];
+      var lab = el('span', null, fmtInt(s[1]) + (i ? ' · ' + fmtPct(share) : ''));
+      if (share > 0.6) { lab.style.right = (100 - share * 100) + '%'; lab.style.paddingRight = '8px'; lab.style.color = '#fff'; }
+      else lab.style.left = share * 100 + '%';
+      bar.append(b, lab); r.append(el('span', null, s[0]), bar); h.appendChild(r);
+    });
+  }
+
+  function drawMarketTable() {
+    var byM = CODES.map(function (code) {
+      var a = agg(rows('cube_accounts').filter(function (r) { return r.client_id === code && (S.dpd === 'all' || r.dpd_bucket === S.dpd) && (S.month === 'all' || r.placed_month === S.month); }));
+      a.code = code; a.name = mname(code); a.market = mkt(code); return a;
+    });
+    var tot = agg(filtered('cube_accounts')); tot.name = S.markets.length === 4 ? 'All markets' : 'Selected markets'; tot.market = '';
+    var maxRec = d3.max(byM, function (a) { return a.rec30 || 0; }) || 1;
+    var P = function (v) { return v == null ? 'n/a' : fmtPct(v); };
+    table('ov-table', [
+      { key: 'name', name: 'Bank', left: true, cell: function (r, t) { if (t) return r.name; var s = el('span'); var d = el('span', 'cx-dot'); d.style.background = MCOL[r.code]; s.append(d, document.createTextNode(r.name)); return s; } },
+      { key: 'market', name: 'Market', left: true },
+      { key: 'accounts', name: 'Accounts', cell: function (r) { return fmtInt(r.accounts); } },
+      { key: 'balance_eur', name: 'Balance', cell: function (r) { return eurC.format(r.balance_eur); } },
+      { key: 'reach', name: 'Reached', cell: function (r) { return P(r.reach); } },
+      { key: 'toReach', name: 'Calls to reach', cell: function (r) { return r.toReach == null ? 'n/a' : r.toReach.toFixed(1); } },
+      { key: 'agreeRate', name: 'Agreed to pay', cell: function (r) { return P(r.agreeRate); } },
+      { key: 'kept', name: 'First instalment kept', cell: function (r) { return P(r.kept); } },
+      { key: 'rec30', name: 'Recovered in 30 days', cell: function (r, t) { return r.rec30 == null ? 'n/a' : t ? fmtPct(r.rec30) : cellBar(r.rec30, maxRec, fmtPct(r.rec30), MCOL[r.code]); } },
+      { key: 'rec60', name: 'In 60 days', cell: function (r) { return P(r.rec60); } },
+      { key: 'disputeRate', name: 'Disputes', cell: function (r) { return P(r.disputeRate); } }
+    ], byM, {
+      sortable: true, sortState: S.sort, total: tot,
+      onRow: function (r) { S.markets = (S.markets.length === 1 && S.markets[0] === r.code) ? CODES.slice() : [r.code]; render(); },
+      isSel: function (r) { return S.markets.length < 4 && S.markets.indexOf(r.code) >= 0; }
+    });
+  }
+
+  /* ---------- CONTACT ---------- */
+  var OUTCOMES = [
+    { key: 'right_party', name: 'Reached the customer', color: C[0], ink: 'light' },
+    { key: 'wrong_party', name: 'Wrong person', color: C[1], ink: 'light' },
+    { key: 'invalid_number', name: 'Invalid number', color: C[6], ink: 'light' },
+    { key: 'no_answer', name: 'No answer or voicemail', color: 'var(--cds-chart-muted)', ink: 'dark' }
+  ];
+  function drawContact() {
+    var need = ['cube_calls', 'cube_accounts', 'cube_messages', 'cube_hours', 'cube_attempts', 'real_bank_calls', 'checks', 'markets'];
+    if (failed($('ct-tiles'), need) || waiting(need)) return;
+    var calls = filtered('cube_calls'), acc = agg(filtered('cube_accounts')), msgs = filtered('cube_messages');
+    var totalCalls = sum(calls, 'calls'), rpc = sum(calls.filter(function (r) { return r.outcome === 'right_party'; }), 'calls');
+    var chk = rows('checks').find(function (r) { return r.check === 'calls_within_permitted_hours'; });
+    var hol = rows('checks').find(function (r) { return r.check === 'no_calls_on_public_holidays'; });
+    clear($('ct-tiles'));
+    tile('ct-tiles', 'Calls made', numC.format(totalCalls), fmtInt(totalCalls) + ' voice calls');
+    tile('ct-tiles', 'Calls per account', acc.accounts ? (totalCalls / acc.accounts).toFixed(1) : 'n/a', fmtInt(acc.accounts) + ' accounts');
+    tile('ct-tiles', 'Calls per conversation', rpc ? (totalCalls / rpc).toFixed(1) : 'n/a', fmtPct(div(rpc, totalCalls) || 0) + ' of calls reach the customer');
+    tile('ct-tiles', 'Customer reached', acc.reach == null ? 'n/a' : fmtPct(acc.reach), 'of accounts, at least once');
+    tile('ct-tiles', 'Outside calling hours', chk ? fmtInt(N(chk.rows_found)) : 'n/a', (hol ? fmtInt(N(hol.rows_found)) + ' on public holidays, ' : '') + 'every call checked', null, null, chk && N(chk.rows_found) === 0 ? 'up' : 'down');
+    tile('ct-tiles', 'Messages sent', numC.format(sum(msgs, 'messages')), fmtPct(div(sum(msgs.filter(function (r) { return r.outcome === 'failed'; }), 'messages'), sum(msgs, 'messages')) || 0) + ' failed to deliver');
+
+    legend('ct-out-legend', OUTCOMES, null);
+    var groups = S.markets.map(function (code) { return { label: mname(code), rs: calls.filter(function (r) { return r.client_id === code; }) }; });
+    if (S.markets.length > 1) groups.push({ label: S.markets.length === 4 ? 'All markets' : 'Selected', rs: calls });
+    stackRows('ct-outcomes', {
+      keys: OUTCOMES, unit: 'calls',
+      rows: groups.map(function (g) {
+        var v = {}; OUTCOMES.forEach(function (o) { v[o.key] = 0; });
+        g.rs.forEach(function (r) { var k = r.outcome === 'voicemail' ? 'no_answer' : r.outcome; v[k] = (v[k] || 0) + N(r.calls); });
+        return { label: g.label, values: v, total: sum(g.rs, 'calls') };
+      })
+    });
+
+    // attempts
+    var att = rows('cube_attempts').filter(function (r) { return S.markets.indexOf(r.client_id) >= 0; });
+    var real = rows('real_bank_calls');
+    var r1 = real.find(function (r) { return N(r.call_number) === 1; });
+    var series = S.markets.map(function (code) {
+      var rs = att.filter(function (r) { return r.client_id === code; });
+      var c1 = rs.find(function (r) { return N(r.call_number) === 1; }); var p1 = c1 ? N(c1.first_reached) / N(c1.calls) : 1;
+      return { key: code, name: mkt(code), color: MCOL[code], points: rs.filter(function (r) { return N(r.call_number) <= 10; }).map(function (r) { return { x: N(r.call_number), y: (N(r.first_reached) / N(r.calls)) / p1, raw: N(r.first_reached) / N(r.calls) }; }),
+               tipFmt: function (v, p) { return fmtPct0(v) + ' (' + fmtPct(p.raw) + ')'; } };
+    });
+    series.push({ key: 'real', name: 'Real bank calls', color: 'var(--color-fg-muted)', dashed: true, width: 1.6,
+      points: real.filter(function (r) { return N(r.call_number) <= 10; }).map(function (r) { return { x: N(r.call_number), y: N(r.chance_this_call_works) / N(r1.chance_this_call_works), raw: N(r.chance_this_call_works) }; }),
+      tipFmt: function (v, p) { return fmtPct0(v) + ' (' + fmtPct(p.raw) + ')'; } });
+    legend('ct-att-legend', series.map(function (s) { return { key: s.key, name: s.name, color: s.color, line: true, dashed: s.dashed }; }), 'attempts');
+    lineChart($('ct-attempts'), { series: series.filter(function (s) { return !isHidden('attempts', s.key); }), height: 250, xMax: 10, yMax: 1.05,
+      xTicks: [1, 2, 4, 6, 8, 10], xLast: function (d) { return 'call ' + d; }, valFmt: fmtPct0,
+      tipTitle: function (d) { return 'Call ' + d + ' (chance in brackets)'; } });
+    var late = att.filter(function (r) { return N(r.call_number) >= 7; });
+    var note = $('ct-att-note');
+    note.textContent = 'Calls 7 to 12 use ' + fmtPct(div(sum(late, 'minutes'), sum(att, 'minutes')) || 0) + ' of the minutes spent before reaching someone and produce ' +
+      fmtPct(div(sum(late, 'first_reached'), sum(att, 'first_reached')) || 0) + ' of first conversations. Worth testing a WhatsApp link after the sixth unanswered call.';
+
+    drawHeat();
+
+    // messages
+    var ch = [['sms', 'SMS'], ['whatsapp', 'WhatsApp'], ['email', 'Email']];
+    var items = ch.map(function (c) {
+      var rs = msgs.filter(function (r) { return r.channel === c[0]; }); var n = sum(rs, 'messages');
+      var failedN = sum(rs.filter(function (r) { return r.outcome === 'failed'; }), 'messages');
+      var read = sum(rs.filter(function (r) { return r.outcome === 'read'; }), 'messages');
+      return { name: c[1], value: n, label: fmtInt(n), small: n ? (c[0] === 'whatsapp' ? fmtPct0(read / n) + ' read' : fmtPct(failedN / n) + ' failed') : '', color: C[0] };
+    }).filter(function (d) { return d.value > 0; });
+    hbars('ct-messages', items);
+  }
+
+  function drawHeat() {
+    seg('ct-hour-mode', [['adjusted', 'Against expected'], ['raw', 'Raw reach rate']], 'hourMode');
+    var hrs = rows('cube_hours').filter(function (r) { return S.markets.indexOf(r.client_id) >= 0; });
+    var base = {}; d3.rollup(hrs, function (v) { return sum(v, 'reached') / sum(v, 'calls'); }, function (r) { return r.call_number; }).forEach(function (v, k) { base[k] = v; });
+    var hours = d3.range(8, 21);
+    var groups = S.markets.map(function (c) { return { label: mkt(c), rs: hrs.filter(function (r) { return r.client_id === c; }) }; });
+    if (S.markets.length > 1) groups.push({ label: S.markets.length === 4 ? 'All' : 'Selected', rs: hrs });
+    var adj = S.hourMode === 'adjusted';
+    var cells = groups.map(function (g) {
+      return hours.map(function (h) {
+        var rs = g.rs.filter(function (r) { return N(r.local_hour) === h; });
+        var calls = sum(rs, 'calls'), reached = sum(rs, 'reached'), exp = sum(rs, function (r) { return N(r.calls) * (base[r.call_number] || 0); });
+        return { h: h, calls: calls, reached: reached, raw: div(reached, calls), ratio: div(reached, exp) };
+      });
+    });
+    var allRaw = []; cells.forEach(function (r) { r.forEach(function (c) { if (c.calls >= 30 && c.raw != null) allRaw.push(c.raw); }); });
+    var lo = C[7], hi = C[0], mid = 'var(--cds-chart-grid)';
+    var cLo = resolve(lo), cHi = resolve(hi), cMid = resolve(mid);
+    var colorOf = function (c) {
+      if (!c.calls) return 'transparent';
+      if (adj) { var t = Math.max(-1, Math.min(1, (c.ratio - 1) / 0.4)); return t >= 0 ? d3.interpolateRgb(cMid, cHi)(t) : d3.interpolateRgb(cMid, cLo)(-t); }
+      var ext = d3.extent(allRaw); var u = ext[1] > ext[0] ? (c.raw - ext[0]) / (ext[1] - ext[0]) : 0.5; return d3.interpolateRgb(cMid, cHi)(Math.max(0, Math.min(1, u)));
+    };
+    var h = $('ct-heat'); var tip = tipFor(h);
+    Array.prototype.slice.call(h.childNodes).forEach(function (c) { if (c !== tip) h.removeChild(c); });
+    h.style.gridTemplateColumns = 'minmax(3.5rem, auto) repeat(' + hours.length + ', minmax(0, 1fr))';
+    h.insertBefore(el('div'), tip);
+    hours.forEach(function (hh) { h.insertBefore(el('div', 'hh', String(hh).padStart(2, '0')), tip); });
+    cells.forEach(function (row, gi) {
+      h.insertBefore(el('div', 'hl', groups[gi].label), tip);
+      row.forEach(function (c) {
+        var d = el('div', 'hc'); d.style.background = colorOf(c);
+        if (c.calls) {
+          var val = adj ? c.ratio : c.raw; d.textContent = adj ? val.toFixed(2) : fmtPct0(val);
+          var strong = adj ? Math.abs(c.ratio - 1) > 0.22 : false; d.style.color = strong ? '#fff' : 'var(--color-fg)';
+          d.addEventListener('mousemove', function (ev) {
+            fillTip(tip, groups[gi].label + ', ' + String(c.h).padStart(2, '0') + ':00 local', [
+              { name: 'Calls', value: fmtInt(c.calls) }, { name: 'Reached the customer', value: fmtPct(c.raw) },
+              { name: 'Against expected', value: c.ratio.toFixed(2) }]);
+            var b = h.getBoundingClientRect(); placeTip(tip, h, ev.clientX - b.left, ev.clientY - b.top);
+          });
+          d.addEventListener('mouseleave', function () { tip.hidden = true; });
+        } else { d.style.background = 'transparent'; d.style.border = '1px dashed var(--color-border-line)'; d.title = 'Outside calling hours'; }
+        h.insertBefore(d, tip);
+      });
+    });
+    $('ct-hour-note').textContent = adj
+      ? 'Reach at each local hour against what that hour’s mix of first and later calls predicts; above 1 is better than expected. First calls go out in the afternoon and always work best, so raw rates flatter the afternoon. Empty cells are outside the market’s calling window.'
+      : 'Share of calls at each local hour that reached the customer. Read with care: first calls are scheduled in the afternoon and always work best.';
+    var sc = clear($('ct-heat-scale')); var bar = el('i');
+    bar.style.background = adj ? 'linear-gradient(90deg,' + cLo + ',' + cMid + ',' + cHi + ')' : 'linear-gradient(90deg,' + cMid + ',' + cHi + ')';
+    sc.append(document.createTextNode(adj ? 'Below expected' : 'Lower'), bar, document.createTextNode(adj ? 'Above expected' : 'Higher'));
+  }
+
+  /* ---------- CONVERSATIONS ---------- */
+  var RESULTS = [
+    { key: 'promise_to_pay', name: 'Promise to pay', color: C[0], ink: 'light' },
+    { key: 'paid_on_call', name: 'Paid on the call', color: C[2], ink: 'dark' },
+    { key: 'hardship', name: 'Hardship', color: C[3], ink: 'dark' },
+    { key: 'callback', name: 'Call me back', color: 'var(--cds-chart-muted)', ink: 'dark' },
+    { key: 'refused', name: 'Refused', color: C[1], ink: 'light' },
+    { key: 'dispute', name: 'Dispute', color: C[6], ink: 'light' }
+  ];
+  function convRows() {
+    return filtered('cube_conversations').filter(function (r) { return S.agent === 'all' || r.agent_version === S.agent; });
+  }
+  function drawConversations() {
+    var need = ['cube_conversations', 'cube_promises', 'markets'];
+    if (failed($('cv-tiles'), need) || waiting(need)) return;
+    seg('cv-agent', [['v4.2', 'Current (v4.2)'], ['v4.3', 'New (v4.3)'], ['all', 'Both']], 'agent');
+    seg('cv-group', [['market', 'Market'], ['language', 'Language'], ['dpd', 'Debt age']], 'group');
+    var rs = convRows(); var n = sum(rs, 'conversations');
+    var by = function (k) { return sum(rs.filter(function (r) { return r.call_result === k; }), 'conversations'); };
+    clear($('cv-tiles'));
+    tile('cv-tiles', 'Conversations', fmtInt(n), S.agent === 'all' ? 'both agents' : 'agent ' + S.agent);
+    tile('cv-tiles', 'Promise to pay', n ? fmtPct(by('promise_to_pay') / n) : 'n/a', 'of conversations');
+    tile('cv-tiles', 'Paid on the call', n ? fmtPct(by('paid_on_call') / n) : 'n/a', 'card payment taken live');
+    tile('cv-tiles', 'Hardship flagged', n ? fmtPct(by('hardship') / n) : 'n/a', 'sent an affordability review');
+    tile('cv-tiles', 'Disputes', n ? fmtPct(by('dispute') / n) : 'n/a', 'logged, not argued');
+    tile('cv-tiles', 'Average conversation', n ? (sum(rs, 'talk_seconds') / n / 60).toFixed(1) + ' min' : 'n/a', 'talk time per conversation');
+
+    legend('cv-legend', RESULTS, null);
+    var groups;
+    if (S.group === 'market') groups = S.markets.map(function (c) { return { label: mname(c), f: function (r) { return r.client_id === c; } }; });
+    else if (S.group === 'dpd') groups = ['0_30', '31_60', '61_90'].filter(function (b) { return S.dpd === 'all' || S.dpd === b; }).map(function (b) { return { label: DPD_NAME[b], f: function (r) { return r.dpd_bucket === b; } }; });
+    else {
+      var langs = []; rs.forEach(function (r) { var k = r.client_id + '|' + r.language; if (langs.indexOf(k) < 0) langs.push(k); });
+      langs.sort();
+      groups = langs.map(function (k) { var p = k.split('|'); return { label: (LANG[p[1]] || p[1]) + ' (' + mkt(p[0]) + ')', f: function (r) { return r.client_id === p[0] && r.language === p[1]; } }; });
+    }
+    stackRows('cv-stack', {
+      keys: RESULTS, unit: 'conversations',
+      rows: groups.map(function (g) {
+        var sub = rs.filter(g.f); var v = {}; RESULTS.forEach(function (k) { v[k.key] = sum(sub.filter(function (r) { return r.call_result === k.key; }), 'conversations'); });
+        return { label: g.label, values: v, total: sum(sub, 'conversations') };
+      }).filter(function (r) { return r.total > 0; })
+    });
+
+    // the Hindi finding: Desert Finance, current agent, every placement
+    var uae = rows('cube_conversations').filter(function (r) { return r.client_id === 'C02' && r.agent_version === 'v4.2'; });
+    var L = function (lang) { var s = uae.filter(function (r) { return lang === 'other' ? r.language !== 'hi' : r.language === lang; }); var t = sum(s, 'conversations');
+      var g = function (k) { return div(sum(s.filter(function (r) { return r.call_result === k; }), 'conversations'), t) || 0; };
+      return { n: t, promise: g('promise_to_pay'), callback: g('callback'), refused: g('refused'), talk: div(sum(s, 'talk_seconds'), t) / 60 }; };
+    var hi = L('hi'), ar = L('ar'), en = L('en'), other = L('other');
+    var tx = clear($('cv-hindi-text'));
+    tx.append(document.createTextNode('Hindi conversations end in a promise '), el('b', null, fmtPct(hi.promise)),
+      document.createTextNode(' of the time against ' + fmtPct(other.promise) + ' in Arabic and English, and in "call me back" ' + (hi.callback / other.callback).toFixed(1) + ' times as often. Without Hindi, the UAE’s promise rate matches the UK’s.'));
+    var items = [];
+    [['promise', 'Promise to pay'], ['callback', 'Call me back'], ['refused', 'Refused']].forEach(function (k) {
+      [['Arabic', ar], ['English', en], ['Hindi', hi]].forEach(function (l) {
+        items.push({ group: k[1], name: l[0], value: l[1][k[0]], label: fmtPct(l[1][k[0]]), color: l[0] === 'Hindi' ? C[0] : 'var(--cds-chart-muted)' });
+      });
+    });
+    hbars('cv-hindi', items, { max: 0.5 });
+
+    // plans
+    var pr = filtered('cube_promises');
+    var NI = [1, 2, 3, 4, 6];
+    var c0 = resolve('var(--color-panel)'), c1 = resolve(C[0]);
+    var PK = NI.map(function (n, i) { return { key: String(n), name: n === 1 ? 'Pay in one go' : n + ' instalments', color: d3.interpolateRgb(c0, c1)(0.28 + 0.72 * i / (NI.length - 1)), ink: i >= 3 ? 'light' : 'dark' }; });
+    legend('cv-plan-legend', PK, null);
+    stackRows('cv-plans', {
+      keys: PK, unit: 'promises',
+      rows: S.markets.map(function (code) {
+        var s = pr.filter(function (r) { return r.client_id === code; }); var v = {};
+        PK.forEach(function (k) { v[k.key] = sum(s.filter(function (r) { return r.n_instalments === k.key; }), 'promises'); });
+        return { label: mname(code), values: v, total: sum(s, 'promises') };
+      }).filter(function (r) { return r.total > 0; })
+    });
+    var tot = sum(pr, 'promises');
+    var src = function (k) { return fmtPct(div(sum(pr.filter(function (r) { return r.created_by === k; }), 'promises'), tot) || 0); };
+    $('cv-plan-note').textContent = fmtInt(tot) + ' promises in the filter: ' + src('voice_agent') + ' agreed on the call, ' + src('affordability_review') +
+      ' after an affordability review, and ' + src('follow_up') + ' on a follow up call after a missed first instalment.';
+  }
+
+  /* ---------- PROMISES AND PAYMENTS ---------- */
+  var STATUS = [
+    { key: 'kept', name: 'Kept', color: 'var(--cx-good)' },
+    { key: 'partial', name: 'Partly paid', color: 'var(--cx-warn)' },
+    { key: 'broken', name: 'Broken', color: 'var(--cx-bad)' }
+  ];
+  var METHOD = { direct_debit: 'Direct debit', card: 'Card', bank_transfer: 'Bank transfer', cash_voucher: 'Cash voucher' };
+  function drawPayments() {
+    var need = ['cube_promises', 'cube_instalments', 'cube_payments', 'markets'];
+    if (failed($('pm-tiles'), need) || waiting(need)) return;
+    var pr = filtered('cube_promises'), ins = filtered('cube_instalments');
+    var pay = rows('cube_payments').filter(function (r) { return S.markets.indexOf(r.client_id) >= 0; });
+    var first = ins.filter(function (r) { return r.instalment_no === '1'; }); var due1 = sum(first, 'due');
+    var pays = pay.filter(function (r) { return r.payment_type === 'payment'; }), revs = pay.filter(function (r) { return r.payment_type === 'reversal'; });
+    clear($('pm-tiles'));
+    tile('pm-tiles', 'Promises made', fmtInt(sum(pr, 'promises')), eurC.format(sum(pr, 'promised_eur')) + ' promised');
+    tile('pm-tiles', 'First instalments kept', due1 ? fmtPct(sum(first, 'kept') / due1) : 'n/a', 'every promise, follow ups too, ' + fmtInt(due1) + ' due');
+    tile('pm-tiles', 'Partly paid', due1 ? fmtPct(sum(first, 'partial') / due1) : 'n/a', 'something paid, under 95%');
+    tile('pm-tiles', 'Broken', due1 ? fmtPct(sum(first, 'broken') / due1) : 'n/a', 'nothing paid by the grace date');
+    tile('pm-tiles', 'Payments reversed', fmtPct(div(sum(revs, 'payments'), sum(pays, 'payments')) || 0), eurC.format(-sum(revs, 'eur')) + ' returned');
+    tile('pm-tiles', 'Collected, net', eurC.format(sum(pay, 'eur')), 'June to 29 September');
+
+    legend('pm-inst-legend', STATUS, null);
+    var NI = ['1', '2', '3', '4', '5', '6'].filter(function (n) { return sum(ins.filter(function (r) { return r.instalment_no === n; }), 'due') > 0; });
+    columns($('pm-inst'), {
+      cats: NI.map(function (n) { return { key: n, label: n === '1' ? '1st' : n === '2' ? '2nd' : n === '3' ? '3rd' : n + 'th' }; }), keys: STATUS, norm: true, height: 240,
+      value: function (c, k) { return sum(ins.filter(function (r) { return r.instalment_no === c; }), k); },
+      tipTitle: function (c) { return c.label + ' instalment'; },
+      tipValue: function (v, d) { return fmtPct(v / (d.tot || 1)) + '  ' + fmtInt(v); },
+      tipTotal: function (d) { return fmtInt(d.tot) + ' due'; },
+      topLabel: function (d) { return d.tot ? fmtInt(d.tot) : ''; }
+    });
+
+    var MK = S.markets.map(function (c) { return { key: c, name: mkt(c), color: MCOL[c] }; });
+    legend('pm-cash-legend', MK, 'cash');
+    columns($('pm-cash'), {
+      cats: MONTHS.slice(1).map(function (m) { return { key: m[0], label: m[1] }; }), keys: MK, chartKey: 'cash', height: 240,
+      value: function (month, code) { return sum(pay.filter(function (r) { return r.paid_month === month && r.client_id === code; }), 'eur'); },
+      yFmt: function (v) { return eurC.format(v); }, tipValue: function (v) { return eur0.format(v); },
+      tipTitle: function (c) { return MONTH_NAME[c.key] + (c.key === '2026-09' ? ' (to the 29th)' : ''); },
+      tipTotal: function (d) { return eur0.format(d.tot); }, topLabel: function (d) { return eurC.format(d.tot); }
+    });
+
+    var items = Object.keys(METHOD).map(function (m) {
+      var p = sum(pays.filter(function (r) { return r.method === m; }), 'payments'), r = sum(revs.filter(function (x) { return x.method === m; }), 'payments');
+      return { name: METHOD[m], value: div(r, p) || 0, label: fmtPct(div(r, p) || 0), small: fmtInt(p) + ' payments', color: C[0], p: p };
+    }).filter(function (d) { return d.p > 0; });
+    hbars('pm-rev', items);
+  }
+
+  /* ---------- EXPERIMENT ---------- */
+  function drawExperiment() {
+    var need = ['experiment_results', 'experiment_curves', 'experiment_markets', 'experiment_summary', 'markets'];
+    if (failed($('ex-tiles'), need) || waiting(need)) return;
+    var R = {}; rows('experiment_results').forEach(function (r) { R[r.metric_id] = r; });
+    var s = rows('experiment_summary')[0] || {};
+    var pv = function (p) { p = N(p); return p < 0.0001 ? 'p below 0.0001' : 'p = ' + Number(p.toPrecision(2)); };
+    var lead = clear($('ex-lead'));
+    lead.append(el('b', null, 'Ship v4.3 for debt 31 to 90 days past due, in all four markets, with a 10% holdout in the UAE. '),
+      document.createTextNode('It collects ' + pts(N(R.rec60_31_90.difference)) + ' more of the balance within 60 days there (' + pv(R.rec60_31_90.p_value) + '), worth about ' +
+        eurC.format(N(s.extra_collected_per_month_eur)) + ' a month, and makes no difference for newer debt. Promises jumped ' + pts(N(R.promise.difference)) +
+        ' but money moved far less, which is why the decision rests on recovery, not promises.'));
+    clear($('ex-tiles'));
+    var ci = function (r) { return '95% interval ' + sgn(N(r.ci_low) * 100) + ' to ' + sgn(N(r.ci_high) * 100) + ', ' + pv(r.p_value); };
+    tile('ex-tiles', 'All debt (primary)', pts(N(R.rec60.difference)), ci(R.rec60));
+    tile('ex-tiles', '31 to 90 days past due', pts(N(R.rec60_31_90.difference)), ci(R.rec60_31_90), null, null, 'up');
+    tile('ex-tiles', '0 to 30 days past due', pts(N(R.rec60_0_30.difference)), ci(R.rec60_0_30));
+    tile('ex-tiles', 'Disputes (guardrail)', pts(N(R.dispute.difference)), fmtPct(N(R.dispute.control)) + ' to ' + fmtPct(N(R.dispute.treatment)), null, null, 'up');
+    tile('ex-tiles', 'Worth per month', eurC.format(N(s.extra_collected_per_month_eur)), 'more collected within 60 days');
+
+    var KIND = { primary: 'Primary', 'by debt age': 'Agreed split', secondary: 'Secondary', guardrail: 'Guardrail' };
+    intervals('ex-ivl', rows('experiment_results').map(function (r) {
+      return { name: r.metric.replace(' (primary)', '').replace(' (guardrail)', ''), kind: KIND[r.kind], v: N(r.difference), lo: N(r.ci_low), hi: N(r.ci_high), muted: r.kind === 'guardrail' };
+    }));
+    var order = ['Northgate Bank', 'Desert Finance', 'Banco Meridia', 'Lumen Pay'];
+    intervals('ex-markets', rows('experiment_markets').slice().sort(function (a, b) { return order.indexOf(a.bank) - order.indexOf(b.bank); }).map(function (r) {
+      return { name: r.bank, kind: fmtInt(N(r.accounts)) + ' accounts · ' + fmtPct(N(r.control)) + ' to ' + fmtPct(N(r.treatment)), v: N(r.difference), lo: N(r.ci_low), hi: N(r.ci_high) };
+    }));
+
+    seg('ex-age', [['0 to 30 days', '0 to 30 days'], ['31 to 90 days', '31 to 90 days']], 'age');
+    var cur = rows('experiment_curves').filter(function (r) { return r.age_group === S.age; });
+    var arm = function (v, name, color) { return { key: v, name: name, color: color, points: cur.filter(function (r) { return r.variant === v; }).map(function (r) { return { x: N(r.day), y: N(r.recovery) }; }) }; };
+    var series = [arm('control', 'v4.2', 'var(--cds-chart-muted)'), arm('treatment', 'v4.3', C[0])];
+    legend('ex-arm-legend', series.map(function (s) { return { key: s.key, name: s.name, color: s.color, line: true }; }), null);
+    lineChart($('ex-arms'), { series: series, height: 250, xMax: 60, xTicks: [1, 10, 20, 30, 40, 50, 60], xLast: function (d) { return 'day ' + d; },
+      tipTitle: function (d) { return 'Day ' + d; },
+      tipExtra: function (xv, at) { if (at.length < 2) return []; var c = at.find(function (a) { return a.s.key === 'control'; }), t = at.find(function (a) { return a.s.key === 'treatment'; }); return c && t ? [{ name: 'Gap', value: pts(t.p.y - c.p.y) }] : []; } });
+
+    hbars('ex-split', [
+      { group: 'As assigned', name: 'v4.2', value: N(s.assigned_control), label: fmtInt(N(s.assigned_control)), color: 'var(--cds-chart-muted)' },
+      { name: 'v4.3', value: N(s.assigned_treatment), label: fmtInt(N(s.assigned_treatment)), small: pv(s.split_p_assigned), color: C[0] },
+      { group: 'After removing four broken days', name: 'v4.2', value: N(s.analysed_control), label: fmtInt(N(s.analysed_control)), color: 'var(--cds-chart-muted)' },
+      { name: 'v4.3', value: N(s.analysed_treatment), label: fmtInt(N(s.analysed_treatment)), small: pv(s.split_p_analysed), color: C[0] }
+    ], { max: Math.max(N(s.assigned_control), N(s.assigned_treatment)) * 1.05 });
+    $('ex-split-note').textContent = 'The split as assigned is too uneven for a fair 50/50. Checking all ' + fmtInt(N(s.bank_days)) + ' bank days found a Lumen deploy that sent every new account to v4.2 from ' +
+      s.broken_from + ' to ' + s.broken_to + ', so those ' + fmtInt(N(s.excluded_accounts)) + ' accounts are left out. Before the test, 500 random splits of early June accounts showed the smallest lift it could reliably detect was about ' +
+      N(s.minimum_detectable_effect_points).toFixed(1) + ' points.';
+  }
+
+  /* ---------- BILLING ---------- */
+  function drawBilling() {
+    var need = ['invoices', 'invoice_lines', 'bank_files', 'markets'];
+    if (failed($('bl-tiles'), need) || waiting(need)) return;
+    seg('bl-cur', [['invoice', 'Invoice currency'], ['eur', 'Euros']], 'cur');
+    var inv = rows('invoices'), lines = rows('invoice_lines'), files = rows('bank_files');
+    var corr = lines.filter(function (l) { return l.line_type === 'correction'; });
+    var corrEur = sum(corr, function (l) { var i = inv.find(function (x) { return x.invoice_number === l.invoice_number; }); return N(l.amount_invoice_currency) * N(i.total_eur) / N(i.total_invoice_currency); });
+    clear($('bl-tiles'));
+    tile('bl-tiles', 'Invoiced for September', eurC.format(sum(inv, 'total_eur')), 'before tax, ' + inv.length + ' banks');
+    tile('bl-tiles', 'Credit for a past month', eur0.format(Math.abs(corrEur)), 'Banco Meridia, August overbilled', null, null, 'down');
+    tile('bl-tiles', 'Bank files behind it', fmtInt(sum(inv, 'bank_files')), 'every line traceable to a file');
+    var curs = []; inv.forEach(function (i) { if (curs.indexOf(i.invoice_currency) < 0) curs.push(i.invoice_currency); });
+    tile('bl-tiles', 'Invoice currencies', String(curs.length), curs.join(', '));
+    var h = clear($('bl-cards'));
+    inv.forEach(function (i) {
+      var eur = S.cur === 'eur'; var f = N(i.total_eur) / N(i.total_invoice_currency); var cur = eur ? 'EUR' : i.invoice_currency;
+      var card = el('div', 'cx-invcard');
+      var top = el('div', 'cx-card-h'); var nm = el('span'); var dot = el('span', 'cx-dot'); dot.style.background = MCOL[i.client_id];
+      nm.append(dot, document.createTextNode(i.client_name)); nm.style.fontWeight = '500'; top.append(nm, el('span', 'no', i.invoice_number));
+      card.append(top, el('div', 'tot', money(eur ? N(i.total_eur) : N(i.total_invoice_currency), cur)));
+      card.appendChild(el('div', 'no', 'Contract ' + i.contract_id + ' in ' + i.contract_currency + (i.contract_currency !== i.invoice_currency ? ', invoiced in ' + i.invoice_currency : '') + ' · fee base ' + money(N(i.success_fee_base), i.contract_currency, true)));
+      var ul = el('ul');
+      lines.filter(function (l) { return l.invoice_number === i.invoice_number; }).forEach(function (l) {
+        var li = el('li', l.line_type === 'correction' ? 'corr' : null);
+        var nmL = { success_fee: 'Success fee', voice_minutes: 'Voice minutes', messages: 'Messages', platform_fee: 'Platform fee', minimum_top_up: 'Top up to minimum', correction: 'Correction for August' }[l.line_type] || l.line_type;
+        if (l.line_type === 'success_fee' && l.description.indexOf('above') >= 0) nmL = 'Success fee above tier';
+        var amt = N(l.amount_invoice_currency) * (eur ? f : 1);
+        li.append(el('span', null, nmL), el('span', null, money(amt, cur)));
+        li.title = l.description; ul.appendChild(li);
+      });
+      card.appendChild(ul); h.appendChild(card);
+    });
+    seg('bl-bank', CODES.map(function (c) { return [c, mkt(c)]; }), 'bank');
+    var fs = files.filter(function (r) { return r.client_id === S.bank; }).sort(function (a, b) { return a.file_date < b.file_date ? -1 : 1; });
+    var i0 = inv.find(function (x) { return x.client_id === S.bank; }) || {};
+    var big = fs.slice().sort(function (a, b) { return N(b.net) - N(a.net); })[0];
+    $('bl-files-note').textContent = fs.length + ' payment files from ' + mname(S.bank) + ' dated in September add up to the fee base of ' + money(N(i0.success_fee_base), i0.contract_currency) +
+      '. Billing goes by file date, so the bank can tick every line against its own records.' + (big ? ' Largest: ' + big.file_date.slice(5) + ', ' + money(N(big.net), i0.contract_currency, true) + '.' : '');
+    columns($('bl-files'), {
+      cats: fs.map(function (r) { return { key: r.file_date, label: r.file_date.slice(8) }; }), keys: [{ key: 'net', name: 'Net of reversals', color: MCOL[S.bank] }], height: 220,
+      value: function (d) { var r = fs.find(function (x) { return x.file_date === d; }); return r ? N(r.net) : 0; },
+      yFmt: function (v) { return money(v, i0.contract_currency || 'EUR', true); }, tipValue: function (v) { return money(v, i0.contract_currency || 'EUR'); },
+      tipTitle: function (c) { var r = fs.find(function (x) { return x.file_date === c.key; }); return r.source_file + ' · ' + N(r.rows) + ' rows'; }
+    });
+  }
+
+  /* ---------- DATA QUALITY ---------- */
+  function drawQuality() {
+    var need = ['checks', 'cube_calls', 'duplicate_file_days', 'weekend_fx_impact', 'markets'];
+    if (failed($('dq-tiles'), need) || waiting(need)) return;
+    var ch = rows('checks'); var dup = rows('duplicate_file_days'); var fx = rows('weekend_fx_impact');
+    var cnt = function (s) { return ch.filter(function (r) { return r.status === s; }).length; };
+    var dupRows = sum(dup, 'rows_as_loaded') - sum(dup, 'rows_deduplicated'), dupAmt = sum(dup, 'amount_as_loaded') - sum(dup, 'amount_deduplicated');
+    clear($('dq-tiles'));
+    tile('dq-tiles', 'Checks passing', cnt('pass') + ' of ' + ch.length, cnt('fail') + ' failing', null, null, cnt('fail') ? 'down' : 'up');
+    tile('dq-tiles', 'Warnings', String(cnt('warn')), 'known and handled');
+    tile('dq-tiles', 'Calls checked for rules', numC.format(sum(rows('cube_calls'), 'calls')), 'hours, weekends and holidays');
+    tile('dq-tiles', 'Duplicate rows removed', fmtInt(dupRows), eur0.format(dupAmt) + ' counted twice');
+    tile('dq-tiles', 'Weekend money recovered', eurC.format(sum(fx, 'missing_eur')), fmtPct(div(sum(fx, 'missing_eur'), sum(fx, 'eur_fixed')) || 0) + ' of all euros');
+    var search = $('dq-search');
+    if (!search.dataset.bound) { search.dataset.bound = '1'; search.addEventListener('input', function () { S.search = search.value.toLowerCase(); drawQuality(); }); }
+    var order = { fail: 0, warn: 1, pass: 2 };
+    var data = ch.filter(function (r) { return !S.search || (r.check + ' ' + r.what_it_checks).toLowerCase().indexOf(S.search) >= 0; })
+      .sort(function (a, b) { return order[a.status] - order[b.status]; });
+    table('dq-table', [
+      { key: 'check', name: 'Check', left: true },
+      { key: 'status', name: 'Result', left: true, cell: function (r) { return el('span', 'cx-pill ' + r.status, r.status === 'pass' ? 'Pass' : r.status === 'warn' ? 'Warning' : 'Failed'); } },
+      { key: 'rows_found', name: 'Rows', cell: function (r) { return fmtInt(N(r.rows_found)); } },
+      { key: 'what_it_checks', name: 'What it checks', left: true, wrap: true }
+    ], data);
+
+    var spike = dup.slice().sort(function (a, b) { return N(b.rows_per_account) - N(a.rows_per_account); })[0];
+    $('dq-dup-note').textContent = 'Banco Meridia’s payments by day in August. On ' + (spike ? spike.weekday + ' ' + (+spike.paid_date.slice(8)) + ' August' : 'one day') +
+      ' the money doubled but the number of people paying did not: one file had been loaded twice, adding ' + eur0.format(dupAmt) +
+      ' that never arrived. The August invoice was built on it, so the September invoice carries a credit.';
+    var K = [{ key: 'clean', name: 'Real payments', color: C[0] }, { key: 'extra', name: 'Loaded twice', color: 'var(--cx-bad)' }];
+    legend('dq-dup-legend', K, null);
+    columns($('dq-dup'), {
+      cats: dup.map(function (r) { return { key: r.paid_date, label: r.paid_date.slice(8) }; }), keys: K, height: 220,
+      value: function (d, k) { var r = dup.find(function (x) { return x.paid_date === d; }); return k === 'clean' ? N(r.amount_deduplicated) : N(r.amount_as_loaded) - N(r.amount_deduplicated); },
+      yFmt: function (v) { return eurC.format(v); }, tipValue: function (v) { return eur0.format(v); },
+      tipTitle: function (c) { var r = dup.find(function (x) { return x.paid_date === c.key; }); return r.weekday + ' ' + c.key.slice(8) + ' Aug · ' + r.rows_as_loaded + ' rows, ' + r.distinct_accounts_paying + ' people'; }
+    });
+    hbars('dq-fx', fx.map(function (r) { return { name: mname(r.client_id), value: N(r.missing_share), label: fmtPct(N(r.missing_share)), small: eurC.format(N(r.missing_eur)), color: MCOL[r.client_id] }; }), { max: 0.3 });
+  }
+
+  /* ---------- meta and dispatch ---------- */
+  function drawMeta() {
+    var h = clear($('meta'));
+    if (status('cube_accounts') !== 'ok') return;
+    var a = agg(rows('cube_accounts'));
+    h.append(el('b', null, fmtInt(a.accounts)), document.createTextNode(' accounts · '), el('b', null, eurC.format(a.balance_eur)), document.createTextNode(' placed'));
+    var mk = rows('markets'), cur = [], lang = [];
+    mk.forEach(function (m) { if (cur.indexOf(m.currency) < 0) cur.push(m.currency); });
+    rows('cube_accounts').forEach(function (r) { var l = LANG[r.language] || r.language; if (lang.indexOf(l) < 0) lang.push(l); });
+    h.appendChild(el('br'));
+    h.appendChild(document.createTextNode(mk.length + ' banks · ' + cur.length + ' currencies · ' + lang.length + ' languages · June to September 2026'));
+  }
+
+  var DRAW = { overview: drawOverview, contact: drawContact, conversations: drawConversations, payments: drawPayments,
+               experiment: drawExperiment, billing: drawBilling, quality: drawQuality };
+  function render() {
+    drawTabs(); drawFilters(); drawMeta();
+    try { DRAW[S.tab](); } catch (e) { console.error(e); }
+  }
+  var start = (location.hash || '').replace('#', '').replace('p-', '');
+  if (DRAW[start]) S.tab = start;
+  $('cx').style.setProperty('--cx-a1', C[0]);
+  $('cx').style.setProperty('--cx-accent', C[0]);
+  dash.onData(render);
 })();
 </script>

@@ -25,7 +25,7 @@ Everything runs from one command in about a minute, and every number below comes
 
 ![What v4.3 changed, every metric with its 95% interval](docs/img/experiment_lift.png)
 
-**The agent struggles in Hindi, and that is the UAE's whole gap.** Desert Finance's promise rate is 3.5 points below the UK's. Hindi conversations, 15% of the bank's customers, end in a promise 31% of the time against 45% in Arabic and English. They end in "call me back" 2.5 times as often and run longer, but refusals are no higher. That looks like speech recognition, not unwilling customers, and the gap holds at every debt age. Remove Hindi and the UAE matches the UK. [Product review](docs/product_review.md)
+**The agent struggles in Hindi, and that is the UAE's whole gap.** Desert Finance's promise rate is 3.5 points below the UK's. Hindi conversations, 15% of the bank's customers, end in a promise 31% of the time against 45% in Arabic and English. They end in "call me back" 2.6 times as often and run longer, but refusals are no higher. That looks like speech recognition, not unwilling customers, and the gap holds at every debt age. Remove Hindi and the UAE matches the UK. [Product review](docs/product_review.md)
 
 **Calls are going out at the wrong hours.** Raw numbers make mid afternoon look best, but only because first calls are scheduled then. Adjusted for that, 18:00 to 20:00 reaches about 30% more people than expected and gets under 5% of calls, while 13:00 to 15:00 gets nearly 20% of calls and is the weakest slot. Moving half of those calls into the evening is worth testing. It could mean roughly 5% more conversations from the same number of calls.
 
@@ -34,6 +34,20 @@ Everything runs from one command in about a minute, and every number below comes
 **We overbilled Banco Meridia by EUR 7,755.59.** Their 14 August payment file was loaded twice, which also made their August look 4.7% better than it was. The model now fixes it at the source, a check catches it from now on, and the September invoice credits it automatically. [Write up](docs/investigation_duplicate_payments.md)
 
 **13% of all money collected was missing from the euro numbers.** ECB rates are only published on weekdays, the first version joined payments to rates by date, and every weekend payment silently dropped out. The UK and UAE books looked about a sixth smaller than they were. [Write up](docs/investigation_weekend_fx.md)
+
+## The dashboard
+
+The [dashboard](https://nishantrv333.github.io/Collections-Analytics/) follows a collections account from start to finish. Every chart answers to the same filters (market, debt age, placement month) and works out its rates from summed counts, so a filtered number is always calculated the same way as the total.
+
+| Section | What it answers |
+|---|---|
+| Overview | How much was placed and collected, recovery curves by month, market or debt age, the funnel from placed to paid in full, and markets side by side |
+| Contact | How calls end, how fast each extra call loses value (against real bank data), which local hours reach people, messages, and calls checked against each market's calling rules |
+| Conversations | How conversations end by market, language or debt age, for either agent version; the Hindi finding; the plans customers agree to |
+| Promises and payments | What happens to each instalment (kept, partly paid, broken), money collected by month, reversals by payment method |
+| Agent v4.3 test | The decision, every metric with its interval, collection curves by arm, the result by market and the split check |
+| Billing | Each bank's September invoice in its own currency or in euros, and the bank files behind each fee |
+| Data quality | Every data check with its result, and the two investigations |
 
 ## What is in it
 

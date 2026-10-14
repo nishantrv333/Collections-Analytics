@@ -83,7 +83,7 @@ HEAD = """<!doctype html>
 }
 html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-anthropic-sans); font-size: var(--cds-font-size-body); line-height: 1.45; }
-.site { max-width: 1180px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 40px); padding-block: 0 48px; }
+.site { max-width: 1280px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 40px); padding-block: 0 48px; }
 .topbar { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; justify-content: space-between; padding-block: 16px; margin-bottom: 20px; border-bottom: 1px solid var(--color-border-line); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
 .topbar b { color: var(--color-fg); font-weight: 600; letter-spacing: .02em; }
 .topbar nav { display: flex; flex-wrap: wrap; gap: 6px 16px; }
@@ -151,7 +151,8 @@ window.dash = (function () {
     },
     colors: ['var(--series-1)', 'var(--series-2)', 'var(--series-3)', 'var(--series-4)',
              'var(--series-5)', 'var(--series-6)', 'var(--series-7)', 'var(--series-8)'],
-    refresh: function () {}, setLink: function () {}, params: function () { return {}; },
+    refresh: function () {}, params: function () { return {}; },
+    setLink: function (name) { try { history.replaceState(null, '', '#' + name); } catch (e) {} },
     setParams: function () {}, resetParams: function () {}
   };
 })();

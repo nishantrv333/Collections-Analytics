@@ -1,5 +1,5 @@
-invoice_number,client_name,contract_currency,success_fee_base,correction,invoice_currency,total_invoice_currency,total_eur
-INV-202609-C01,Northgate Bank,GBP,1823169.76,0.0,GBP,167085.28,195505.99
-INV-202609-C02,Desert Finance,AED,6738383.95,0.0,AED,554070.72,132867.49
-INV-202609-C03,Banco Meridia,EUR,1101954.9,-7755.59,EUR,147524.0,147524.0
-INV-202609-C04,Lumen Pay,MXN,4900334.69,0.0,USD,28072.14,24722.27
+invoice_number,client_id,client_name,contract_id,contract_currency,invoice_currency,fx_rate,success_fee_base,bank_files,total_contract_currency,total_invoice_currency,total_eur
+INV-202609-C01,C01,Northgate Bank,K01,GBP,GBP,1.0,1823169.76,22,167085.28,167085.28,195505.99
+INV-202609-C02,C02,Desert Finance,K02,AED,AED,1.0,6738383.95,22,554070.72,554070.72,132867.49
+INV-202609-C03,C03,Banco Meridia,K03B,EUR,EUR,1.0,1101954.9,22,147524.0,147524.0,147524.0
+INV-202609-C04,C04,Lumen Pay,K04,MXN,USD,0.0551706378512846,4900334.69,21,508823.97,28072.14,24722.27

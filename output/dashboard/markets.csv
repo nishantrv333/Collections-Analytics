@@ -1,0 +1,5 @@
+client_id,client_name,market,currency,timezone,call_start_hour,call_end_hour,calls_on_saturday
+C01,Northgate Bank,UK,GBP,Europe/London,8,21,True
+C02,Desert Finance,UAE,AED,Asia/Dubai,9,20,False
+C03,Banco Meridia,Spain,EUR,Europe/Madrid,9,21,True
+C04,Lumen Pay,Mexico,MXN,America/Mexico_City,9,21,True
