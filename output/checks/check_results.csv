@@ -1,0 +1,15 @@
+check,severity,status,rows_found,what_it_checks
+bank_file_loaded_twice,warn,warn,1,"The same bank transaction arriving in more than one load. int_payments keeps only the first copy, so this is a warning, not a failure, but someone should tell the bank."
+bank_reference_unique,error,pass,0,"After deduplication, one row per bank transaction."
+calls_within_permitted_hours,error,pass,0,"Voice calls only inside each market's calling window, in the customer's local time: UAE 09:00 to 20:00 Monday to Friday (Central Bank consumer protection rules), UK 08:00 to 21:00 and Spain and Mexico 09:00 to 21:00, Monday to Saturday, as our stated policy where the regulator only says ""not at unreasonable times"". Never on a Sunday. It has to use local time: in UTC a 10:00 call in Mexico City looks like a 16:00 call."
+collected_within_balance,error,pass,0,We never collect more than the account owed.
+euro_totals_round_trip,error,pass,0,"Every bank's monthly collections, converted to euros and back, land on the local total straight from the bank files. It compares against the source on purpose: a join that drops rows also drops them from any total taken after it, so only the source shows the gap. This is the check that found the missing weekend payments."
+every_payment_has_fx,error,pass,0,"Every payment converts to euros. A payment without a rate silently disappears from any euro total, which is exactly what happened to weekend payments before I fixed the join."
+experiment_one_variant,error,pass,0,"Each account is in one variant, and every call it got used that variant's agent version."
+fx_rate_gaps,warn,pass,0,"Weekdays with no published rate. Usually a bank holiday. The daily rate table carries the last rate forward, but a long gap is worth a look."
+instalments_add_up,error,pass,0,A promise's instalments add up to the promised total.
+no_calls_on_public_holidays,error,pass,0,No calls on a public holiday in the customer's market.
+no_contact_before_placement,error,pass,0,Nothing is sent to a customer before the bank placed the account with us.
+payment_id_unique,error,pass,0,Every loaded payment row has its own id.
+payments_tie_out,error,pass,0,The marts do not lose or invent money: collected per bank per month in the KPI table equals the deduplicated payments.
+reversal_matches_a_payment,error,pass,0,A reversal points to a real payment on the same account and never returns more than was paid.

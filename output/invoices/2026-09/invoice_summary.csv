@@ -1,0 +1,5 @@
+invoice_number,client_id,client_name,billing_month,period_label,contract_id,contract_currency,invoice_currency,fx_rate,fx_date,success_fee_base,bank_files,total_contract_currency,total_invoice_currency,total_eur
+INV-202609-C01,C01,Northgate Bank,2026-09,1 September 2026 to 30 September 2026,K01,GBP,GBP,1.0,2026-09-30,1823169.76,22,167085.28,167085.28,195505.99
+INV-202609-C02,C02,Desert Finance,2026-09,1 September 2026 to 30 September 2026,K02,AED,AED,1.0,2026-09-30,6738383.95,22,554070.72,554070.72,132867.49
+INV-202609-C03,C03,Banco Meridia,2026-09,1 September 2026 to 30 September 2026,K03B,EUR,EUR,1.0,2026-09-30,1101954.9,22,147524.0,147524.0,147524.0
+INV-202609-C04,C04,Lumen Pay,2026-09,1 September 2026 to 30 September 2026,K04,MXN,USD,0.055170637851284635,2026-09-30,4900334.69,21,508823.97,28072.14,24722.27

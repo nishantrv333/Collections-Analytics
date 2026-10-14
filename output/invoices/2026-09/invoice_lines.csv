@@ -1,0 +1,12 @@
+invoice_number,client_id,line_type,description,quantity,unit_price,amount,amount_invoice_currency
+INV-202609-C01,C01,success_fee,"Success fee 12% up to 100,000",100000.0,0.12,12000.0,12000.0
+INV-202609-C01,C01,success_fee,"Success fee 9% above 100,000",1723169.76,0.09,155085.28,155085.28
+INV-202609-C02,C02,success_fee,Success fee 8% of net collected,6738383.95,0.08,539070.72,539070.72
+INV-202609-C02,C02,platform_fee,Platform fee,1.0,15000.0,15000.0,15000.0
+INV-202609-C03,C03,success_fee,Success fee 14% of net collected,1101954.9,0.14,154273.69,154273.69
+INV-202609-C03,C03,voice_minutes,Connected voice minutes,10225.0,0.09,920.25,920.25
+INV-202609-C03,C03,messages,"Messages delivered (WhatsApp, SMS, email)",8565.0,0.01,85.65,85.65
+INV-202609-C03,C03,correction,"Correction to INV-202608-C03: we billed on 1,120,885.04, the right base is 1,069,181.16. The 51,703.88 difference was payments from one bank file that loaded twice.",1.0,-7755.59,-7755.59,-7755.59
+INV-202609-C04,C04,success_fee,Success fee 10% of net collected,4900334.69,0.1,490033.47,27035.46
+INV-202609-C04,C04,voice_minutes,Connected voice minutes,9766.0,1.8,17578.8,969.83
+INV-202609-C04,C04,messages,"Messages delivered (WhatsApp, SMS, email)",8078.0,0.15,1211.7,66.85

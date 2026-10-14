@@ -1,0 +1,842 @@
+<style>
+/* Layout: summary tiles first, then recovery and drop off side by side, then the
+   monthly table, the v4.3 test, and invoices with data checks. One column when narrow. */
+.ca { display: grid; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); color: var(--color-fg); }
+.ca-head { display: grid; gap: var(--cds-gap-sm); max-width: 62rem; }
+.ca-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+.ca-lede { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); line-height: 1.55; max-width: 65ch; }
+.ca-lede b, .ca-dec b { font-weight: 600; color: var(--color-fg); }
+.ca-tiles { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); }
+.ca-tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-xs); align-content: start; }
+.ca-tile .lbl { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.ca-tile .big { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); line-height: 1.15; font-variant-numeric: tabular-nums; min-height: 1.2em; }
+.ca-tile .sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.ca-up { color: var(--color-ok); } .ca-down { color: var(--color-bad); }
+.ca-sec { display: grid; gap: var(--cds-gap-md); }
+.ca-sec > h2 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+.ca-grid { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); }
+.ca-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-sm); align-content: start; min-width: 0; }
+.ca-card h3 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+.ca-note { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.5; max-width: 70ch; }
+.ca-chips { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); }
+.ca-chip { font: inherit; font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-radius: 999px; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg-muted); cursor: pointer; }
+.ca-chip[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
+.ca-chip:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+.ca-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.ca-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.ca-legend i { width: 12px; height: 3px; border-radius: 2px; display: inline-block; }
+.ca-legend b { color: var(--color-fg); font-weight: 500; }
+.ca-chart { position: relative; min-height: 280px; }
+.ca-chart.small { min-height: 200px; }
+.ca-chart svg { display: block; overflow: visible; }
+.ca-chart text { fill: var(--color-fg-muted); font-size: 11px; font-family: var(--font-anthropic-sans); }
+.ca-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; white-space: nowrap; z-index: 2; }
+.ca-tip .t { color: var(--cds-text-secondary); margin-bottom: 2px; }
+.ca-tip .r { display: flex; align-items: center; gap: 6px; }
+.ca-tip .r i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.ca-fun { display: grid; gap: 2px; }
+.ca-step { display: grid; grid-template-columns: minmax(7rem, 9rem) 1fr; gap: var(--cds-gap-sm); align-items: center; font-size: var(--cds-font-size-caption); }
+.ca-step .name { color: var(--color-fg); }
+.ca-bar { position: relative; height: 22px; }
+.ca-bar > i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--ca-fill); }
+.ca-bar > span { position: absolute; top: 50%; transform: translateY(-50%); font-variant-numeric: tabular-nums; color: var(--color-fg); white-space: nowrap; padding-left: 6px; }
+.ca-loss { grid-column: 2; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); padding: 1px 0 3px; font-variant-numeric: tabular-nums; }
+.ca-loss.worst { color: var(--color-bad); }
+.ca-tbl { overflow-x: auto; max-width: 100%; }
+.ca-tbl table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.ca-tbl th { text-align: right; font-weight: 500; color: var(--color-fg-muted); padding: 6px 8px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; position: sticky; top: 0; background: var(--color-panel); }
+.ca-tbl td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.ca-tbl th:first-child, .ca-tbl td:first-child, .ca-tbl .l { text-align: left; }
+.ca-tbl td.wrap { white-space: normal; min-width: 14rem; color: var(--color-fg-muted); text-align: left; }
+.ca-pill { display: inline-flex; align-items: center; gap: 5px; font-weight: 500; }
+.ca-pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.ca-pill.pass { color: var(--color-ok); } .ca-pill.warn { color: var(--color-warn); } .ca-pill.fail { color: var(--color-bad); }
+.ca-exp { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
+.ca-dec { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.55; max-width: 70ch; }
+.ca-ivl { display: grid; gap: var(--cds-gap-sm); }
+.ca-ivl-row { display: grid; grid-template-columns: minmax(0, 15rem) minmax(8rem, 1fr) 7.5rem; gap: var(--cds-gap-sm); align-items: center; font-size: var(--cds-font-size-caption); }
+.ca-ivl-row .m { color: var(--color-fg); }
+.ca-ivl-row .m small { display: block; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.ca-track { position: relative; height: 18px; }
+.ca-track .zero { position: absolute; top: -4px; bottom: -4px; width: 1px; background: var(--cds-chart-axis); }
+.ca-track .grid { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--cds-chart-grid); }
+.ca-track .ci { position: absolute; top: 8px; height: 2px; border-radius: 1px; background: var(--ca-c); }
+.ca-track .dot { position: absolute; top: 4px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--ca-c); box-shadow: 0 0 0 2px var(--color-panel); }
+.ca-ivl-row .v { font-variant-numeric: tabular-nums; text-align: right; }
+.ca-ivl-row .v small { display: block; color: var(--color-fg-muted); }
+.ca-axis { position: relative; height: 16px; font-size: 11px; color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.ca-axis span { position: absolute; transform: translateX(-50%); }
+.ca-fail { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.ca-fail i { width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); display: inline-block; }
+.ca-hb { display: grid; gap: var(--cds-gap-sm); min-height: 14rem; }
+.ca-hb-group { display: grid; gap: 3px; }
+.ca-hb-title { font-size: var(--cds-font-size-caption); color: var(--color-fg); font-weight: 500; }
+.ca-hb-row { display: grid; grid-template-columns: 4.2rem 1fr 6.5rem; gap: var(--cds-gap-sm); align-items: center; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.ca-hb-row .k { color: var(--color-fg-muted); }
+.ca-hb-row .v { text-align: right; color: var(--color-fg); }
+.ca-hb-row .v small { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.ca-hb-track { position: relative; height: 14px; }
+.ca-hb-track > i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--ca-fill); }
+.ca-hb-track > b { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--cds-chart-reference); }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+@media (max-width: 560px) {
+  .ca-ivl-row { grid-template-columns: 1fr 6.5rem; }
+  .ca-ivl-row .ca-track { grid-column: 1 / -1; grid-row: 2; }
+  .ca-axis-row { grid-template-columns: 1fr; }
+  .ca-axis-row > div:first-child, .ca-axis-row > div:last-child { display: none; }
+}
+</style>
+
+<div class="ca">
+  <header class="ca-head" id="summary">
+    <h1>Collections Analytics</h1>
+    <p class="ca-lede">An AI collections agent working for four banks: Northgate in the UK, Desert Finance in the UAE, Banco Meridia in Spain and Lumen Pay in Mexico, June to September 2026. Platform data is simulated; exchange rates, holidays and calling rules are real. Agent v4.3 added
+      <b class="dash-skeleton" data-source="experiment_results" data-field="difference" data-where="metric_id=rec60_31_90" data-fmt="pts">&nbsp;</b>
+      for debt 31 to 90 days past due and should go live there. In the UAE, Hindi conversations end in a promise only
+      <b class="dash-skeleton" data-source="uae_languages" data-field="promise_to_pay_rate" data-where="language=hi" data-fmt="pct">&nbsp;</b>
+      of the time, which explains the UAE's lower promise rate.</p>
+  </header>
+
+  <section class="ca-tiles" aria-label="Headline figures">
+    <div class="ca-tile">
+      <span class="lbl">Collected, all banks, 1 to 29 September</span>
+      <span class="big dash-skeleton" data-source="monthly_totals" data-field="net_collected_eur" data-where="month=2026-09" data-fmt="eur">&nbsp;</span>
+      <span class="sub">August, full month: <span class="dash-skeleton" data-source="monthly_totals" data-field="net_collected_eur" data-where="month=2026-08" data-fmt="eur">&nbsp;</span></span>
+    </div>
+    <div class="ca-tile">
+      <span class="lbl">Balance collected within 60 days, July cohort</span>
+      <span class="big dash-skeleton" data-source="cohort_recovery" data-field="recovery_rate" data-where="client_id=ALL&amp;placed_month=2026-07&amp;days_since_placement=60" data-fmt="pct">&nbsp;</span>
+      <span class="sub"><span class="dash-skeleton" id="t-rec-chg" data-source="rec60_change" data-fmt="ptsdelta">&nbsp;</span> against the June cohort</span>
+    </div>
+    <div class="ca-tile">
+      <span class="lbl">First instalments kept, due in September</span>
+      <span class="big dash-skeleton" data-source="monthly_totals" data-field="promise_kept_rate" data-where="month=2026-09" data-fmt="pct">&nbsp;</span>
+      <span class="sub"><span class="dash-skeleton" id="t-kept-chg" data-source="kept_change" data-fmt="ptsdelta">&nbsp;</span> against August</span>
+    </div>
+    <div class="ca-tile">
+      <span class="lbl">Invoiced for September, before tax</span>
+      <span class="big dash-skeleton" data-source="invoice_total" data-fmt="eur">&nbsp;</span>
+      <span class="sub">Includes a credit of <span class="dash-skeleton" data-source="invoices" data-field="correction" data-where="invoice_number=INV-202609-C03" data-fmt="eurabs">&nbsp;</span> to Banco Meridia for August</span>
+    </div>
+  </section>
+
+  <section class="ca-sec" id="markets">
+    <h2>Markets side by side</h2>
+    <div class="ca-card">
+      <p class="ca-note">Accounts on the current agent (v4.2) placed June to August, so every one has had 30 days. Promise rate and paid on the call are out of conversations with the customer.</p>
+      <div class="ca-tbl">
+        <table id="score-table" data-source="market_scorecard" data-row-key="bank">
+          <thead><tr>
+            <th data-field="bank">Bank</th>
+            <th data-field="country" class="l">Market</th>
+            <th data-field="accounts">Accounts</th>
+            <th data-field="reach_rate">Reached</th>
+            <th data-field="calls_to_reach">Calls to reach</th>
+            <th data-field="promise_rate">Promise rate</th>
+            <th data-field="paid_on_call_rate">Paid on the call</th>
+            <th data-field="first_instalment_kept">First instalment kept</th>
+            <th data-field="recovery_30d">Collected in 30 days</th>
+            <th data-field="dispute_rate">Disputes</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="ca-grid" aria-label="Recovery and drop off">
+    <div class="ca-card" id="recovery">
+      <h3>Recovery by placement month</h3>
+      <p class="ca-note">Share of the placed balance collected by each day after the bank placed the account, net of reversals. A line stops on the last day every account in that month has lived through.</p>
+      <div class="ca-chips" role="group" aria-label="Placement month" id="cohort-chips"></div>
+      <div class="ca-legend" id="cohort-legend" data-source="cohort_recovery"></div>
+      <div class="ca-chart" id="cohort-chart" data-source="cohort_recovery"></div>
+    </div>
+    <div class="ca-card" id="funnel">
+      <h3>Where accounts drop out</h3>
+      <p class="ca-note">Accounts placed June to August, outcomes to 29 September. The biggest drop between two steps is in red.</p>
+      <div class="ca-chips" role="group" aria-label="Bank" id="funnel-chips"></div>
+      <div class="ca-fun" id="funnel-steps" style="min-height: 280px"></div>
+    </div>
+  </section>
+
+  <section class="ca-sec" id="product">
+    <h2>Product findings</h2>
+    <div class="ca-grid">
+      <div class="ca-card" id="hindi">
+        <h3>The agent struggles in Hindi</h3>
+        <p class="ca-note">How conversations end at Desert Finance (UAE), by language. Hindi calls stall into "call me back" while refusals barely move, which points at speech recognition rather than the customers.</p>
+        <div class="ca-hb" id="hindi-bars" data-source="uae_languages"></div>
+      </div>
+      <div class="ca-card" id="hours">
+        <h3>Evening calls reach more people</h3>
+        <p class="ca-note">Reach at each local hour against what its mix of first and later calls predicts (1 is as expected). Raw numbers favour the afternoon only because first calls are made then.</p>
+        <div class="ca-hb" id="hour-bars" data-source="call_hours"></div>
+      </div>
+      <div class="ca-card" id="real-calls">
+        <h3>Each extra call is worth less, as in real bank data</h3>
+        <p class="ca-note">Chance a call reaches the customer, as a share of the first call's chance. The grey line is 41,188 real calls by a Portuguese bank (UCI Bank Marketing).</p>
+        <div class="ca-chart small" id="calls-chart" data-source="calls_vs_real"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ca-sec" id="by-bank">
+    <h2>Monthly numbers by bank</h2>
+    <div class="ca-card">
+      <p class="ca-note">Calendar months in each bank's own time zone. Reached per call: calls answered by the customer, out of all calls. Promise rate and paid on the call: out of calls that reached the customer. First instalment kept: out of first instalments due that month, paid within 3 days of the due date. September runs to the 29th.</p>
+      <div class="ca-chips" role="group" aria-label="Bank" id="month-chips"></div>
+      <div class="ca-tbl">
+        <table id="month-table" data-source="client_month" data-row-key="client_id,month">
+          <thead><tr>
+            <th data-field="client_name">Bank</th>
+            <th data-field="month">Month</th>
+            <th data-field="accounts_placed">Accounts placed</th>
+            <th data-field="calls">Calls</th>
+            <th data-field="rpc_rate_per_call">Reached per call</th>
+            <th data-field="promise_rate">Promise rate</th>
+            <th data-field="paid_on_call_rate">Paid on the call</th>
+            <th data-field="promise_kept_rate">First instalment kept</th>
+            <th data-field="net_collected_eur">Collected (EUR)</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="ca-sec" id="experiment">
+    <h2>Agent v4.3 test: affordability first negotiation</h2>
+    <div class="ca-exp">
+      <div class="ca-tile">
+        <span class="lbl">All debt (primary metric)</span>
+        <span class="big dash-skeleton" data-source="experiment_results" data-field="difference" data-where="metric_id=rec60" data-fmt="pts">&nbsp;</span>
+        <span class="sub" id="ci-rec60">&nbsp;</span>
+      </div>
+      <div class="ca-tile">
+        <span class="lbl">31 to 90 days past due</span>
+        <span class="big dash-skeleton" data-source="experiment_results" data-field="difference" data-where="metric_id=rec60_31_90" data-fmt="pts">&nbsp;</span>
+        <span class="sub" id="ci-rec60_31_90">&nbsp;</span>
+      </div>
+      <div class="ca-tile">
+        <span class="lbl">0 to 30 days past due</span>
+        <span class="big dash-skeleton" data-source="experiment_results" data-field="difference" data-where="metric_id=rec60_0_30" data-fmt="pts">&nbsp;</span>
+        <span class="sub" id="ci-rec60_0_30">&nbsp;</span>
+      </div>
+    </div>
+    <p class="ca-dec">Change in the share of balance collected within 60 days, v4.3 minus v4.2. Overall the interval still includes zero. Split the way we agreed before the test, older debt gains clearly and the newest debt does not. Going live for 31 to 90 days past due is worth about
+      <b class="dash-skeleton" data-source="experiment_value" data-field="extra_collected_per_month_eur" data-row="0" data-fmt="eur">&nbsp;</b>
+      more collected within 60 days for each month of placements.</p>
+    <div class="ca-grid">
+      <div class="ca-card" id="intervals">
+        <h3>Every metric, with its 95% interval</h3>
+        <p class="ca-note">Percentage points, v4.3 minus v4.2. Right of zero means v4.3 is higher. Promises jump, but the money moves far less than the promise rate suggests.</p>
+        <div class="ca-ivl" id="ivl" data-source="experiment_results"></div>
+      </div>
+      <div class="ca-card" id="arms">
+        <h3>Collected by day, each arm</h3>
+        <p class="ca-note">Share of placed balance, accounts placed 15 June to 31 July.</p>
+        <div class="ca-grid" style="--cds-gap-md: var(--cds-gap-sm)">
+          <div><p class="ca-note">0 to 30 days past due</p><div class="ca-chart small" id="arm-a" data-source="experiment_curves"></div></div>
+          <div><p class="ca-note">31 to 90 days past due</p><div class="ca-chart small" id="arm-b" data-source="experiment_curves"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="ca-card" id="exp-markets">
+      <h3>Older debt, market by market</h3>
+      <p class="ca-note">Recovery within 60 days for accounts 31 to 90 days past due. Not planned in advance and not sized per market, so this is a consistency check: positive everywhere, least certain in the UAE and Mexico.</p>
+      <div class="ca-tbl">
+        <table id="mkt-table" data-source="older_debt_by_market" data-row-key="bank">
+          <thead><tr>
+            <th data-field="bank">Bank</th>
+            <th data-field="accounts">Accounts</th>
+            <th data-field="control">v4.2</th>
+            <th data-field="treatment">v4.3</th>
+            <th data-field="difference">Difference</th>
+            <th data-field="ci_low">95% low</th>
+            <th data-field="ci_high">95% high</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <p class="ca-note">Split check: accounts were assigned
+      <span class="dash-skeleton" data-source="experiment_split" data-field="control" data-where="stage=assigned" data-fmt="int">&nbsp;</span> to v4.2 and
+      <span class="dash-skeleton" data-source="experiment_split" data-field="treatment" data-where="stage=assigned" data-fmt="int">&nbsp;</span> to v4.3, too uneven for a 50/50 split (p =
+      <span class="dash-skeleton" data-source="experiment_split" data-field="split_p_value" data-where="stage=assigned" data-fmt="p">&nbsp;</span>). A Lumen deploy sent every new account to v4.2 from 20 to 23 July, so those
+      <span class="dash-skeleton" data-source="experiment_value" data-field="excluded_accounts" data-row="0" data-fmt="int">&nbsp;</span> accounts are left out. After that the split is fine (p =
+      <span class="dash-skeleton" data-source="experiment_split" data-field="split_p_value" data-where="stage=analysed" data-fmt="p2">&nbsp;</span>). Before the test, random splits of June accounts showed the smallest lift it could reliably detect was
+      <span class="dash-skeleton" data-source="experiment_value" data-field="minimum_detectable_effect_points" data-row="0" data-fmt="ptsraw">&nbsp;</span>.</p>
+  </section>
+
+  <section class="ca-grid" aria-label="Invoices and data checks">
+    <div class="ca-card" id="invoices">
+      <h3>September invoices</h3>
+      <p class="ca-note">Success fee base is net money in the bank's own payment files dated in September. Each invoice is worked out in the contract currency and converted once at the 30 September rate.</p>
+      <div class="ca-tbl">
+        <table id="inv-table" data-source="invoices" data-row-key="invoice_number">
+          <thead><tr>
+            <th data-field="invoice_number">Invoice</th>
+            <th data-field="client_name" class="l">Bank</th>
+            <th data-field="success_fee_base">Fee base</th>
+            <th data-field="correction">Correction</th>
+            <th data-field="total_invoice_currency">Total</th>
+            <th data-field="total_eur">In EUR</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="ca-card" id="checks">
+      <h3>Data checks</h3>
+      <p class="ca-note"><span class="dash-skeleton" data-source="checks_summary" data-field="passed" data-row="0">&nbsp;</span> passed,
+        <span class="dash-skeleton" data-source="checks_summary" data-field="warnings" data-row="0">&nbsp;</span> warning,
+        <span class="dash-skeleton" data-source="checks_summary" data-field="failed" data-row="0">&nbsp;</span> failed. Each check returns the rows that break a rule; a warning is known and handled.</p>
+      <div class="ca-tbl" style="max-height: 26rem; overflow: auto">
+        <table id="chk-table" data-source="checks" data-row-key="check">
+          <thead><tr>
+            <th data-field="check">Check</th>
+            <th data-field="status" class="l">Result</th>
+            <th data-field="rows_found">Rows</th>
+            <th data-field="what_it_checks" class="l">What it checks</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+dash.calc('monthly_totals', {
+  inputs: ['client_month'],
+  title: 'All banks by month',
+  description: 'Euros collected and first instalments kept, added up across the four banks for each month.',
+  fn: (client_month) => {
+    const by = {};
+    for (const r of client_month) {
+      const m = r.month;
+      if (!by[m]) by[m] = { month: m, net_collected_eur: 0, first_instalments_due: 0, first_instalments_kept: 0 };
+      const due = Number(r.first_instalments_due) || 0;
+      by[m].net_collected_eur += Number(r.net_collected_eur) || 0;
+      by[m].first_instalments_due += due;
+      by[m].first_instalments_kept += Math.round((Number(r.promise_kept_rate) || 0) * due);
+    }
+    return Object.values(by).map(o => ({
+      month: o.month,
+      net_collected_eur: Math.round(o.net_collected_eur * 100) / 100,
+      first_instalments_due: o.first_instalments_due,
+      first_instalments_kept: o.first_instalments_kept,
+      promise_kept_rate: o.first_instalments_due ? o.first_instalments_kept / o.first_instalments_due : null
+    }));
+  }
+});
+
+dash.calc('rec60_change', {
+  inputs: ['cohort_recovery'],
+  title: '60 day recovery, July against June',
+  description: 'All banks: share of balance collected within 60 days, July cohort minus June cohort.',
+  fn: (cohort_recovery) => {
+    const at = m => Number(cohort_recovery.find(r => r.client_id === 'ALL' && r.placed_month === m && Number(r.days_since_placement) === 60).recovery_rate);
+    return at('2026-07') - at('2026-06');
+  }
+});
+
+dash.calc('kept_change', {
+  inputs: ['monthly_totals'],
+  title: 'First instalments kept, September against August',
+  description: 'All banks: share of first instalments kept in September minus August.',
+  fn: (monthly_totals) => {
+    const at = m => monthly_totals.find(r => r.month === m).promise_kept_rate;
+    return at('2026-09') - at('2026-08');
+  }
+});
+
+dash.calc('invoice_total', {
+  inputs: ['invoices'],
+  title: 'September invoices in euros',
+  description: 'The four September invoices added up, each converted to euros at the 30 September rate.',
+  fn: (invoices) => Math.round(invoices.reduce((s, r) => s + Number(r.total_eur), 0) * 100) / 100
+});
+
+dash.calc('funnel_steps', {
+  inputs: ['funnel'],
+  title: 'Funnel steps',
+  description: 'Each step as a share of accounts placed, and the share lost since the step before, per bank.',
+  fn: (funnel) => {
+    const steps = ['accounts_placed', 'called', 'reached', 'agreed_to_pay', 'paid_something', 'paid_in_full'];
+    const out = [];
+    for (const r of funnel.filter(r => r.dpd_bucket === 'ALL')) {
+      const placed = Number(r.accounts_placed);
+      steps.forEach((s, i) => {
+        const v = Number(r[s]);
+        const prev = i ? Number(r[steps[i - 1]]) : null;
+        out.push({ client_id: r.client_id, step: s, accounts: v, share_of_placed: v / placed,
+                   lost_from_previous: prev ? 1 - v / prev : null });
+      });
+    }
+    return out;
+  }
+});
+
+dash.calc('checks_summary', {
+  inputs: ['checks'],
+  title: 'Checks by result',
+  description: 'How many data checks passed, warned or failed on the last run.',
+  fn: (checks) => [{
+    passed: checks.filter(r => r.status === 'pass').length,
+    warnings: checks.filter(r => r.status === 'warn').length,
+    failed: checks.filter(r => r.status === 'fail').length
+  }]
+});
+
+(function () {
+  const BANKS = [['C01', 'Northgate Bank'], ['C02', 'Desert Finance'], ['C03', 'Banco Meridia'], ['C04', 'Lumen Pay']];
+  const MONTHS = [['2026-06', 'June'], ['2026-07', 'July'], ['2026-08', 'August'], ['2026-09', 'September']];
+  const MINUS = '−';
+  const pct = d3.format('.1%');
+  const int = d3.format(',');
+  const eurC = new Intl.NumberFormat('en', { style: 'currency', currency: 'EUR', notation: 'compact', maximumFractionDigits: 1 });
+  const eur0 = new Intl.NumberFormat('en', { maximumFractionDigits: 0 });
+  const signed = (v, d = 1) => (v > 0 ? '+' : v < 0 ? MINUS : '') + Math.abs(v).toFixed(d);
+  const pts = v => signed(v * 100) + ' pts';
+  const monthName = m => (MONTHS.find(x => x[0] === m) || [m, m])[1];
+  const state = { cohort: '2026-07', funnelBank: 'ALL', tableBank: 'ALL' };
+
+  const FMT = {
+    eur: v => eurC.format(v), eurabs: v => eurC.format(Math.abs(v)), pct: v => pct(v), int: v => int(v),
+    pts: v => pts(v), ptsraw: v => Number(v).toFixed(1) + ' pts',
+    p: v => (v < 0.001 ? Number(v).toFixed(4) : Number(v).toFixed(3)), p2: v => Number(v).toFixed(2),
+    ptsdelta: v => pts(v)
+  };
+
+  function ok(id) { return dash.data(id).status === 'ok'; }
+  function rows(id) { return ok(id) ? dash.data(id).data : []; }
+  function failedLine(el) {
+    el.textContent = '';
+    const s = document.createElement('span'); s.className = 'ca-fail';
+    const i = document.createElement('i'); s.append(i, document.createTextNode('Failed to load'));
+    el.append(s);
+  }
+  function settled(id) { const st = dash.data(id).status; return st === 'ok' || st === 'error' || st === 'missing'; }
+
+  function parseWhere(w) {
+    const o = {};
+    (w || '').split('&').forEach(p => { if (!p) return; const [k, v] = p.split('='); o[decodeURIComponent(k)] = decodeURIComponent(v); });
+    return o;
+  }
+  function lookup(el) {
+    const id = el.dataset.source.split(' ')[0];
+    const d = dash.data(id);
+    if (d.status !== 'ok') return { status: d.status };
+    let v = d.data;
+    if (Array.isArray(v)) {
+      let row;
+      if (el.dataset.row != null) row = v[Number(el.dataset.row)];
+      else if (el.dataset.where) { const w = parseWhere(el.dataset.where); row = v.find(r => Object.keys(w).every(k => String(r[k]) === w[k])); }
+      v = row && el.dataset.field ? row[el.dataset.field] : undefined;
+    } else if (el.dataset.field && v && typeof v === 'object') v = v[el.dataset.field];
+    return { status: 'ok', value: v };
+  }
+
+  // Single values marked in the markup
+  function fillValues() {
+    document.querySelectorAll('.ca [data-source]').forEach(el => {
+      if (el.tagName === 'TABLE' || el.classList.contains('ca-chart') || el.classList.contains('ca-legend') || el.classList.contains('ca-hb') || el.id === 'ivl') return;
+      const r = lookup(el);
+      if (r.status !== 'ok') { if (settled(el.dataset.source.split(' ')[0])) el.classList.remove('dash-skeleton'); if (r.status === 'error') el.textContent = ''; return; }
+      el.classList.remove('dash-skeleton');
+      if (r.value == null || r.value === '') { el.textContent = ''; return; }
+      const n = Number(r.value);
+      const f = FMT[el.dataset.fmt];
+      el.textContent = f && !Number.isNaN(n) ? f(n) : String(r.value);
+      if (el.dataset.fmt === 'ptsdelta') { el.classList.toggle('ca-up', n > 0); el.classList.toggle('ca-down', n < 0); }
+    });
+    for (const id of ['rec60', 'rec60_31_90', 'rec60_0_30']) {
+      const el = document.getElementById('ci-' + id);
+      const r = rows('experiment_results').find(x => x.metric_id === id);
+      if (!r) { el.textContent = ' '; continue; }
+      const lo = Number(r.ci_low), hi = Number(r.ci_high), p = Number(r.p_value);
+      el.textContent = `95% interval ${signed(lo * 100)} to ${signed(hi * 100)} pts, p = ${p < 0.001 ? p.toFixed(4) : p.toFixed(3)}. ` +
+        (lo > 0 ? 'Clear gain.' : hi < 0 ? 'Clear loss.' : 'Includes zero.');
+    }
+  }
+
+  function chips(holderId, items, key, onPick) {
+    const holder = document.getElementById(holderId);
+    if (!holder.childElementCount) {
+      items.forEach(([v, label]) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'ca-chip'; b.textContent = label; b.dataset.v = v;
+        b.addEventListener('click', () => { state[key] = v; onPick(); });
+        holder.append(b);
+      });
+    }
+    holder.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === state[key])));
+  }
+
+  function tip(container) {
+    let t = container.querySelector('.ca-tip');
+    if (!t) { t = document.createElement('div'); t.className = 'ca-tip'; t.hidden = true; container.append(t); }
+    return t;
+  }
+
+  // Recovery curves by cohort
+  function drawCohort() {
+    chips('cohort-chips', MONTHS, 'cohort', drawCohort);
+    const el = document.getElementById('cohort-chart');
+    const legend = document.getElementById('cohort-legend');
+    el.querySelectorAll('svg').forEach(n => n.remove());
+    legend.textContent = '';
+    const st = dash.data('cohort_recovery').status;
+    if (st === 'error') { failedLine(el); return; }
+    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
+    el.classList.remove('dash-skeleton');
+    el.querySelectorAll('.ca-fail').forEach(n => n.remove());
+    const data = rows('cohort_recovery').filter(r => r.placed_month === state.cohort);
+    const series = [...BANKS, ['ALL', 'All banks']].map(([id, name], i) => ({
+      id, name, color: id === 'ALL' ? 'var(--color-fg)' : dash.colors[i],
+      pts: data.filter(r => r.client_id === id).map(r => ({ d: Number(r.days_since_placement), v: Number(r.recovery_rate) })).sort((a, b) => a.d - b.d)
+    })).filter(s => s.pts.length);
+    series.forEach(s => {
+      const last = s.pts[s.pts.length - 1];
+      const item = document.createElement('span');
+      const sw = document.createElement('i'); sw.style.background = s.color;
+      if (s.id === 'ALL') sw.style.height = '2px';
+      const b = document.createElement('b'); b.textContent = pct(last.v);
+      item.append(sw, document.createTextNode(s.name + ' '), b, document.createTextNode(` by day ${last.d}`));
+      legend.append(item);
+    });
+    const W = el.clientWidth; if (!W || !series.length) return;
+    const H = 280, m = { t: 10, r: 12, b: 26, l: 40 };
+    const maxD = d3.max(series, s => d3.max(s.pts, p => p.d));
+    const x = d3.scaleLinear([1, Math.max(maxD, 2)], [m.l, W - m.r]);
+    const y = d3.scaleLinear([0, Math.max(0.1, d3.max(series, s => d3.max(s.pts, p => p.v)) * 1.08)], [H - m.b, m.t]).nice();
+    const svg = d3.select(el).insert('svg', ':first-child').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    svg.append('g').selectAll('line').data(y.ticks(5)).join('line')
+      .attr('x1', m.l).attr('x2', W - m.r).attr('y1', d => y(d)).attr('y2', d => y(d)).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(y.ticks(5)).join('text')
+      .attr('x', m.l - 6).attr('y', d => y(d)).attr('dy', '0.32em').attr('text-anchor', 'end').text(d3.format('.0%'));
+    const xt = x.ticks(Math.max(2, Math.min(8, Math.floor(W / 70))));
+    svg.append('g').selectAll('text').data(xt).join('text')
+      .attr('x', d => x(d)).attr('y', H - 8).attr('text-anchor', 'middle').text(d => d === xt[xt.length - 1] ? `day ${d}` : d);
+    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', H - m.b).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-axis)');
+    const line = d3.line().x(p => x(p.d)).y(p => y(p.v));
+    series.forEach(s => svg.append('path').attr('d', line(s.pts)).attr('fill', 'none').attr('stroke', s.color)
+      .attr('stroke-width', s.id === 'ALL' ? 2 : 2).attr('stroke-dasharray', s.id === 'ALL' ? '5 4' : null)
+      .attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round'));
+    const rule = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-reference)').style('display', 'none');
+    const dots = svg.append('g');
+    const t = tip(el);
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).attr('fill', 'transparent')
+      .on('mousemove', (ev) => {
+        const [mx] = d3.pointer(ev);
+        const d = Math.max(1, Math.min(maxD, Math.round(x.invert(mx))));
+        rule.style('display', null).attr('x1', x(d)).attr('x2', x(d));
+        const at = series.map(s => ({ s, p: s.pts.find(p => p.d === d) })).filter(o => o.p);
+        dots.selectAll('circle').data(at).join('circle').attr('cx', o => x(o.p.d)).attr('cy', o => y(o.p.v)).attr('r', 4)
+          .attr('fill', o => o.s.color).attr('stroke', 'var(--color-panel)').attr('stroke-width', 2);
+        t.textContent = '';
+        const head = document.createElement('div'); head.className = 't'; head.textContent = `${monthName(state.cohort)} cohort, day ${d}`; t.append(head);
+        at.forEach(o => { const r = document.createElement('div'); r.className = 'r'; const i = document.createElement('i'); i.style.background = o.s.color; r.append(i, document.createTextNode(`${o.s.name}  ${pct(o.p.v)}`)); t.append(r); });
+        t.hidden = false;
+        const tw = t.offsetWidth;
+        t.style.left = Math.min(Math.max(0, x(d) + 12), W - tw) + 'px';
+        t.style.top = '8px';
+      })
+      .on('mouseleave', () => { rule.style('display', 'none'); dots.selectAll('circle').remove(); t.hidden = true; });
+  }
+
+  // Funnel
+  const STEP_NAMES = { accounts_placed: 'Placed', called: 'Called', reached: 'Reached the customer', agreed_to_pay: 'Agreed to pay', paid_something: 'Paid something', paid_in_full: 'Paid in full' };
+  function drawFunnel() {
+    chips('funnel-chips', [['ALL', 'All banks'], ...BANKS.map(([id, n]) => [id, n.split(' ')[0] === 'Banco' ? 'Meridia' : n.split(' ')[0]])], 'funnelBank', drawFunnel);
+    const el = document.getElementById('funnel-steps');
+    el.textContent = '';
+    const st = dash.data('funnel_steps').status;
+    if (st === 'error' || dash.data('funnel').status === 'error') { failedLine(el); return; }
+    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
+    el.classList.remove('dash-skeleton');
+    const steps = rows('funnel_steps').filter(r => r.client_id === state.funnelBank);
+    const worst = d3.max(steps, s => s.lost_from_previous || 0);
+    const where = `client_id=${state.funnelBank}&dpd_bucket=ALL`;
+    steps.forEach((s, i) => {
+      if (i) {
+        const loss = document.createElement('div');
+        loss.className = 'ca-loss' + (s.lost_from_previous === worst ? ' worst' : '');
+        const v = document.createElement('span');
+        v.dataset.source = 'funnel_steps'; v.dataset.field = 'lost_from_previous'; v.dataset.where = `client_id=${s.client_id}&step=${s.step}`;
+        v.textContent = pct(s.lost_from_previous);
+        loss.append(document.createTextNode('↓ '), v, document.createTextNode(' lost'));
+        const row0 = document.createElement('div'); row0.className = 'ca-step';
+        row0.append(document.createElement('span'), loss);
+        el.append(row0);
+      }
+      const row = document.createElement('div'); row.className = 'ca-step';
+      const name = document.createElement('span'); name.className = 'name'; name.textContent = STEP_NAMES[s.step];
+      const bar = document.createElement('div'); bar.className = 'ca-bar';
+      const fill = document.createElement('i');
+      fill.style.width = (s.share_of_placed * 100) + '%';
+      fill.style.setProperty('--ca-fill', dash.colors[0]);
+      const lab = document.createElement('span');
+      lab.style.left = `min(${s.share_of_placed * 100}%, calc(100% - 8.5rem))`;
+      const n = document.createElement('span'); n.dataset.source = 'funnel'; n.dataset.field = s.step; n.dataset.where = where; n.textContent = int(s.accounts);
+      const sh = document.createElement('span'); sh.dataset.source = 'funnel_steps'; sh.dataset.field = 'share_of_placed'; sh.dataset.where = `client_id=${s.client_id}&step=${s.step}`; sh.textContent = pct(s.share_of_placed);
+      lab.append(n, document.createTextNode(i ? '  ·  ' : ''), i ? sh : document.createTextNode(''));
+      bar.append(fill, lab);
+      row.append(name, bar);
+      el.append(row);
+    });
+  }
+
+  // Monthly table
+  function drawMonthTable() {
+    chips('month-chips', [['ALL', 'All banks'], ...BANKS.map(([id, n]) => [id, n])], 'tableBank', drawMonthTable);
+    const tb = document.querySelector('#month-table tbody');
+    tb.textContent = '';
+    const st = dash.data('client_month').status;
+    if (st !== 'ok') { const tr = tb.insertRow(); const td = tr.insertCell(); td.colSpan = 9; td.style.minHeight = '3rem'; if (st === 'error') failedLine(td); return; }
+    const r = rows('client_month').filter(x => state.tableBank === 'ALL' || x.client_id === state.tableBank);
+    const P = v => (v === '' || v == null) ? 'n/a' : pct(Number(v));
+    r.forEach(x => {
+      const tr = tb.insertRow(); tr.dataset.key = `${x.client_id},${x.month}`;
+      const cells = [x.client_name, monthName(x.month), int(+x.accounts_placed), int(+x.calls), P(x.rpc_rate_per_call), P(x.promise_rate), P(x.paid_on_call_rate), P(x.promise_kept_rate), eur0.format(+x.net_collected_eur)];
+      cells.forEach(c => { tr.insertCell().textContent = c; });
+    });
+  }
+
+  // Interval chart
+  function drawIntervals() {
+    const el = document.getElementById('ivl');
+    el.textContent = '';
+    const st = dash.data('experiment_results').status;
+    if (st === 'error') { failedLine(el); return; }
+    if (st !== 'ok') { el.classList.add('dash-skeleton'); el.style.minHeight = '18rem'; return; }
+    el.classList.remove('dash-skeleton'); el.style.minHeight = '';
+    const r = rows('experiment_results');
+    const lo = Math.min(0, d3.min(r, x => +x.ci_low)) * 100, hi = Math.max(0, d3.max(r, x => +x.ci_high)) * 100;
+    const sc = d3.scaleLinear([lo, hi], [0, 100]).nice();
+    const pos = v => sc(v * 100) + '%';
+    const ticks = sc.ticks(5);
+    const KIND = { primary: 'Primary', 'by debt age': 'Agreed split', secondary: 'Secondary', guardrail: 'Guardrail' };
+    r.forEach(x => {
+      const row = document.createElement('div'); row.className = 'ca-ivl-row';
+      const m = document.createElement('div'); m.className = 'm';
+      const nm = x.metric.replace(' (primary)', '').replace(' (guardrail)', '');
+      const small = document.createElement('small'); small.textContent = KIND[x.kind] || '';
+      m.append(document.createTextNode(nm), small);
+      const tr = document.createElement('div'); tr.className = 'ca-track';
+      const good = +x.ci_low > 0 || +x.ci_high < 0;
+      const color = x.kind === 'guardrail' ? 'var(--cds-chart-muted)' : (good ? dash.colors[0] : 'var(--cds-chart-muted)');
+      tr.style.setProperty('--ca-c', color);
+      ticks.forEach(t => { const g = document.createElement('i'); g.className = 'grid'; g.style.left = sc(t) + '%'; tr.append(g); });
+      const z = document.createElement('i'); z.className = 'zero'; z.style.left = sc(0) + '%'; tr.append(z);
+      const ci = document.createElement('i'); ci.className = 'ci'; ci.style.left = pos(+x.ci_low); ci.style.width = `calc(${pos(+x.ci_high)} - ${pos(+x.ci_low)})`; tr.append(ci);
+      const dot = document.createElement('i'); dot.className = 'dot'; dot.style.left = pos(+x.difference); tr.append(dot);
+      const v = document.createElement('div'); v.className = 'v';
+      const dv = document.createElement('span'); dv.dataset.source = 'experiment_results'; dv.dataset.field = 'difference'; dv.dataset.where = `metric_id=${x.metric_id}`; dv.textContent = pts(+x.difference);
+      const sm = document.createElement('small'); sm.textContent = `${signed(+x.ci_low * 100)} to ${signed(+x.ci_high * 100)}`;
+      v.append(dv, sm);
+      row.append(m, tr, v);
+      el.append(row);
+    });
+    const axisRow = document.createElement('div'); axisRow.className = 'ca-ivl-row ca-axis-row';
+    const ax = document.createElement('div'); ax.className = 'ca-axis';
+    ticks.forEach(t => { const s = document.createElement('span'); s.style.left = sc(t) + '%'; s.textContent = t === 0 ? '0' : signed(t, 0); ax.append(s); });
+    axisRow.append(document.createElement('div'), ax, document.createElement('div'));
+    el.append(axisRow);
+  }
+
+  // Arms over time
+  function drawArm(id, group) {
+    const el = document.getElementById(id);
+    el.querySelectorAll('svg, .ca-fail').forEach(n => n.remove());
+    const st = dash.data('experiment_curves').status;
+    if (st === 'error') { failedLine(el); return; }
+    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
+    el.classList.remove('dash-skeleton');
+    const r = rows('experiment_curves').filter(x => x.age_group === group);
+    const arms = [['control', 'v4.2', 'var(--cds-chart-muted)'], ['treatment', 'v4.3', dash.colors[0]]].map(([v, label, color]) => ({
+      v, label, color, pts: r.filter(x => x.variant === v).map(x => ({ d: +x.day, y: +x.recovery })).sort((a, b) => a.d - b.d)
+    }));
+    const W = el.clientWidth; if (!W) return;
+    const H = 200;
+    const svg = d3.select(el).insert('svg', ':first-child').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    const labels = arms.map(a => `${a.label} ${pct(a.pts[a.pts.length - 1].y)}`);
+    const probe = svg.append('text').text(labels.reduce((a, b) => a.length > b.length ? a : b));
+    const lw = probe.node().getComputedTextLength(); probe.remove();
+    const m = { t: 8, r: lw + 10, b: 22, l: 34 };
+    const x = d3.scaleLinear([1, 60], [m.l, W - m.r]);
+    const y = d3.scaleLinear([0, 0.6], [H - m.b, m.t]);
+    svg.append('g').selectAll('line').data(y.ticks(3)).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', d => y(d)).attr('y2', d => y(d)).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(y.ticks(3)).join('text').attr('x', m.l - 6).attr('y', d => y(d)).attr('dy', '0.32em').attr('text-anchor', 'end').text(d3.format('.0%'));
+    svg.append('g').selectAll('text').data([1, 30, 60]).join('text').attr('x', d => x(d)).attr('y', H - 6).attr('text-anchor', 'middle').text(d => d === 60 ? 'day 60' : d);
+    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', H - m.b).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-axis)');
+    const line = d3.line().x(p => x(p.d)).y(p => y(p.y));
+    const ends = arms.map(a => y(a.pts[a.pts.length - 1].y));
+    if (Math.abs(ends[0] - ends[1]) < 14) { const mid = (ends[0] + ends[1]) / 2; const up = ends[0] < ends[1] ? 0 : 1; ends[up] = mid - 7; ends[1 - up] = mid + 7; }
+    arms.forEach((a, i) => {
+      svg.append('path').attr('d', line(a.pts)).attr('fill', 'none').attr('stroke', a.color).attr('stroke-width', 2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
+      svg.append('text').attr('x', W - m.r + 6).attr('y', ends[i]).attr('dy', '0.32em').style('fill', 'var(--color-fg)').text(labels[i]);
+    });
+  }
+
+  // Tables: invoices and checks
+  function drawInvoices() {
+    const tb = document.querySelector('#inv-table tbody'); tb.textContent = '';
+    const st = dash.data('invoices').status;
+    if (st !== 'ok') { const td = tb.insertRow().insertCell(); td.colSpan = 6; if (st === 'error') failedLine(td); return; }
+    const n2 = new Intl.NumberFormat('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    rows('invoices').forEach(x => {
+      const tr = tb.insertRow();
+      const c = Number(x.correction);
+      [x.invoice_number, x.client_name, `${x.contract_currency} ${n2.format(+x.success_fee_base)}`,
+       c ? `${x.contract_currency} ${c < 0 ? MINUS : ''}${n2.format(Math.abs(c))}` : 'None',
+       `${x.invoice_currency} ${n2.format(+x.total_invoice_currency)}`, n2.format(+x.total_eur)]
+        .forEach((v, i) => { const td = tr.insertCell(); td.textContent = v; if (i === 1) td.className = 'l'; });
+    });
+  }
+  function drawChecks() {
+    const tb = document.querySelector('#chk-table tbody'); tb.textContent = '';
+    const st = dash.data('checks').status;
+    if (st !== 'ok') { const td = tb.insertRow().insertCell(); td.colSpan = 4; if (st === 'error') failedLine(td); return; }
+    const order = { fail: 0, warn: 1, pass: 2 };
+    rows('checks').slice().sort((a, b) => order[a.status] - order[b.status]).forEach(x => {
+      const tr = tb.insertRow();
+      tr.insertCell().textContent = x.check;
+      const s = tr.insertCell(); s.className = 'l';
+      const pill = document.createElement('span'); pill.className = 'ca-pill ' + x.status;
+      pill.textContent = x.status === 'pass' ? 'Pass' : x.status === 'warn' ? 'Warning' : 'Failed';
+      s.append(pill);
+      tr.insertCell().textContent = int(+x.rows_found);
+      const w = tr.insertCell(); w.className = 'wrap'; w.textContent = x.what_it_checks;
+    });
+  }
+
+  // Markets table
+  function drawScorecard() {
+    const tb = document.querySelector('#score-table tbody'); tb.textContent = '';
+    const st = dash.data('market_scorecard').status;
+    if (st !== 'ok') { const td = tb.insertRow().insertCell(); td.colSpan = 10; if (st === 'error') failedLine(td); return; }
+    const MK = { GB: 'UK', AE: 'UAE', ES: 'Spain', MX: 'Mexico' };
+    rows('market_scorecard').forEach(x => {
+      const tr = tb.insertRow();
+      [x.bank, MK[x.country] || x.country, int(+x.accounts), pct(+x.reach_rate), (+x.calls_to_reach).toFixed(1), pct(+x.promise_rate),
+       pct(+x.paid_on_call_rate), pct(+x.first_instalment_kept), pct(+x.recovery_30d), pct(+x.dispute_rate)]
+        .forEach((v, i) => { const td = tr.insertCell(); td.textContent = v; if (i === 1) td.className = 'l'; });
+    });
+  }
+
+  function hbRow(holder, key, value, max, fill, label, small, mark, ref) {
+    const row = document.createElement('div'); row.className = 'ca-hb-row';
+    const k = document.createElement('span'); k.className = 'k'; k.textContent = key;
+    const tr = document.createElement('div'); tr.className = 'ca-hb-track';
+    const bar = document.createElement('i'); bar.style.width = Math.max(0, Math.min(1, value / max)) * 100 + '%'; bar.style.setProperty('--ca-fill', fill);
+    tr.append(bar);
+    if (ref != null) { const r = document.createElement('b'); r.style.left = (ref / max) * 100 + '%'; tr.append(r); }
+    const v = document.createElement('span'); v.className = 'v';
+    const vv = document.createElement('span'); Object.assign(vv.dataset, mark); vv.textContent = label;
+    v.append(vv);
+    if (small) { const sm = document.createElement('small'); sm.textContent = '  ' + small; v.append(sm); }
+    row.append(k, tr, v);
+    holder.append(row);
+  }
+
+  function drawHindi() {
+    const el = document.getElementById('hindi-bars'); el.textContent = '';
+    const st = dash.data('uae_languages').status;
+    if (st === 'error') { failedLine(el); return; }
+    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
+    el.classList.remove('dash-skeleton');
+    const r = rows('uae_languages');
+    const L = [['ar', 'Arabic'], ['en', 'English'], ['hi', 'Hindi']];
+    [['promise_to_pay_rate', 'Promise to pay'], ['callback_rate', 'Asked to call back'], ['refused_rate', 'Refused']].forEach(([f, title]) => {
+      const g = document.createElement('div'); g.className = 'ca-hb-group';
+      const t = document.createElement('div'); t.className = 'ca-hb-title'; t.textContent = title; g.append(t);
+      L.forEach(([code, name]) => {
+        const x = r.find(y => y.language === code); if (!x) return;
+        hbRow(g, name, +x[f], 0.5, code === 'hi' ? dash.colors[0] : 'var(--cds-chart-muted)', pct(+x[f]), null,
+              { source: 'uae_languages', field: f, where: `language=${code}` });
+      });
+      el.append(g);
+    });
+  }
+
+  function drawHours() {
+    const el = document.getElementById('hour-bars'); el.textContent = '';
+    const st = dash.data('call_hours').status;
+    if (st === 'error') { failedLine(el); return; }
+    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
+    el.classList.remove('dash-skeleton');
+    const g = document.createElement('div'); g.className = 'ca-hb-group';
+    rows('call_hours').slice().sort((a, b) => +a.local_hour - +b.local_hour).forEach(x => {
+      const v = +x.reach_vs_expected;
+      hbRow(g, `${String(x.local_hour).padStart(2, '0')}:00`, v, 1.5, v >= 1.1 ? dash.colors[0] : (v < 0.9 ? 'var(--cds-chart-status-critical)' : 'var(--cds-chart-muted)'),
+            v.toFixed(2), `${Math.round(+x.share_of_calls * 100)}% of calls`,
+            { source: 'call_hours', field: 'reach_vs_expected', where: `local_hour=${x.local_hour}` }, 1);
+    });
+    el.append(g);
+  }
+
+  function drawCallsVsReal() {
+    const el = document.getElementById('calls-chart');
+    el.querySelectorAll('svg, .ca-fail').forEach(n => n.remove());
+    const st = dash.data('calls_vs_real').status;
+    if (st === 'error') { failedLine(el); return; }
+    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
+    el.classList.remove('dash-skeleton');
+    const r = rows('calls_vs_real').map(x => ({ k: +x.call_number, sim: +x.simulated_vs_first_call, real: +x.real_vs_first_call })).sort((a, b) => a.k - b.k);
+    const W = el.clientWidth; if (!W || !r.length) return;
+    const H = 200;
+    const svg = d3.select(el).insert('svg', ':first-child').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    const last = r[r.length - 1];
+    const labels = [`our calls ${pct(last.sim)}`, `real bank calls ${pct(last.real)}`];
+    const probe = svg.append('text').text(labels[1]); const lw = probe.node().getComputedTextLength(); probe.remove();
+    const m = { t: 8, r: lw + 12, b: 22, l: 36 };
+    const x = d3.scaleLinear([1, last.k], [m.l, W - m.r]);
+    const y = d3.scaleLinear([0, 1.05], [H - m.b, m.t]);
+    svg.append('g').selectAll('line').data([0, 0.5, 1]).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', d => y(d)).attr('y2', d => y(d)).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data([0, 0.5, 1]).join('text').attr('x', m.l - 6).attr('y', d => y(d)).attr('dy', '0.32em').attr('text-anchor', 'end').text(d3.format('.0%'));
+    svg.append('g').selectAll('text').data(r.map(p => p.k).filter(k => k === 1 || k % 3 === 1 || k === last.k)).join('text')
+      .attr('x', d => x(d)).attr('y', H - 6).attr('text-anchor', 'middle').text(d => d === last.k ? `call ${d}` : d);
+    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', H - m.b).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-axis)');
+    const ends = [y(last.sim), y(last.real)];
+    if (Math.abs(ends[0] - ends[1]) < 14) { const mid = (ends[0] + ends[1]) / 2; const up = ends[0] < ends[1] ? 0 : 1; ends[up] = mid - 7; ends[1 - up] = mid + 7; }
+    [['sim', dash.colors[0]], ['real', 'var(--cds-chart-muted)']].forEach(([f, color], i) => {
+      svg.append('path').attr('d', d3.line().x(p => x(p.k)).y(p => y(p[f]))(r)).attr('fill', 'none').attr('stroke', color)
+        .attr('stroke-width', 2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
+      svg.append('text').attr('x', W - m.r + 6).attr('y', ends[i]).attr('dy', '0.32em').style('fill', 'var(--color-fg)').text(labels[i]);
+    });
+  }
+
+  function drawMarketExp() {
+    const tb = document.querySelector('#mkt-table tbody'); tb.textContent = '';
+    const st = dash.data('older_debt_by_market').status;
+    if (st !== 'ok') { const td = tb.insertRow().insertCell(); td.colSpan = 7; if (st === 'error') failedLine(td); return; }
+    const order = BANKS.map(b => b[1]);
+    rows('older_debt_by_market').slice().sort((a, b) => order.indexOf(a.bank) - order.indexOf(b.bank)).forEach(x => {
+      const tr = tb.insertRow();
+      [x.bank, int(+x.accounts), pct(+x.control), pct(+x.treatment), pts(+x.difference), pts(+x.ci_low), pts(+x.ci_high)]
+        .forEach(v => { tr.insertCell().textContent = v; });
+    });
+  }
+
+  dash.onData(() => {
+    fillValues();
+    drawCohort();
+    drawFunnel();
+    drawMonthTable();
+    drawIntervals();
+    drawArm('arm-a', '0 to 30 days');
+    drawArm('arm-b', '31 to 90 days');
+    drawInvoices();
+    drawChecks();
+    drawScorecard();
+    drawHindi();
+    drawHours();
+    drawCallsVsReal();
+    drawMarketExp();
+  });
+})();
+</script>

@@ -1,0 +1,12 @@
+{
+  "attempt_decay": 0.8157,
+  "pay_ratio_by_dpd_bucket": {
+    "0_30": 1.0,
+    "31_60": 0.4672,
+    "61_90": 0.3667
+  },
+  "notes": {
+    "attempt_decay": "Fitted on real bank calls 1 to 10: each call is this many times as likely to work as the one before.",
+    "pay_ratio_by_dpd_bucket": "Real card customers not defaulting next month, 2 and 3 months behind, relative to 1 month behind."
+  }
+}
