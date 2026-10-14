@@ -112,7 +112,7 @@ def weekend_fx(con):
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    con = duckdb.connect(str(DB), read_only=True)
+    con = duckdb.connect(str(DB), read_only=True, config={"threads": 1})
     daily, impact, look_alikes = duplicate_payments(con)
     fx = weekend_fx(con)
     con.close()

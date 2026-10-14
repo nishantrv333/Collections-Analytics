@@ -138,7 +138,7 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     CHARTS.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(SEED)
-    con = duckdb.connect(str(DB), read_only=True)
+    con = duckdb.connect(str(DB), read_only=True, config={"threads": 1})
     acc = load(con)
     exp = acc[acc.experiment_id == EXPERIMENT_ID].copy()
 

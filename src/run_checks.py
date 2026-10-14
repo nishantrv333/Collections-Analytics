@@ -20,7 +20,7 @@ OUT = ROOT / "output" / "checks"
 
 
 def main():
-    con = duckdb.connect(str(DB), read_only=True)
+    con = duckdb.connect(str(DB), read_only=True, config={"threads": 1})
     failed = 0
     results = []
     for f in sorted(CHECKS.glob("*.sql")):

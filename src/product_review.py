@@ -216,7 +216,7 @@ def charts(lang, calls, real):
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     IMG.mkdir(parents=True, exist_ok=True)
-    con = duckdb.connect(str(DB), read_only=True)
+    con = duckdb.connect(str(DB), read_only=True, config={"threads": 1})
     score = scorecard(con)
     lang, wide = by_language(con)
     tests = hindi_tests(wide)

@@ -115,7 +115,8 @@ def rate_on(fx: pd.DataFrame, currency: str, day: date) -> float:
 
 def write_pdf(path: Path, inv: dict, lines: pd.DataFrame):
     styles = getSampleStyleSheet()
-    doc = SimpleDocTemplate(str(path), pagesize=A4, leftMargin=18 * mm, rightMargin=18 * mm, topMargin=16 * mm)
+    # invariant=1 leaves out the creation time, so the same invoice gives the same file every run
+    doc = SimpleDocTemplate(str(path), pagesize=A4, leftMargin=18 * mm, rightMargin=18 * mm, topMargin=16 * mm, invariant=1)
     cur = inv["invoice_currency"]
     story = [
         Paragraph("Sample invoice built from synthetic data", styles["Italic"]),
@@ -162,7 +163,7 @@ def main():
     out = ROOT / "output" / "invoices" / month
     out.mkdir(parents=True, exist_ok=True)
 
-    con = duckdb.connect(str(DB), read_only=True)
+    con = duckdb.connect(str(DB), read_only=True, config={"threads": 1})
     contracts = con.execute("select * from stg_contracts").df()
     for col in ("valid_from", "valid_to"):
         contracts[col] = pd.to_datetime(contracts[col]).dt.date

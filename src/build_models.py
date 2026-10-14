@@ -54,7 +54,8 @@ def build_order(models):
 
 
 def connect():
-    con = duckdb.connect(str(DB))
+    # One thread, so sums come out in the same order and every rerun writes identical files.
+    con = duckdb.connect(str(DB), config={"threads": 1})
     for csv in sorted(RAW.glob("*.csv")):
         con.execute(f"create or replace view raw_{csv.stem} as select * from read_csv_auto('{csv}', header = true)")
     return con

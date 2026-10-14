@@ -18,7 +18,7 @@ OUT = ROOT / "output" / "dashboard"
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    con = duckdb.connect(str(DB), read_only=True)
+    con = duckdb.connect(str(DB), read_only=True, config={"threads": 1})
 
     con.execute("""
         select k.client_id, c.client_name, c.currency, k.month, k.accounts_placed, k.calls, k.right_party_calls,
