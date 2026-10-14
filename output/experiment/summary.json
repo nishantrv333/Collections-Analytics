@@ -1,6 +1,6 @@
 {
   "monthly_balance_31_90_eur": 5853097.025,
-  "extra_collected_per_month_eur": 345879.79594621575,
+  "extra_collected_per_month_eur": 345879.7959462158,
   "accounts_assigned": 15434,
   "assigned": {
     "control": 7914,
@@ -39,27 +39,27 @@
     "treatment": 7520
   },
   "srm_p_value_clean": 0.8641320066258908,
-  "aa_sd_points": 1.9204701492314846,
+  "aa_sd_points": 1.9031210480944305,
   "aa_accounts": 4521,
-  "minimum_detectable_effect_points": 2.9461573740365585,
+  "minimum_detectable_effect_points": 2.9195424421313203,
   "results": [
     {
       "metric": "Recovery within 60 days (primary)",
       "control": 0.4350493562518592,
-      "treatment": 0.4601880134947996,
-      "difference": 0.025496375873923022,
-      "ci_low": 0.0051529054940430774,
-      "ci_high": 0.04674159983744969,
-      "p_value": 0.015425937101688447
+      "treatment": 0.4601880134947995,
+      "difference": 0.025496375873923026,
+      "ci_low": 0.005726644118643097,
+      "ci_high": 0.04513217044297024,
+      "p_value": 0.012041550996778063
     },
     {
       "metric": "Recovery within 30 days",
       "control": 0.3552494112737534,
       "treatment": 0.3776451651937208,
       "difference": 0.022441220562456243,
-      "ci_low": 0.002774961688829444,
-      "ci_high": 0.04222510713034618,
-      "p_value": 0.023133148281479724
+      "ci_low": 0.004071800882210888,
+      "ci_high": 0.0413617580344654,
+      "p_value": 0.020728175331635595
     },
     {
       "metric": "Reached the customer (guardrail)",
@@ -103,9 +103,9 @@
       "metric": "Recovery within 60 days, 0 to 30 days past due",
       "unit": "points",
       "difference": -0.00716917023532578,
-      "ci_low": -0.03454266585870897,
-      "ci_high": 0.019753923639339883,
-      "p_value": 0.6145123235874361,
+      "ci_low": -0.0377064547278806,
+      "ci_high": 0.019521505245826885,
+      "p_value": 0.6221165414673104,
       "control": 0.5504284662008829,
       "treatment": 0.5429164281203286,
       "accounts": 7602,
@@ -117,12 +117,12 @@
     {
       "metric": "Recovery within 60 days, 31 to 90 days past due",
       "unit": "points",
-      "difference": 0.059093467008812434,
-      "ci_low": 0.03029631673934406,
-      "ci_high": 0.08630776032295936,
-      "p_value": 3.755947738240134e-05,
+      "difference": 0.05909346700881245,
+      "ci_low": 0.031211242260591528,
+      "ci_high": 0.08759726847460697,
+      "p_value": 4.321652855607425e-05,
       "control": 0.3160415134260403,
-      "treatment": 0.37533706575420295,
+      "treatment": 0.375337065754203,
       "accounts": 7459,
       "promise_control": 0.4931506849315068,
       "promise_treatment": 0.7387944358578052,

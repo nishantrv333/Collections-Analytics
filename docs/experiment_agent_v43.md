@@ -31,8 +31,8 @@ All on 15,061 accounts. Intervals are 95%. The recovery numbers are compared ins
 
 | | v4.2 | v4.3 | Difference | 95% interval |
 |---|---:|---:|---:|---|
-| **Recovery within 60 days (primary)** | 43.5% | 46.0% | **+2.5 pts** | 0.5 to 4.7 higher, p = 0.015 |
-| Recovery within 30 days | 35.5% | 37.8% | +2.2 pts | 0.3 to 4.2 higher |
+| **Recovery within 60 days (primary)** | 43.5% | 46.0% | **+2.5 pts** | 0.6 to 4.5 higher, p = 0.012 |
+| Recovery within 30 days | 35.5% | 37.8% | +2.2 pts | 0.4 to 4.1 higher |
 | Promise made, of customers reached | 52.0% | 63.5% | +11.5 pts | 9.5 to 13.5 higher |
 | First instalment kept | 71.0% | 69.1% | 1.9 pts lower | 4.4 lower to 0.5 higher |
 | Reached the customer (guardrail) | 61.4% | 61.4% | no change | 1.5 lower to 1.6 higher |
@@ -48,8 +48,8 @@ All on 15,061 accounts. Intervals are 95%. The recovery numbers are compared ins
 
 | | v4.2 | v4.3 | Difference | 95% interval |
 |---|---:|---:|---:|---|
-| 0 to 30 days past due | 55.0% | 54.3% | 0.7 pts lower | 3.5 lower to 2.0 higher, p = 0.61 |
-| 31 to 90 days past due | 31.6% | 37.5% | **+5.9 pts** | 3.0 to 8.6 higher, p below 0.0001 |
+| 0 to 30 days past due | 55.0% | 54.3% | 0.7 pts lower | 3.8 lower to 2.0 higher, p = 0.62 |
+| 31 to 90 days past due | 31.6% | 37.5% | **+5.9 pts** | 3.1 to 8.8 higher, p below 0.0001 |
 
 With two planned groups I hold each one to p below 0.025 instead of 0.05. The older group clears that by a long way. All of the overall gain comes from it.
 
@@ -63,10 +63,10 @@ This split was not agreed in advance and the test was not sized for it, so it is
 
 | Market | Accounts | v4.2 | v4.3 | Difference | 95% interval |
 |---|---:|---:|---:|---:|---|
-| UK, Northgate | 2,391 | 29.8% | 37.7% | +7.5 pts | 2.9 to 12.0 higher |
-| Spain, Meridia | 1,678 | 32.2% | 38.1% | +6.1 pts | 0.7 to 11.5 higher |
-| Mexico, Lumen | 1,520 | 34.8% | 38.7% | +4.5 pts | 1.4 lower to 10.2 higher |
-| UAE, Desert | 1,870 | 33.2% | 36.9% | +4.0 pts | 0.9 lower to 8.9 higher |
+| UK, Northgate | 2,391 | 29.8% | 37.7% | +7.4 pts | 2.9 to 12.2 higher |
+| Spain, Meridia | 1,678 | 32.2% | 38.1% | +6.1 pts | 0.8 to 11.6 higher |
+| Mexico, Lumen | 1,520 | 34.8% | 38.7% | +4.5 pts | 1.1 lower to 10.6 higher |
+| UAE, Desert | 1,870 | 33.1% | 36.9% | +4.0 pts | 1.0 lower to 8.8 higher |
 
 Positive everywhere, and the intervals all overlap, so there is no sign it works in one market and not another. The UAE gain is the smallest. That fits with the product review, which found the agent struggles in Hindi: if one in seven conversations goes badly in either version, there is less for v4.3 to improve.
 

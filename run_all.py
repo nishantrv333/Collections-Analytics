@@ -23,6 +23,7 @@ STEPS = [
     ("Product review", ["src/product_review.py"]),
     ("Investigations", ["src/investigations.py"]),
     ("Files for the dashboard", ["src/export_dashboard.py"]),
+    ("Dashboard page for GitHub Pages", ["src/build_site.py"]),
 ]
 
 if __name__ == "__main__":

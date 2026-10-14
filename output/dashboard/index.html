@@ -71,9 +71,9 @@
 .ca-hb { display: grid; gap: var(--cds-gap-sm); min-height: 14rem; }
 .ca-hb-group { display: grid; gap: 3px; }
 .ca-hb-title { font-size: var(--cds-font-size-caption); color: var(--color-fg); font-weight: 500; }
-.ca-hb-row { display: grid; grid-template-columns: 4.2rem 1fr 6.5rem; gap: var(--cds-gap-sm); align-items: center; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.ca-hb-row { display: grid; grid-template-columns: 4.2rem 1fr 8.5rem; gap: var(--cds-gap-sm); align-items: center; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
 .ca-hb-row .k { color: var(--color-fg-muted); }
-.ca-hb-row .v { text-align: right; color: var(--color-fg); }
+.ca-hb-row .v { text-align: right; color: var(--color-fg); white-space: nowrap; }
 .ca-hb-row .v small { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
 .ca-hb-track { position: relative; height: 14px; }
 .ca-hb-track > i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--ca-fill); }
@@ -174,7 +174,7 @@
         <p class="ca-note">Reach at each local hour against what its mix of first and later calls predicts (1 is as expected). Raw numbers favour the afternoon only because first calls are made then.</p>
         <div class="ca-hb" id="hour-bars" data-source="call_hours"></div>
       </div>
-      <div class="ca-card" id="real-calls">
+      <div class="ca-card" id="real-calls" style="grid-column: 1 / -1">
         <h3>Each extra call is worth less, as in real bank data</h3>
         <p class="ca-note">Chance a call reaches the customer, as a share of the first call's chance. The grey line is 41,188 real calls by a Portuguese bank (UCI Bank Marketing).</p>
         <div class="ca-chart small" id="calls-chart" data-source="calls_vs_real"></div>
@@ -270,7 +270,7 @@
       <span class="dash-skeleton" data-source="experiment_value" data-field="minimum_detectable_effect_points" data-row="0" data-fmt="ptsraw">&nbsp;</span>.</p>
   </section>
 
-  <section class="ca-grid" aria-label="Invoices and data checks">
+  <section class="ca-sec" aria-label="Invoices and data checks">
     <div class="ca-card" id="invoices">
       <h3>September invoices</h3>
       <p class="ca-note">Success fee base is net money in the bank's own payment files dated in September. Each invoice is worked out in the contract currency and converted once at the 30 September rate.</p>
@@ -407,7 +407,7 @@ dash.calc('checks_summary', {
   const FMT = {
     eur: v => eurC.format(v), eurabs: v => eurC.format(Math.abs(v)), pct: v => pct(v), int: v => int(v),
     pts: v => pts(v), ptsraw: v => Number(v).toFixed(1) + ' pts',
-    p: v => (v < 0.001 ? Number(v).toFixed(4) : Number(v).toFixed(3)), p2: v => Number(v).toFixed(2),
+    p: v => (v < 0.0001 ? 'below 0.0001' : Number(Number(v).toPrecision(2)).toString()), p2: v => Number(v).toFixed(2),
     ptsdelta: v => pts(v)
   };
 
@@ -458,7 +458,7 @@ dash.calc('checks_summary', {
       const r = rows('experiment_results').find(x => x.metric_id === id);
       if (!r) { el.textContent = ' '; continue; }
       const lo = Number(r.ci_low), hi = Number(r.ci_high), p = Number(r.p_value);
-      el.textContent = `95% interval ${signed(lo * 100)} to ${signed(hi * 100)} pts, p = ${p < 0.001 ? p.toFixed(4) : p.toFixed(3)}. ` +
+      el.textContent = `95% interval ${signed(lo * 100)} to ${signed(hi * 100)} pts, ${p < 0.0001 ? 'p below 0.0001' : 'p = ' + Number(p.toPrecision(2))}. ` +
         (lo > 0 ? 'Clear gain.' : hi < 0 ? 'Clear loss.' : 'Includes zero.');
     }
   }
@@ -567,8 +567,9 @@ dash.calc('checks_summary', {
         loss.className = 'ca-loss' + (s.lost_from_previous === worst ? ' worst' : '');
         const v = document.createElement('span');
         v.dataset.source = 'funnel_steps'; v.dataset.field = 'lost_from_previous'; v.dataset.where = `client_id=${s.client_id}&step=${s.step}`;
-        v.textContent = pct(s.lost_from_previous);
-        loss.append(document.createTextNode('↓ '), v, document.createTextNode(' lost'));
+        v.textContent = pct(Math.abs(s.lost_from_previous));
+        if (s.lost_from_previous < 0) loss.append(document.createTextNode('↑ '), v, document.createTextNode(' more: some customers pay without agreeing first'));
+        else loss.append(document.createTextNode('↓ '), v, document.createTextNode(' lost'));
         const row0 = document.createElement('div'); row0.className = 'ca-step';
         row0.append(document.createElement('span'), loss);
         el.append(row0);

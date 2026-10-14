@@ -1,5 +1,7 @@
 # Collections analytics
 
+**[Open the dashboard](https://nishantrv333.github.io/Collections-Analytics/)** to see the results without running anything.
+
 This project is the work a product data analyst does at a company running AI voice agents for banks' debt collection. It covers deciding what the KPIs are and making everyone calculate them the same way, building the data models behind them, invoicing every bank in its own currency, reading experiments on new agent versions properly, and chasing numbers that look off back to the cause.
 
 It is built around four banks, with the UK and the UAE at the centre: Northgate Bank in London and Desert Finance in Dubai, alongside a Spanish bank and a Mexican fintech. Each market runs on its own currency, calendar, languages and calling rules.
@@ -19,7 +21,7 @@ Everything runs from one command in about a minute, and every number below comes
 
 ## What I found
 
-**The new agent should go live for older debt, in all four markets.** Agent v4.3 starts with the customer's situation before asking for money. It raised promises to pay by 11.5 points, which is the number everyone would have watched, but the money moved far less. Recovery within 60 days rose 2.5 points overall (p = 0.015). All of that came from accounts 31 to 90 days past due, which gained 5.9 points (p below 0.0001), and the gain was positive in the UK, the UAE, Spain and Mexico. Newer debt saw no change. Disputes nearly halved. Going live for the older group is worth about EUR 346,000 a month more collected for the banks. [Full write up](docs/experiment_agent_v43.md)
+**The new agent should go live for older debt, in all four markets.** Agent v4.3 starts with the customer's situation before asking for money. It raised promises to pay by 11.5 points, which is the number everyone would have watched, but the money moved far less. Recovery within 60 days rose 2.5 points overall (p = 0.012). All of that came from accounts 31 to 90 days past due, which gained 5.9 points (p below 0.0001), and the gain was positive in the UK, the UAE, Spain and Mexico. Newer debt saw no change. Disputes nearly halved. Going live for the older group is worth about EUR 346,000 a month more collected for the banks. [Full write up](docs/experiment_agent_v43.md)
 
 ![What v4.3 changed, every metric with its 95% interval](docs/img/experiment_lift.png)
 
@@ -38,7 +40,7 @@ Everything runs from one command in about a minute, and every number below comes
 | The job | Where it is in this project |
 |---|---|
 | Own the numbers | [docs/metrics.md](docs/metrics.md) defines every KPI once, with the SQL file that calculates it. It also covers the two versions of "collected in September" that operations and finance both use, and why a UK bank holiday made them differ by GBP 174,317. |
-| Build the source of truth | `sql/` has three layers of models (staging, intermediate, marts) built in DuckDB, plus a dashboard on top (its page is in `output/dashboard/`). |
+| Build the source of truth | `sql/` has three layers of models (staging, intermediate, marts) built in DuckDB, plus a [dashboard](https://nishantrv333.github.io/Collections-Analytics/) on top. |
 | Automate invoicing | `src/invoicing.py` invoices every bank for a month. It handles tiered success fees, usage, platform fees, minimums, contract changes, currency conversion at the ECB rate and corrections to earlier months. It refuses to write an invoice that does not tie back to the data. |
 | Prove what works | `src/experiment.py` reads the v4.3 test. It runs a split check, an A/A test for sizing, stratified bootstrap intervals, guardrails, and the planned split by debt age with a check by market. |
 | Product insight | `src/product_review.py` compares markets, languages, call numbers and calling hours, and turns each finding into a test or a fix with its size. |
@@ -65,6 +67,7 @@ That runs these steps in order and stops at the first failure:
 8. `src/product_review.py` builds the product review numbers
 9. `src/investigations.py` reproduces the numbers in the two investigations
 10. `src/export_dashboard.py` writes the small files the dashboard reads
+11. `src/build_site.py` builds `index.html`, the dashboard as a page GitHub Pages can serve
 
 ## The four banks
 
@@ -135,6 +138,7 @@ I used Claude as a pair programmer on this, mostly for the data generator, the P
 
 ```
 run_all.py                  runs everything
+index.html                  the dashboard page served by GitHub Pages (built by run_all.py)
 src/                        Python: real data, data generator, model builder, checks, invoicing, experiment, product review, investigations
 sql/staging/                one model per raw table
 sql/intermediate/           business rules

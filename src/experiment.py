@@ -44,6 +44,7 @@ def load(con):
         select a.*, e.experiment_id
         from fct_accounts a
         left join stg_experiment_assignments e using (account_id)
+        order by a.account_id  -- fixed order, so the random splits below never depend on how the database returned rows
     """).df()
     acc["placed_date"] = pd.to_datetime(acc["placed_date"])
     acc["age_group"] = np.where(acc.dpd_bucket == "0_30", "0 to 30 days", "31 to 90 days")
@@ -240,6 +241,7 @@ def main():
         select cf.account_id, cf.day_n, cf.net_amount
         from int_account_cashflow cf
         where cf.day_n between 0 and 59
+        order by cf.account_id, cf.day_n
     """).df()
     con.close()
     flows = flows.merge(clean[["account_id", "experiment_variant", "age_group", "placement_units_per_eur"]], on="account_id")

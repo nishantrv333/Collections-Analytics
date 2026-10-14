@@ -1,0 +1,2336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Collections Analytics</title>
+<meta name="description" content="Dashboard for an AI collections agent working for banks in the UK, UAE, Spain and Mexico: markets, product findings, the agent v4.3 test, invoices and data checks.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@400&display=swap">
+<style>
+/* Layout: one centred column, a thin bar with links on top, the dashboard, then sources. */
+:root {
+  color-scheme: light;
+  --color-bg: #f3f4f6;
+  --color-panel: #ffffff;
+  --color-fg: #15181d;
+  --color-fg-muted: #5b6270;
+  --color-border-line: #e1e4e9;
+  --color-ok: #1a7f37;
+  --color-warn: #9a6700;
+  --color-bad: #c42b2b;
+  --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-4: #eda100;
+  --series-5: #e87ba4; --series-6: #008300; --series-7: #6250d6; --series-8: #e34948;
+  --cds-chart-grid: #e7e9ed;
+  --cds-chart-axis: #b6bcc6;
+  --cds-chart-reference: #8a919c;
+  --cds-chart-muted: #a9afb9;
+  --cds-chart-status-critical: #d03b3b;
+  --cds-surface-popover: #ffffff;
+  --cds-border: #d9dde3;
+  --cds-shadow-popover: 0 4px 16px rgba(15, 20, 30, .10);
+  --cds-text-secondary: #5b6270;
+  --cds-radius: 8px;
+  --cds-pad-xs: 4px; --cds-pad-sm: 8px; --cds-pad-md: 12px; --cds-pad-lg: 18px; --cds-pad-xl: 24px;
+  --cds-gap-xs: 4px; --cds-gap-sm: 8px; --cds-gap-md: 16px; --cds-gap-lg: 24px; --cds-gap-xl: 36px;
+  --cds-font-size-caption: 12.5px; --cds-font-size-body: 15px; --cds-font-size-heading: 16px; --cds-font-size-title: 30px;
+  --cds-font-weight-medium: 500;
+  --cds-dur-slow: 300ms;
+  --font-anthropic-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-anthropic-serif: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-bg: #0f1114; --color-panel: #181b20; --color-fg: #eceef1; --color-fg-muted: #a2a8b3;
+    --color-border-line: #2a2e35; --color-ok: #3fb950; --color-warn: #d29922; --color-bad: #f0605d;
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+    --series-5: #d55181; --series-6: #008300; --series-7: #9085e9; --series-8: #e66767;
+    --cds-chart-grid: #262a31; --cds-chart-axis: #4a505a; --cds-chart-reference: #7b828d; --cds-chart-muted: #5f6672;
+    --cds-surface-popover: #20242a; --cds-border: #343941; --cds-shadow-popover: 0 4px 16px rgba(0, 0, 0, .45);
+    --cds-text-secondary: #a2a8b3;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #0f1114; --color-panel: #181b20; --color-fg: #eceef1; --color-fg-muted: #a2a8b3;
+  --color-border-line: #2a2e35; --color-ok: #3fb950; --color-warn: #d29922; --color-bad: #f0605d;
+  --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+  --series-5: #d55181; --series-6: #008300; --series-7: #9085e9; --series-8: #e66767;
+  --cds-chart-grid: #262a31; --cds-chart-axis: #4a505a; --cds-chart-reference: #7b828d; --cds-chart-muted: #5f6672;
+  --cds-surface-popover: #20242a; --cds-border: #343941; --cds-shadow-popover: 0 4px 16px rgba(0, 0, 0, .45);
+  --cds-text-secondary: #a2a8b3;
+}
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-anthropic-sans); font-size: var(--cds-font-size-body); line-height: 1.45; }
+.site { max-width: 1180px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 40px); padding-block: 0 48px; }
+.topbar { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; justify-content: space-between; padding-block: 16px; margin-bottom: 20px; border-bottom: 1px solid var(--color-border-line); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.topbar b { color: var(--color-fg); font-weight: 600; letter-spacing: .02em; }
+.topbar nav { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+a { color: var(--series-1); text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
+.ca table, .ca svg { max-width: 100%; }
+.dash-skeleton { color: transparent; }
+.site-foot { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--color-border-line); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); display: grid; gap: 6px; max-width: 80ch; line-height: 1.55; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="site">
+<header class="topbar">
+  <span><b>Nishant Vatnal</b> &nbsp;Product data analysis portfolio</span>
+  <nav aria-label="Project links">
+    <a href="https://github.com/nishantrv333/Collections-Analytics">Code and SQL on GitHub</a>
+    <a href="https://github.com/nishantrv333/Collections-Analytics/blob/main/docs/experiment_agent_v43.md">Experiment write up</a>
+    <a href="https://github.com/nishantrv333/Collections-Analytics/blob/main/docs/product_review.md">Product review</a>
+    <a href="https://github.com/nishantrv333/Collections-Analytics/blob/main/docs/real_data.md">What is real</a>
+  </nav>
+</header>
+<main id="dash-root">
+<script type="text/csv" data-dataset="call_hours">
+local_hour,calls,reached_rate,share_first_calls,reach_vs_expected,share_of_calls
+8,2613,0.0734787600459242,0.0,0.862446970659832,0.013511347360038884
+9,10990,0.0748862602365787,0.0,0.8953639699935182,0.05682728950892742
+10,23655,0.1014584654407102,0.0,1.195142647201079,0.12231569912044386
+11,23790,0.0992013451029844,0.0,1.1708816241032256,0.12301375954662268
+12,20034,0.0897973445143256,0.0,1.0721403158609526,0.10359216724493647
+13,17901,0.0917825819786604,0.3162393162393162,0.8248778989519182,0.09256281251131117
+14,19930,0.0849974912192674,0.295333667837431,0.7873969607918802,0.1030544021758802
+15,27346,0.1015505009873473,0.2790536093030059,0.9576407138483204,0.14140118825396988
+16,26657,0.1086018681772142,0.3208162959072664,0.9967279012894676,0.13783849467147208
+17,5335,0.0761012183692596,0.0,1.1131513385429053,0.02758631387899252
+18,4337,0.0915379294443163,0.0,1.292253539122668,0.022425837543240967
+19,4738,0.0943436048965808,0.0,1.3391012018181394,0.024499335549890637
+20,6067,0.0618097906708422,0.0,0.9118545896205644,0.031371352634273215
+</script>
+<script type="text/csv" data-dataset="calls_vs_real">
+call_number,simulated_chance,real_chance,simulated_vs_first_call,real_vs_first_call
+1,0.1736386584926073,0.055841507235117,1.0,1.0
+2,0.154396683395156,0.0514312409751125,0.8891838069673262,0.9210217188186672
+3,0.1156525777984208,0.0442355117139334,0.6660531635202925,0.7921618506406476
+4,0.0846755368814192,0.0326129666011787,0.4876537149993259,0.58402733407363
+5,0.0817978960790564,0.0240770465489566,0.4710811335975563,0.4311675622862717
+6,0.0695736703235661,0.0221565731166912,0.4006807638779829,0.3967760580566424
+7,0.0524624467528585,0.0157938487115544,0.30213575253515396,0.2828334959702187
+8,0.0453786855280934,0.0095666854248733,0.261339761099487,0.1713185388172529
+9,0.038653472046012,0.0123456790123456,0.2226086770168043,0.22108427267847425
+10,0.0302483069977426,0.0109689213893967,0.17420260707111157,0.19642953660281368
+</script>
+<script type="text/csv" data-dataset="checks">
+check,severity,status,rows_found,what_it_checks
+bank_file_loaded_twice,warn,warn,1,"The same bank transaction arriving in more than one load. int_payments keeps only the first copy, so this is a warning, not a failure, but someone should tell the bank."
+bank_reference_unique,error,pass,0,"After deduplication, one row per bank transaction."
+calls_within_permitted_hours,error,pass,0,"Voice calls only inside each market's calling window, in the customer's local time: UAE 09:00 to 20:00 Monday to Friday (Central Bank consumer protection rules), UK 08:00 to 21:00 and Spain and Mexico 09:00 to 21:00, Monday to Saturday, as our stated policy where the regulator only says ""not at unreasonable times"". Never on a Sunday. It has to use local time: in UTC a 10:00 call in Mexico City looks like a 16:00 call."
+collected_within_balance,error,pass,0,We never collect more than the account owed.
+euro_totals_round_trip,error,pass,0,"Every bank's monthly collections, converted to euros and back, land on the local total straight from the bank files. It compares against the source on purpose: a join that drops rows also drops them from any total taken after it, so only the source shows the gap. This is the check that found the missing weekend payments."
+every_payment_has_fx,error,pass,0,"Every payment converts to euros. A payment without a rate silently disappears from any euro total, which is exactly what happened to weekend payments before I fixed the join."
+experiment_one_variant,error,pass,0,"Each account is in one variant, and every call it got used that variant's agent version."
+fx_rate_gaps,warn,pass,0,"Weekdays with no published rate. Usually a bank holiday. The daily rate table carries the last rate forward, but a long gap is worth a look."
+instalments_add_up,error,pass,0,A promise's instalments add up to the promised total.
+no_calls_on_public_holidays,error,pass,0,No calls on a public holiday in the customer's market.
+no_contact_before_placement,error,pass,0,Nothing is sent to a customer before the bank placed the account with us.
+payment_id_unique,error,pass,0,Every loaded payment row has its own id.
+payments_tie_out,error,pass,0,The marts do not lose or invent money: collected per bank per month in the KPI table equals the deduplicated payments.
+reversal_matches_a_payment,error,pass,0,A reversal points to a real payment on the same account and never returns more than was paid.
+</script>
+<script type="text/csv" data-dataset="client_month">
+client_id,client_name,currency,month,accounts_placed,calls,right_party_calls,rpc_rate_per_call,promise_rate,paid_on_call_rate,first_instalments_due,promise_kept_rate,net_collected,net_collected_eur,reversed
+C01,Northgate Bank,GBP,2026-06,3028,16710,1713,0.1025,0.4962,0.1681,644,0.7298,1035248.1,1198593.75,10489.31
+C01,Northgate Bank,GBP,2026-07,3198,22222,1996,0.0898,0.5281,0.1553,1090,0.7138,1883920.42,2206888.1,44648.22
+C01,Northgate Bank,GBP,2026-08,2674,20186,1827,0.0905,0.4724,0.1653,1017,0.7089,1749086.12,2043306.01,46396.17
+C01,Northgate Bank,GBP,2026-09,2028,17646,1514,0.0858,0.4346,0.1764,769,0.7178,1648852.64,1920972.06,46614.78
+C02,Desert Finance,AED,2026-06,2303,11816,1362,0.1153,0.453,0.1645,456,0.7346,3614853.18,856751.81,834.89
+C02,Desert Finance,AED,2026-07,2580,17041,1754,0.1029,0.5074,0.1716,898,0.7027,7173243.5,1710636.94,56134.07
+C02,Desert Finance,AED,2026-08,2154,16068,1524,0.0948,0.4416,0.1726,832,0.7139,7251105.05,1703023.94,128336.77
+C02,Desert Finance,AED,2026-09,1538,13452,1233,0.0917,0.4298,0.1727,584,0.7226,6255156.73,1476949.86,81594.07
+C03,Banco Meridia,EUR,2026-06,2182,11500,1349,0.1173,0.487,0.1653,491,0.666,651720.06,651720.06,10741.71
+C03,Banco Meridia,EUR,2026-07,2191,14617,1528,0.1045,0.5033,0.1754,805,0.6882,1071307.66,1071307.66,31037.56
+C03,Banco Meridia,EUR,2026-08,2103,14255,1459,0.1024,0.4661,0.157,781,0.6671,1091148.41,1091148.41,45087.57
+C03,Banco Meridia,EUR,2026-09,1402,12534,1130,0.0902,0.4717,0.1788,626,0.7093,1044540.78,1044540.78,27717.2
+C04,Lumen Pay,MXN,2026-06,2242,13318,1153,0.0866,0.4892,0.1873,413,0.7312,3057087.18,153063.51,2794.6
+C04,Lumen Pay,MXN,2026-07,2231,16722,1361,0.0814,0.5209,0.1697,739,0.6955,5473369.02,274307.77,45526.08
+C04,Lumen Pay,MXN,2026-08,2040,15822,1300,0.0822,0.4762,0.1662,700,0.6529,5488875.86,277445.11,86378.41
+C04,Lumen Pay,MXN,2026-09,1356,13220,984,0.0744,0.4736,0.1565,555,0.6721,4697551.33,237435.46,96663.26
+</script>
+<script type="text/csv" data-dataset="cohort_recovery">
+client_id,client_name,placed_month,days_since_placement,accounts,recovery_rate
+ALL,All banks,2026-06,1,9755.0,0.0263
+ALL,All banks,2026-06,2,9755.0,0.0532
+ALL,All banks,2026-06,3,9755.0,0.0703
+ALL,All banks,2026-06,4,9755.0,0.0815
+ALL,All banks,2026-06,5,9755.0,0.1015
+ALL,All banks,2026-06,6,9755.0,0.1183
+ALL,All banks,2026-06,7,9755.0,0.1384
+ALL,All banks,2026-06,8,9755.0,0.1627
+ALL,All banks,2026-06,9,9755.0,0.1837
+ALL,All banks,2026-06,10,9755.0,0.1988
+ALL,All banks,2026-06,11,9755.0,0.2165
+ALL,All banks,2026-06,12,9755.0,0.2371
+ALL,All banks,2026-06,13,9755.0,0.2514
+ALL,All banks,2026-06,14,9755.0,0.2652
+ALL,All banks,2026-06,15,9755.0,0.2775
+ALL,All banks,2026-06,16,9755.0,0.2874
+ALL,All banks,2026-06,17,9755.0,0.294
+ALL,All banks,2026-06,18,9755.0,0.3021
+ALL,All banks,2026-06,19,9755.0,0.3106
+ALL,All banks,2026-06,20,9755.0,0.3161
+ALL,All banks,2026-06,21,9755.0,0.3221
+ALL,All banks,2026-06,22,9755.0,0.3275
+ALL,All banks,2026-06,23,9755.0,0.3326
+ALL,All banks,2026-06,24,9755.0,0.3375
+ALL,All banks,2026-06,25,9755.0,0.3427
+ALL,All banks,2026-06,26,9755.0,0.3481
+ALL,All banks,2026-06,27,9755.0,0.3511
+ALL,All banks,2026-06,28,9755.0,0.3544
+ALL,All banks,2026-06,29,9755.0,0.3599
+ALL,All banks,2026-06,30,9755.0,0.364
+ALL,All banks,2026-06,31,9755.0,0.367
+ALL,All banks,2026-06,32,9755.0,0.3691
+ALL,All banks,2026-06,33,9755.0,0.3715
+ALL,All banks,2026-06,34,9755.0,0.3747
+ALL,All banks,2026-06,35,9755.0,0.3802
+ALL,All banks,2026-06,36,9755.0,0.3864
+ALL,All banks,2026-06,37,9755.0,0.3913
+ALL,All banks,2026-06,38,9755.0,0.3955
+ALL,All banks,2026-06,39,9755.0,0.4008
+ALL,All banks,2026-06,40,9755.0,0.4042
+ALL,All banks,2026-06,41,9755.0,0.4089
+ALL,All banks,2026-06,42,9755.0,0.4136
+ALL,All banks,2026-06,43,9755.0,0.418
+ALL,All banks,2026-06,44,9755.0,0.4235
+ALL,All banks,2026-06,45,9755.0,0.4284
+ALL,All banks,2026-06,46,9755.0,0.4327
+ALL,All banks,2026-06,47,9755.0,0.4338
+ALL,All banks,2026-06,48,9755.0,0.4351
+ALL,All banks,2026-06,49,9755.0,0.4361
+ALL,All banks,2026-06,50,9755.0,0.4375
+ALL,All banks,2026-06,51,9755.0,0.4382
+ALL,All banks,2026-06,52,9755.0,0.4386
+ALL,All banks,2026-06,53,9755.0,0.4387
+ALL,All banks,2026-06,54,9755.0,0.4393
+ALL,All banks,2026-06,55,9755.0,0.44
+ALL,All banks,2026-06,56,9755.0,0.4403
+ALL,All banks,2026-06,57,9755.0,0.4404
+ALL,All banks,2026-06,58,9755.0,0.4409
+ALL,All banks,2026-06,59,9755.0,0.441
+ALL,All banks,2026-06,60,9755.0,0.4411
+ALL,All banks,2026-06,61,9755.0,0.4414
+ALL,All banks,2026-06,62,9755.0,0.4415
+ALL,All banks,2026-06,63,9755.0,0.4417
+ALL,All banks,2026-06,64,9755.0,0.4417
+ALL,All banks,2026-06,65,9755.0,0.4418
+ALL,All banks,2026-06,66,9755.0,0.4421
+ALL,All banks,2026-06,67,9755.0,0.4432
+ALL,All banks,2026-06,68,9755.0,0.444
+ALL,All banks,2026-06,69,9755.0,0.4447
+ALL,All banks,2026-06,70,9755.0,0.4455
+ALL,All banks,2026-06,71,9755.0,0.4465
+ALL,All banks,2026-06,72,9755.0,0.4476
+ALL,All banks,2026-06,73,9755.0,0.4485
+ALL,All banks,2026-06,74,9755.0,0.4494
+ALL,All banks,2026-06,75,9755.0,0.4503
+ALL,All banks,2026-06,76,9755.0,0.451
+ALL,All banks,2026-06,77,9755.0,0.452
+ALL,All banks,2026-06,78,9755.0,0.4531
+ALL,All banks,2026-06,79,9755.0,0.4536
+ALL,All banks,2026-06,80,9755.0,0.4542
+ALL,All banks,2026-06,81,9755.0,0.4546
+ALL,All banks,2026-06,82,9755.0,0.4549
+ALL,All banks,2026-06,83,9755.0,0.4554
+ALL,All banks,2026-06,84,9755.0,0.4558
+ALL,All banks,2026-06,85,9755.0,0.4562
+ALL,All banks,2026-06,86,9755.0,0.4564
+ALL,All banks,2026-06,87,9755.0,0.4567
+ALL,All banks,2026-06,88,9755.0,0.4568
+ALL,All banks,2026-06,89,9755.0,0.4571
+ALL,All banks,2026-06,90,9755.0,0.4572
+ALL,All banks,2026-07,1,10200.0,0.0259
+ALL,All banks,2026-07,2,10200.0,0.049
+ALL,All banks,2026-07,3,10200.0,0.0658
+ALL,All banks,2026-07,4,10200.0,0.0801
+ALL,All banks,2026-07,5,10200.0,0.0978
+ALL,All banks,2026-07,6,10200.0,0.1145
+ALL,All banks,2026-07,7,10200.0,0.1381
+ALL,All banks,2026-07,8,10200.0,0.163
+ALL,All banks,2026-07,9,10200.0,0.1811
+ALL,All banks,2026-07,10,10200.0,0.1909
+ALL,All banks,2026-07,11,10200.0,0.2136
+ALL,All banks,2026-07,12,10200.0,0.2354
+ALL,All banks,2026-07,13,10200.0,0.2534
+ALL,All banks,2026-07,14,10200.0,0.2695
+ALL,All banks,2026-07,15,10200.0,0.2838
+ALL,All banks,2026-07,16,10200.0,0.2934
+ALL,All banks,2026-07,17,10200.0,0.3018
+ALL,All banks,2026-07,18,10200.0,0.3093
+ALL,All banks,2026-07,19,10200.0,0.3167
+ALL,All banks,2026-07,20,10200.0,0.3237
+ALL,All banks,2026-07,21,10200.0,0.3299
+ALL,All banks,2026-07,22,10200.0,0.3359
+ALL,All banks,2026-07,23,10200.0,0.3395
+ALL,All banks,2026-07,24,10200.0,0.3437
+ALL,All banks,2026-07,25,10200.0,0.3467
+ALL,All banks,2026-07,26,10200.0,0.3517
+ALL,All banks,2026-07,27,10200.0,0.355
+ALL,All banks,2026-07,28,10200.0,0.3588
+ALL,All banks,2026-07,29,10200.0,0.3635
+ALL,All banks,2026-07,30,10200.0,0.3659
+ALL,All banks,2026-07,31,10200.0,0.3684
+ALL,All banks,2026-07,32,10200.0,0.3703
+ALL,All banks,2026-07,33,10200.0,0.3731
+ALL,All banks,2026-07,34,10200.0,0.3786
+ALL,All banks,2026-07,35,10200.0,0.3817
+ALL,All banks,2026-07,36,10200.0,0.3855
+ALL,All banks,2026-07,37,10200.0,0.389
+ALL,All banks,2026-07,38,10200.0,0.3925
+ALL,All banks,2026-07,39,10200.0,0.3968
+ALL,All banks,2026-07,40,10200.0,0.4028
+ALL,All banks,2026-07,41,10200.0,0.4081
+ALL,All banks,2026-07,42,10200.0,0.4122
+ALL,All banks,2026-07,43,10200.0,0.4173
+ALL,All banks,2026-07,44,10200.0,0.4229
+ALL,All banks,2026-07,45,10200.0,0.429
+ALL,All banks,2026-07,46,10200.0,0.4353
+ALL,All banks,2026-07,47,10200.0,0.437
+ALL,All banks,2026-07,48,10200.0,0.4395
+ALL,All banks,2026-07,49,10200.0,0.4415
+ALL,All banks,2026-07,50,10200.0,0.4429
+ALL,All banks,2026-07,51,10200.0,0.4442
+ALL,All banks,2026-07,52,10200.0,0.4448
+ALL,All banks,2026-07,53,10200.0,0.4457
+ALL,All banks,2026-07,54,10200.0,0.4464
+ALL,All banks,2026-07,55,10200.0,0.4473
+ALL,All banks,2026-07,56,10200.0,0.4476
+ALL,All banks,2026-07,57,10200.0,0.4479
+ALL,All banks,2026-07,58,10200.0,0.4483
+ALL,All banks,2026-07,59,10200.0,0.4483
+ALL,All banks,2026-07,60,10200.0,0.4485
+ALL,All banks,2026-07,61,10200.0,0.4487
+ALL,All banks,2026-08,1,8971.0,0.0284
+ALL,All banks,2026-08,2,8971.0,0.0522
+ALL,All banks,2026-08,3,8971.0,0.0677
+ALL,All banks,2026-08,4,8971.0,0.0783
+ALL,All banks,2026-08,5,8971.0,0.0956
+ALL,All banks,2026-08,6,8971.0,0.1115
+ALL,All banks,2026-08,7,8971.0,0.1326
+ALL,All banks,2026-08,8,8971.0,0.1528
+ALL,All banks,2026-08,9,8971.0,0.176
+ALL,All banks,2026-08,10,8971.0,0.189
+ALL,All banks,2026-08,11,8971.0,0.2037
+ALL,All banks,2026-08,12,8971.0,0.2233
+ALL,All banks,2026-08,13,8971.0,0.2391
+ALL,All banks,2026-08,14,8971.0,0.2521
+ALL,All banks,2026-08,15,8971.0,0.268
+ALL,All banks,2026-08,16,8971.0,0.276
+ALL,All banks,2026-08,17,8971.0,0.2843
+ALL,All banks,2026-08,18,8971.0,0.2915
+ALL,All banks,2026-08,19,8971.0,0.2997
+ALL,All banks,2026-08,20,8971.0,0.3079
+ALL,All banks,2026-08,21,8971.0,0.3125
+ALL,All banks,2026-08,22,8971.0,0.3184
+ALL,All banks,2026-08,23,8971.0,0.324
+ALL,All banks,2026-08,24,8971.0,0.3275
+ALL,All banks,2026-08,25,8971.0,0.3325
+ALL,All banks,2026-08,26,8971.0,0.3354
+ALL,All banks,2026-08,27,8971.0,0.3375
+ALL,All banks,2026-08,28,8971.0,0.3414
+ALL,All banks,2026-08,29,8971.0,0.3452
+ALL,All banks,2026-08,30,8971.0,0.3473
+ALL,All banks,2026-09,1,6324.0,0.0274
+ALL,All banks,2026-09,2,6324.0,0.0503
+ALL,All banks,2026-09,3,6324.0,0.0691
+ALL,All banks,2026-09,4,6324.0,0.0814
+ALL,All banks,2026-09,5,6324.0,0.101
+ALL,All banks,2026-09,6,6324.0,0.1161
+ALL,All banks,2026-09,7,6324.0,0.1375
+ALL,All banks,2026-09,8,6324.0,0.1572
+ALL,All banks,2026-09,9,6324.0,0.1778
+ALL,All banks,2026-09,10,6324.0,0.193
+ALL,All banks,2026-09,11,6324.0,0.2088
+ALL,All banks,2026-09,12,6324.0,0.2255
+C01,Northgate Bank,2026-06,1,3028.0,0.0236
+C01,Northgate Bank,2026-06,2,3028.0,0.0527
+C01,Northgate Bank,2026-06,3,3028.0,0.07
+C01,Northgate Bank,2026-06,4,3028.0,0.0806
+C01,Northgate Bank,2026-06,5,3028.0,0.1017
+C01,Northgate Bank,2026-06,6,3028.0,0.1191
+C01,Northgate Bank,2026-06,7,3028.0,0.1389
+C01,Northgate Bank,2026-06,8,3028.0,0.1631
+C01,Northgate Bank,2026-06,9,3028.0,0.1837
+C01,Northgate Bank,2026-06,10,3028.0,0.1974
+C01,Northgate Bank,2026-06,11,3028.0,0.2164
+C01,Northgate Bank,2026-06,12,3028.0,0.2326
+C01,Northgate Bank,2026-06,13,3028.0,0.2457
+C01,Northgate Bank,2026-06,14,3028.0,0.2597
+C01,Northgate Bank,2026-06,15,3028.0,0.2721
+C01,Northgate Bank,2026-06,16,3028.0,0.2826
+C01,Northgate Bank,2026-06,17,3028.0,0.2892
+C01,Northgate Bank,2026-06,18,3028.0,0.2962
+C01,Northgate Bank,2026-06,19,3028.0,0.3055
+C01,Northgate Bank,2026-06,20,3028.0,0.3104
+C01,Northgate Bank,2026-06,21,3028.0,0.316
+C01,Northgate Bank,2026-06,22,3028.0,0.3206
+C01,Northgate Bank,2026-06,23,3028.0,0.3277
+C01,Northgate Bank,2026-06,24,3028.0,0.3326
+C01,Northgate Bank,2026-06,25,3028.0,0.337
+C01,Northgate Bank,2026-06,26,3028.0,0.3441
+C01,Northgate Bank,2026-06,27,3028.0,0.3471
+C01,Northgate Bank,2026-06,28,3028.0,0.3507
+C01,Northgate Bank,2026-06,29,3028.0,0.3559
+C01,Northgate Bank,2026-06,30,3028.0,0.3602
+C01,Northgate Bank,2026-06,31,3028.0,0.3628
+C01,Northgate Bank,2026-06,32,3028.0,0.3646
+C01,Northgate Bank,2026-06,33,3028.0,0.3669
+C01,Northgate Bank,2026-06,34,3028.0,0.3695
+C01,Northgate Bank,2026-06,35,3028.0,0.3755
+C01,Northgate Bank,2026-06,36,3028.0,0.3827
+C01,Northgate Bank,2026-06,37,3028.0,0.3898
+C01,Northgate Bank,2026-06,38,3028.0,0.3943
+C01,Northgate Bank,2026-06,39,3028.0,0.4028
+C01,Northgate Bank,2026-06,40,3028.0,0.4057
+C01,Northgate Bank,2026-06,41,3028.0,0.4104
+C01,Northgate Bank,2026-06,42,3028.0,0.4149
+C01,Northgate Bank,2026-06,43,3028.0,0.4202
+C01,Northgate Bank,2026-06,44,3028.0,0.4275
+C01,Northgate Bank,2026-06,45,3028.0,0.432
+C01,Northgate Bank,2026-06,46,3028.0,0.4367
+C01,Northgate Bank,2026-06,47,3028.0,0.4376
+C01,Northgate Bank,2026-06,48,3028.0,0.4383
+C01,Northgate Bank,2026-06,49,3028.0,0.4395
+C01,Northgate Bank,2026-06,50,3028.0,0.4409
+C01,Northgate Bank,2026-06,51,3028.0,0.4411
+C01,Northgate Bank,2026-06,52,3028.0,0.4412
+C01,Northgate Bank,2026-06,53,3028.0,0.4409
+C01,Northgate Bank,2026-06,54,3028.0,0.4412
+C01,Northgate Bank,2026-06,55,3028.0,0.4419
+C01,Northgate Bank,2026-06,56,3028.0,0.442
+C01,Northgate Bank,2026-06,57,3028.0,0.4419
+C01,Northgate Bank,2026-06,58,3028.0,0.4426
+C01,Northgate Bank,2026-06,59,3028.0,0.4426
+C01,Northgate Bank,2026-06,60,3028.0,0.4426
+C01,Northgate Bank,2026-06,61,3028.0,0.4429
+C01,Northgate Bank,2026-06,62,3028.0,0.4429
+C01,Northgate Bank,2026-06,63,3028.0,0.4429
+C01,Northgate Bank,2026-06,64,3028.0,0.4435
+C01,Northgate Bank,2026-06,65,3028.0,0.4434
+C01,Northgate Bank,2026-06,66,3028.0,0.4436
+C01,Northgate Bank,2026-06,67,3028.0,0.4454
+C01,Northgate Bank,2026-06,68,3028.0,0.4463
+C01,Northgate Bank,2026-06,69,3028.0,0.447
+C01,Northgate Bank,2026-06,70,3028.0,0.4479
+C01,Northgate Bank,2026-06,71,3028.0,0.449
+C01,Northgate Bank,2026-06,72,3028.0,0.4501
+C01,Northgate Bank,2026-06,73,3028.0,0.4513
+C01,Northgate Bank,2026-06,74,3028.0,0.4523
+C01,Northgate Bank,2026-06,75,3028.0,0.4532
+C01,Northgate Bank,2026-06,76,3028.0,0.4541
+C01,Northgate Bank,2026-06,77,3028.0,0.4548
+C01,Northgate Bank,2026-06,78,3028.0,0.4562
+C01,Northgate Bank,2026-06,79,3028.0,0.4568
+C01,Northgate Bank,2026-06,80,3028.0,0.457
+C01,Northgate Bank,2026-06,81,3028.0,0.4573
+C01,Northgate Bank,2026-06,82,3028.0,0.4576
+C01,Northgate Bank,2026-06,83,3028.0,0.4579
+C01,Northgate Bank,2026-06,84,3028.0,0.4582
+C01,Northgate Bank,2026-06,85,3028.0,0.4582
+C01,Northgate Bank,2026-06,86,3028.0,0.4585
+C01,Northgate Bank,2026-06,87,3028.0,0.459
+C01,Northgate Bank,2026-06,88,3028.0,0.4589
+C01,Northgate Bank,2026-06,89,3028.0,0.4589
+C01,Northgate Bank,2026-06,90,3028.0,0.4591
+C01,Northgate Bank,2026-07,1,3198.0,0.0278
+C01,Northgate Bank,2026-07,2,3198.0,0.0451
+C01,Northgate Bank,2026-07,3,3198.0,0.0641
+C01,Northgate Bank,2026-07,4,3198.0,0.081
+C01,Northgate Bank,2026-07,5,3198.0,0.0968
+C01,Northgate Bank,2026-07,6,3198.0,0.1131
+C01,Northgate Bank,2026-07,7,3198.0,0.1371
+C01,Northgate Bank,2026-07,8,3198.0,0.1668
+C01,Northgate Bank,2026-07,9,3198.0,0.1855
+C01,Northgate Bank,2026-07,10,3198.0,0.1931
+C01,Northgate Bank,2026-07,11,3198.0,0.2153
+C01,Northgate Bank,2026-07,12,3198.0,0.2369
+C01,Northgate Bank,2026-07,13,3198.0,0.2533
+C01,Northgate Bank,2026-07,14,3198.0,0.2724
+C01,Northgate Bank,2026-07,15,3198.0,0.2891
+C01,Northgate Bank,2026-07,16,3198.0,0.2982
+C01,Northgate Bank,2026-07,17,3198.0,0.3091
+C01,Northgate Bank,2026-07,18,3198.0,0.317
+C01,Northgate Bank,2026-07,19,3198.0,0.3249
+C01,Northgate Bank,2026-07,20,3198.0,0.3309
+C01,Northgate Bank,2026-07,21,3198.0,0.3372
+C01,Northgate Bank,2026-07,22,3198.0,0.3439
+C01,Northgate Bank,2026-07,23,3198.0,0.3466
+C01,Northgate Bank,2026-07,24,3198.0,0.3511
+C01,Northgate Bank,2026-07,25,3198.0,0.3537
+C01,Northgate Bank,2026-07,26,3198.0,0.358
+C01,Northgate Bank,2026-07,27,3198.0,0.361
+C01,Northgate Bank,2026-07,28,3198.0,0.3644
+C01,Northgate Bank,2026-07,29,3198.0,0.3675
+C01,Northgate Bank,2026-07,30,3198.0,0.3707
+C01,Northgate Bank,2026-07,31,3198.0,0.3729
+C01,Northgate Bank,2026-07,32,3198.0,0.3736
+C01,Northgate Bank,2026-07,33,3198.0,0.376
+C01,Northgate Bank,2026-07,34,3198.0,0.38
+C01,Northgate Bank,2026-07,35,3198.0,0.3832
+C01,Northgate Bank,2026-07,36,3198.0,0.3872
+C01,Northgate Bank,2026-07,37,3198.0,0.3906
+C01,Northgate Bank,2026-07,38,3198.0,0.3956
+C01,Northgate Bank,2026-07,39,3198.0,0.3998
+C01,Northgate Bank,2026-07,40,3198.0,0.4062
+C01,Northgate Bank,2026-07,41,3198.0,0.4101
+C01,Northgate Bank,2026-07,42,3198.0,0.4141
+C01,Northgate Bank,2026-07,43,3198.0,0.4186
+C01,Northgate Bank,2026-07,44,3198.0,0.4243
+C01,Northgate Bank,2026-07,45,3198.0,0.4307
+C01,Northgate Bank,2026-07,46,3198.0,0.438
+C01,Northgate Bank,2026-07,47,3198.0,0.4395
+C01,Northgate Bank,2026-07,48,3198.0,0.4425
+C01,Northgate Bank,2026-07,49,3198.0,0.4442
+C01,Northgate Bank,2026-07,50,3198.0,0.4462
+C01,Northgate Bank,2026-07,51,3198.0,0.4483
+C01,Northgate Bank,2026-07,52,3198.0,0.4487
+C01,Northgate Bank,2026-07,53,3198.0,0.4491
+C01,Northgate Bank,2026-07,54,3198.0,0.45
+C01,Northgate Bank,2026-07,55,3198.0,0.4508
+C01,Northgate Bank,2026-07,56,3198.0,0.4509
+C01,Northgate Bank,2026-07,57,3198.0,0.4513
+C01,Northgate Bank,2026-07,58,3198.0,0.452
+C01,Northgate Bank,2026-07,59,3198.0,0.452
+C01,Northgate Bank,2026-07,60,3198.0,0.452
+C01,Northgate Bank,2026-07,61,3198.0,0.4521
+C01,Northgate Bank,2026-08,1,2674.0,0.0299
+C01,Northgate Bank,2026-08,2,2674.0,0.0547
+C01,Northgate Bank,2026-08,3,2674.0,0.0715
+C01,Northgate Bank,2026-08,4,2674.0,0.083
+C01,Northgate Bank,2026-08,5,2674.0,0.0957
+C01,Northgate Bank,2026-08,6,2674.0,0.1094
+C01,Northgate Bank,2026-08,7,2674.0,0.1346
+C01,Northgate Bank,2026-08,8,2674.0,0.1539
+C01,Northgate Bank,2026-08,9,2674.0,0.1813
+C01,Northgate Bank,2026-08,10,2674.0,0.1901
+C01,Northgate Bank,2026-08,11,2674.0,0.2032
+C01,Northgate Bank,2026-08,12,2674.0,0.2261
+C01,Northgate Bank,2026-08,13,2674.0,0.2444
+C01,Northgate Bank,2026-08,14,2674.0,0.2581
+C01,Northgate Bank,2026-08,15,2674.0,0.2706
+C01,Northgate Bank,2026-08,16,2674.0,0.2795
+C01,Northgate Bank,2026-08,17,2674.0,0.2885
+C01,Northgate Bank,2026-08,18,2674.0,0.2958
+C01,Northgate Bank,2026-08,19,2674.0,0.3019
+C01,Northgate Bank,2026-08,20,2674.0,0.3078
+C01,Northgate Bank,2026-08,21,2674.0,0.311
+C01,Northgate Bank,2026-08,22,2674.0,0.3165
+C01,Northgate Bank,2026-08,23,2674.0,0.3237
+C01,Northgate Bank,2026-08,24,2674.0,0.3266
+C01,Northgate Bank,2026-08,25,2674.0,0.3311
+C01,Northgate Bank,2026-08,26,2674.0,0.3327
+C01,Northgate Bank,2026-08,27,2674.0,0.3353
+C01,Northgate Bank,2026-08,28,2674.0,0.3393
+C01,Northgate Bank,2026-08,29,2674.0,0.3432
+C01,Northgate Bank,2026-08,30,2674.0,0.3461
+C01,Northgate Bank,2026-08,31,2674.0,0.3486
+C01,Northgate Bank,2026-08,32,2674.0,0.3532
+C01,Northgate Bank,2026-08,33,2674.0,0.3562
+C01,Northgate Bank,2026-09,1,2028.0,0.0273
+C01,Northgate Bank,2026-09,2,2028.0,0.0486
+C01,Northgate Bank,2026-09,3,2028.0,0.0751
+C01,Northgate Bank,2026-09,4,2028.0,0.0872
+C01,Northgate Bank,2026-09,5,2028.0,0.1065
+C01,Northgate Bank,2026-09,6,2028.0,0.1175
+C01,Northgate Bank,2026-09,7,2028.0,0.1382
+C01,Northgate Bank,2026-09,8,2028.0,0.1597
+C01,Northgate Bank,2026-09,9,2028.0,0.1842
+C01,Northgate Bank,2026-09,10,2028.0,0.2004
+C01,Northgate Bank,2026-09,11,2028.0,0.2171
+C01,Northgate Bank,2026-09,12,2028.0,0.233
+C02,Desert Finance,2026-06,1,2303.0,0.0276
+C02,Desert Finance,2026-06,2,2303.0,0.0474
+C02,Desert Finance,2026-06,3,2303.0,0.0609
+C02,Desert Finance,2026-06,4,2303.0,0.074
+C02,Desert Finance,2026-06,5,2303.0,0.09
+C02,Desert Finance,2026-06,6,2303.0,0.1089
+C02,Desert Finance,2026-06,7,2303.0,0.1303
+C02,Desert Finance,2026-06,8,2303.0,0.1537
+C02,Desert Finance,2026-06,9,2303.0,0.1745
+C02,Desert Finance,2026-06,10,2303.0,0.1931
+C02,Desert Finance,2026-06,11,2303.0,0.2104
+C02,Desert Finance,2026-06,12,2303.0,0.2295
+C02,Desert Finance,2026-06,13,2303.0,0.2454
+C02,Desert Finance,2026-06,14,2303.0,0.2582
+C02,Desert Finance,2026-06,15,2303.0,0.2695
+C02,Desert Finance,2026-06,16,2303.0,0.2802
+C02,Desert Finance,2026-06,17,2303.0,0.286
+C02,Desert Finance,2026-06,18,2303.0,0.2964
+C02,Desert Finance,2026-06,19,2303.0,0.3034
+C02,Desert Finance,2026-06,20,2303.0,0.3091
+C02,Desert Finance,2026-06,21,2303.0,0.3168
+C02,Desert Finance,2026-06,22,2303.0,0.3226
+C02,Desert Finance,2026-06,23,2303.0,0.3254
+C02,Desert Finance,2026-06,24,2303.0,0.3306
+C02,Desert Finance,2026-06,25,2303.0,0.3374
+C02,Desert Finance,2026-06,26,2303.0,0.3431
+C02,Desert Finance,2026-06,27,2303.0,0.3459
+C02,Desert Finance,2026-06,28,2303.0,0.3507
+C02,Desert Finance,2026-06,29,2303.0,0.3568
+C02,Desert Finance,2026-06,30,2303.0,0.3611
+C02,Desert Finance,2026-06,31,2303.0,0.3651
+C02,Desert Finance,2026-06,32,2303.0,0.3679
+C02,Desert Finance,2026-06,33,2303.0,0.3692
+C02,Desert Finance,2026-06,34,2303.0,0.3729
+C02,Desert Finance,2026-06,35,2303.0,0.3805
+C02,Desert Finance,2026-06,36,2303.0,0.3859
+C02,Desert Finance,2026-06,37,2303.0,0.3883
+C02,Desert Finance,2026-06,38,2303.0,0.3934
+C02,Desert Finance,2026-06,39,2303.0,0.3964
+C02,Desert Finance,2026-06,40,2303.0,0.3994
+C02,Desert Finance,2026-06,41,2303.0,0.4036
+C02,Desert Finance,2026-06,42,2303.0,0.4092
+C02,Desert Finance,2026-06,43,2303.0,0.4132
+C02,Desert Finance,2026-06,44,2303.0,0.4172
+C02,Desert Finance,2026-06,45,2303.0,0.4227
+C02,Desert Finance,2026-06,46,2303.0,0.4259
+C02,Desert Finance,2026-06,47,2303.0,0.427
+C02,Desert Finance,2026-06,48,2303.0,0.4289
+C02,Desert Finance,2026-06,49,2303.0,0.4302
+C02,Desert Finance,2026-06,50,2303.0,0.4315
+C02,Desert Finance,2026-06,51,2303.0,0.4331
+C02,Desert Finance,2026-06,52,2303.0,0.4336
+C02,Desert Finance,2026-06,53,2303.0,0.4341
+C02,Desert Finance,2026-06,54,2303.0,0.4345
+C02,Desert Finance,2026-06,55,2303.0,0.4354
+C02,Desert Finance,2026-06,56,2303.0,0.4356
+C02,Desert Finance,2026-06,57,2303.0,0.436
+C02,Desert Finance,2026-06,58,2303.0,0.4364
+C02,Desert Finance,2026-06,59,2303.0,0.4365
+C02,Desert Finance,2026-06,60,2303.0,0.4367
+C02,Desert Finance,2026-06,61,2303.0,0.4372
+C02,Desert Finance,2026-06,62,2303.0,0.4374
+C02,Desert Finance,2026-06,63,2303.0,0.4378
+C02,Desert Finance,2026-06,64,2303.0,0.4379
+C02,Desert Finance,2026-06,65,2303.0,0.4383
+C02,Desert Finance,2026-06,66,2303.0,0.4386
+C02,Desert Finance,2026-06,67,2303.0,0.439
+C02,Desert Finance,2026-06,68,2303.0,0.4396
+C02,Desert Finance,2026-06,69,2303.0,0.4406
+C02,Desert Finance,2026-06,70,2303.0,0.4409
+C02,Desert Finance,2026-06,71,2303.0,0.4417
+C02,Desert Finance,2026-06,72,2303.0,0.4424
+C02,Desert Finance,2026-06,73,2303.0,0.443
+C02,Desert Finance,2026-06,74,2303.0,0.444
+C02,Desert Finance,2026-06,75,2303.0,0.4449
+C02,Desert Finance,2026-06,76,2303.0,0.4454
+C02,Desert Finance,2026-06,77,2303.0,0.4462
+C02,Desert Finance,2026-06,78,2303.0,0.4477
+C02,Desert Finance,2026-06,79,2303.0,0.448
+C02,Desert Finance,2026-06,80,2303.0,0.449
+C02,Desert Finance,2026-06,81,2303.0,0.4497
+C02,Desert Finance,2026-06,82,2303.0,0.4498
+C02,Desert Finance,2026-06,83,2303.0,0.4507
+C02,Desert Finance,2026-06,84,2303.0,0.451
+C02,Desert Finance,2026-06,85,2303.0,0.4515
+C02,Desert Finance,2026-06,86,2303.0,0.4516
+C02,Desert Finance,2026-06,87,2303.0,0.4516
+C02,Desert Finance,2026-06,88,2303.0,0.452
+C02,Desert Finance,2026-06,89,2303.0,0.4525
+C02,Desert Finance,2026-06,90,2303.0,0.4527
+C02,Desert Finance,2026-07,1,2580.0,0.0224
+C02,Desert Finance,2026-07,2,2580.0,0.0486
+C02,Desert Finance,2026-07,3,2580.0,0.0633
+C02,Desert Finance,2026-07,4,2580.0,0.075
+C02,Desert Finance,2026-07,5,2580.0,0.0939
+C02,Desert Finance,2026-07,6,2580.0,0.107
+C02,Desert Finance,2026-07,7,2580.0,0.1324
+C02,Desert Finance,2026-07,8,2580.0,0.1527
+C02,Desert Finance,2026-07,9,2580.0,0.1693
+C02,Desert Finance,2026-07,10,2580.0,0.1798
+C02,Desert Finance,2026-07,11,2580.0,0.204
+C02,Desert Finance,2026-07,12,2580.0,0.2261
+C02,Desert Finance,2026-07,13,2580.0,0.247
+C02,Desert Finance,2026-07,14,2580.0,0.2604
+C02,Desert Finance,2026-07,15,2580.0,0.2687
+C02,Desert Finance,2026-07,16,2580.0,0.2796
+C02,Desert Finance,2026-07,17,2580.0,0.2859
+C02,Desert Finance,2026-07,18,2580.0,0.2922
+C02,Desert Finance,2026-07,19,2580.0,0.2987
+C02,Desert Finance,2026-07,20,2580.0,0.3064
+C02,Desert Finance,2026-07,21,2580.0,0.3126
+C02,Desert Finance,2026-07,22,2580.0,0.3185
+C02,Desert Finance,2026-07,23,2580.0,0.3239
+C02,Desert Finance,2026-07,24,2580.0,0.3291
+C02,Desert Finance,2026-07,25,2580.0,0.3325
+C02,Desert Finance,2026-07,26,2580.0,0.3368
+C02,Desert Finance,2026-07,27,2580.0,0.3415
+C02,Desert Finance,2026-07,28,2580.0,0.3444
+C02,Desert Finance,2026-07,29,2580.0,0.3507
+C02,Desert Finance,2026-07,30,2580.0,0.3509
+C02,Desert Finance,2026-07,31,2580.0,0.3537
+C02,Desert Finance,2026-07,32,2580.0,0.3568
+C02,Desert Finance,2026-07,33,2580.0,0.359
+C02,Desert Finance,2026-07,34,2580.0,0.3675
+C02,Desert Finance,2026-07,35,2580.0,0.3707
+C02,Desert Finance,2026-07,36,2580.0,0.374
+C02,Desert Finance,2026-07,37,2580.0,0.3773
+C02,Desert Finance,2026-07,38,2580.0,0.3791
+C02,Desert Finance,2026-07,39,2580.0,0.3832
+C02,Desert Finance,2026-07,40,2580.0,0.39
+C02,Desert Finance,2026-07,41,2580.0,0.397
+C02,Desert Finance,2026-07,42,2580.0,0.4015
+C02,Desert Finance,2026-07,43,2580.0,0.4078
+C02,Desert Finance,2026-07,44,2580.0,0.4141
+C02,Desert Finance,2026-07,45,2580.0,0.4198
+C02,Desert Finance,2026-07,46,2580.0,0.4266
+C02,Desert Finance,2026-07,47,2580.0,0.428
+C02,Desert Finance,2026-07,48,2580.0,0.43
+C02,Desert Finance,2026-07,49,2580.0,0.4326
+C02,Desert Finance,2026-07,50,2580.0,0.4337
+C02,Desert Finance,2026-07,51,2580.0,0.4339
+C02,Desert Finance,2026-07,52,2580.0,0.4347
+C02,Desert Finance,2026-07,53,2580.0,0.4366
+C02,Desert Finance,2026-07,54,2580.0,0.4372
+C02,Desert Finance,2026-07,55,2580.0,0.4386
+C02,Desert Finance,2026-07,56,2580.0,0.4391
+C02,Desert Finance,2026-07,57,2580.0,0.4394
+C02,Desert Finance,2026-07,58,2580.0,0.4395
+C02,Desert Finance,2026-07,59,2580.0,0.4395
+C02,Desert Finance,2026-07,60,2580.0,0.4399
+C02,Desert Finance,2026-07,61,2580.0,0.4402
+C02,Desert Finance,2026-08,1,2154.0,0.0224
+C02,Desert Finance,2026-08,2,2154.0,0.0453
+C02,Desert Finance,2026-08,3,2154.0,0.0607
+C02,Desert Finance,2026-08,4,2154.0,0.0717
+C02,Desert Finance,2026-08,5,2154.0,0.0915
+C02,Desert Finance,2026-08,6,2154.0,0.1131
+C02,Desert Finance,2026-08,7,2154.0,0.1298
+C02,Desert Finance,2026-08,8,2154.0,0.1506
+C02,Desert Finance,2026-08,9,2154.0,0.1732
+C02,Desert Finance,2026-08,10,2154.0,0.1855
+C02,Desert Finance,2026-08,11,2154.0,0.201
+C02,Desert Finance,2026-08,12,2154.0,0.217
+C02,Desert Finance,2026-08,13,2154.0,0.2321
+C02,Desert Finance,2026-08,14,2154.0,0.248
+C02,Desert Finance,2026-08,15,2154.0,0.27
+C02,Desert Finance,2026-08,16,2154.0,0.2768
+C02,Desert Finance,2026-08,17,2154.0,0.2843
+C02,Desert Finance,2026-08,18,2154.0,0.2921
+C02,Desert Finance,2026-08,19,2154.0,0.3029
+C02,Desert Finance,2026-08,20,2154.0,0.3137
+C02,Desert Finance,2026-08,21,2154.0,0.3191
+C02,Desert Finance,2026-08,22,2154.0,0.325
+C02,Desert Finance,2026-08,23,2154.0,0.3306
+C02,Desert Finance,2026-08,24,2154.0,0.3338
+C02,Desert Finance,2026-08,25,2154.0,0.341
+C02,Desert Finance,2026-08,26,2154.0,0.3445
+C02,Desert Finance,2026-08,27,2154.0,0.3467
+C02,Desert Finance,2026-08,28,2154.0,0.3503
+C02,Desert Finance,2026-08,29,2154.0,0.3541
+C02,Desert Finance,2026-08,30,2154.0,0.3544
+C02,Desert Finance,2026-09,1,1538.0,0.0185
+C02,Desert Finance,2026-09,2,1538.0,0.0446
+C02,Desert Finance,2026-09,3,1538.0,0.0584
+C02,Desert Finance,2026-09,4,1538.0,0.068
+C02,Desert Finance,2026-09,5,1538.0,0.0926
+C02,Desert Finance,2026-09,6,1538.0,0.1093
+C02,Desert Finance,2026-09,7,1538.0,0.1355
+C02,Desert Finance,2026-09,8,1538.0,0.1503
+C02,Desert Finance,2026-09,9,1538.0,0.1662
+C02,Desert Finance,2026-09,10,1538.0,0.1744
+C02,Desert Finance,2026-09,11,1538.0,0.1886
+C02,Desert Finance,2026-09,12,1538.0,0.2064
+C03,Banco Meridia,2026-06,1,2182.0,0.0293
+C03,Banco Meridia,2026-06,2,2182.0,0.0635
+C03,Banco Meridia,2026-06,3,2182.0,0.0851
+C03,Banco Meridia,2026-06,4,2182.0,0.0945
+C03,Banco Meridia,2026-06,5,2182.0,0.1163
+C03,Banco Meridia,2026-06,6,2182.0,0.1285
+C03,Banco Meridia,2026-06,7,2182.0,0.1487
+C03,Banco Meridia,2026-06,8,2182.0,0.1747
+C03,Banco Meridia,2026-06,9,2182.0,0.1961
+C03,Banco Meridia,2026-06,10,2182.0,0.2085
+C03,Banco Meridia,2026-06,11,2182.0,0.2251
+C03,Banco Meridia,2026-06,12,2182.0,0.2569
+C03,Banco Meridia,2026-06,13,2182.0,0.271
+C03,Banco Meridia,2026-06,14,2182.0,0.2853
+C03,Banco Meridia,2026-06,15,2182.0,0.2993
+C03,Banco Meridia,2026-06,16,2182.0,0.3071
+C03,Banco Meridia,2026-06,17,2182.0,0.3154
+C03,Banco Meridia,2026-06,18,2182.0,0.3218
+C03,Banco Meridia,2026-06,19,2182.0,0.3311
+C03,Banco Meridia,2026-06,20,2182.0,0.3362
+C03,Banco Meridia,2026-06,21,2182.0,0.3407
+C03,Banco Meridia,2026-06,22,2182.0,0.3469
+C03,Banco Meridia,2026-06,23,2182.0,0.3506
+C03,Banco Meridia,2026-06,24,2182.0,0.3549
+C03,Banco Meridia,2026-06,25,2182.0,0.3588
+C03,Banco Meridia,2026-06,26,2182.0,0.3606
+C03,Banco Meridia,2026-06,27,2182.0,0.3629
+C03,Banco Meridia,2026-06,28,2182.0,0.3629
+C03,Banco Meridia,2026-06,29,2182.0,0.3678
+C03,Banco Meridia,2026-06,30,2182.0,0.3714
+C03,Banco Meridia,2026-06,31,2182.0,0.3731
+C03,Banco Meridia,2026-06,32,2182.0,0.3736
+C03,Banco Meridia,2026-06,33,2182.0,0.377
+C03,Banco Meridia,2026-06,34,2182.0,0.38
+C03,Banco Meridia,2026-06,35,2182.0,0.3819
+C03,Banco Meridia,2026-06,36,2182.0,0.3872
+C03,Banco Meridia,2026-06,37,2182.0,0.3907
+C03,Banco Meridia,2026-06,38,2182.0,0.3927
+C03,Banco Meridia,2026-06,39,2182.0,0.3953
+C03,Banco Meridia,2026-06,40,2182.0,0.3996
+C03,Banco Meridia,2026-06,41,2182.0,0.4048
+C03,Banco Meridia,2026-06,42,2182.0,0.4075
+C03,Banco Meridia,2026-06,43,2182.0,0.4109
+C03,Banco Meridia,2026-06,44,2182.0,0.4153
+C03,Banco Meridia,2026-06,45,2182.0,0.4203
+C03,Banco Meridia,2026-06,46,2182.0,0.4254
+C03,Banco Meridia,2026-06,47,2182.0,0.4269
+C03,Banco Meridia,2026-06,48,2182.0,0.4283
+C03,Banco Meridia,2026-06,49,2182.0,0.4285
+C03,Banco Meridia,2026-06,50,2182.0,0.4299
+C03,Banco Meridia,2026-06,51,2182.0,0.4302
+C03,Banco Meridia,2026-06,52,2182.0,0.431
+C03,Banco Meridia,2026-06,53,2182.0,0.4316
+C03,Banco Meridia,2026-06,54,2182.0,0.433
+C03,Banco Meridia,2026-06,55,2182.0,0.433
+C03,Banco Meridia,2026-06,56,2182.0,0.4339
+C03,Banco Meridia,2026-06,57,2182.0,0.4342
+C03,Banco Meridia,2026-06,58,2182.0,0.4344
+C03,Banco Meridia,2026-06,59,2182.0,0.4346
+C03,Banco Meridia,2026-06,60,2182.0,0.4346
+C03,Banco Meridia,2026-06,61,2182.0,0.4348
+C03,Banco Meridia,2026-06,62,2182.0,0.4348
+C03,Banco Meridia,2026-06,63,2182.0,0.4349
+C03,Banco Meridia,2026-06,64,2182.0,0.4339
+C03,Banco Meridia,2026-06,65,2182.0,0.4339
+C03,Banco Meridia,2026-06,66,2182.0,0.4342
+C03,Banco Meridia,2026-06,67,2182.0,0.4351
+C03,Banco Meridia,2026-06,68,2182.0,0.4361
+C03,Banco Meridia,2026-06,69,2182.0,0.4368
+C03,Banco Meridia,2026-06,70,2182.0,0.4376
+C03,Banco Meridia,2026-06,71,2182.0,0.4389
+C03,Banco Meridia,2026-06,72,2182.0,0.4403
+C03,Banco Meridia,2026-06,73,2182.0,0.441
+C03,Banco Meridia,2026-06,74,2182.0,0.4416
+C03,Banco Meridia,2026-06,75,2182.0,0.4424
+C03,Banco Meridia,2026-06,76,2182.0,0.443
+C03,Banco Meridia,2026-06,77,2182.0,0.4446
+C03,Banco Meridia,2026-06,78,2182.0,0.4449
+C03,Banco Meridia,2026-06,79,2182.0,0.4455
+C03,Banco Meridia,2026-06,80,2182.0,0.4464
+C03,Banco Meridia,2026-06,81,2182.0,0.4464
+C03,Banco Meridia,2026-06,82,2182.0,0.447
+C03,Banco Meridia,2026-06,83,2182.0,0.4474
+C03,Banco Meridia,2026-06,84,2182.0,0.4483
+C03,Banco Meridia,2026-06,85,2182.0,0.449
+C03,Banco Meridia,2026-06,86,2182.0,0.4492
+C03,Banco Meridia,2026-06,87,2182.0,0.4493
+C03,Banco Meridia,2026-06,88,2182.0,0.4497
+C03,Banco Meridia,2026-06,89,2182.0,0.4498
+C03,Banco Meridia,2026-06,90,2182.0,0.4498
+C03,Banco Meridia,2026-07,1,2191.0,0.0293
+C03,Banco Meridia,2026-07,2,2191.0,0.0582
+C03,Banco Meridia,2026-07,3,2191.0,0.0736
+C03,Banco Meridia,2026-07,4,2191.0,0.0868
+C03,Banco Meridia,2026-07,5,2191.0,0.1055
+C03,Banco Meridia,2026-07,6,2191.0,0.1287
+C03,Banco Meridia,2026-07,7,2191.0,0.1497
+C03,Banco Meridia,2026-07,8,2191.0,0.172
+C03,Banco Meridia,2026-07,9,2191.0,0.1896
+C03,Banco Meridia,2026-07,10,2191.0,0.2
+C03,Banco Meridia,2026-07,11,2191.0,0.2226
+C03,Banco Meridia,2026-07,12,2191.0,0.2451
+C03,Banco Meridia,2026-07,13,2191.0,0.2626
+C03,Banco Meridia,2026-07,14,2191.0,0.2771
+C03,Banco Meridia,2026-07,15,2191.0,0.2959
+C03,Banco Meridia,2026-07,16,2191.0,0.3046
+C03,Banco Meridia,2026-07,17,2191.0,0.3117
+C03,Banco Meridia,2026-07,18,2191.0,0.3205
+C03,Banco Meridia,2026-07,19,2191.0,0.3283
+C03,Banco Meridia,2026-07,20,2191.0,0.3345
+C03,Banco Meridia,2026-07,21,2191.0,0.3407
+C03,Banco Meridia,2026-07,22,2191.0,0.3453
+C03,Banco Meridia,2026-07,23,2191.0,0.3475
+C03,Banco Meridia,2026-07,24,2191.0,0.35
+C03,Banco Meridia,2026-07,25,2191.0,0.3527
+C03,Banco Meridia,2026-07,26,2191.0,0.3605
+C03,Banco Meridia,2026-07,27,2191.0,0.3622
+C03,Banco Meridia,2026-07,28,2191.0,0.3671
+C03,Banco Meridia,2026-07,29,2191.0,0.3721
+C03,Banco Meridia,2026-07,30,2191.0,0.3761
+C03,Banco Meridia,2026-07,31,2191.0,0.3786
+C03,Banco Meridia,2026-07,32,2191.0,0.3801
+C03,Banco Meridia,2026-07,33,2191.0,0.3843
+C03,Banco Meridia,2026-07,34,2191.0,0.3879
+C03,Banco Meridia,2026-07,35,2191.0,0.3902
+C03,Banco Meridia,2026-07,36,2191.0,0.3943
+C03,Banco Meridia,2026-07,37,2191.0,0.3973
+C03,Banco Meridia,2026-07,38,2191.0,0.4007
+C03,Banco Meridia,2026-07,39,2191.0,0.4051
+C03,Banco Meridia,2026-07,40,2191.0,0.4094
+C03,Banco Meridia,2026-07,41,2191.0,0.4143
+C03,Banco Meridia,2026-07,42,2191.0,0.417
+C03,Banco Meridia,2026-07,43,2191.0,0.4213
+C03,Banco Meridia,2026-07,44,2191.0,0.4257
+C03,Banco Meridia,2026-07,45,2191.0,0.4325
+C03,Banco Meridia,2026-07,46,2191.0,0.4354
+C03,Banco Meridia,2026-07,47,2191.0,0.4383
+C03,Banco Meridia,2026-07,48,2191.0,0.4407
+C03,Banco Meridia,2026-07,49,2191.0,0.4424
+C03,Banco Meridia,2026-07,50,2191.0,0.4431
+C03,Banco Meridia,2026-07,51,2191.0,0.4449
+C03,Banco Meridia,2026-07,52,2191.0,0.4454
+C03,Banco Meridia,2026-07,53,2191.0,0.446
+C03,Banco Meridia,2026-07,54,2191.0,0.4465
+C03,Banco Meridia,2026-07,55,2191.0,0.4466
+C03,Banco Meridia,2026-07,56,2191.0,0.4466
+C03,Banco Meridia,2026-07,57,2191.0,0.4468
+C03,Banco Meridia,2026-07,58,2191.0,0.447
+C03,Banco Meridia,2026-07,59,2191.0,0.4473
+C03,Banco Meridia,2026-07,60,2191.0,0.4476
+C03,Banco Meridia,2026-07,61,2191.0,0.448
+C03,Banco Meridia,2026-08,1,2103.0,0.0352
+C03,Banco Meridia,2026-08,2,2103.0,0.0596
+C03,Banco Meridia,2026-08,3,2103.0,0.0725
+C03,Banco Meridia,2026-08,4,2103.0,0.0803
+C03,Banco Meridia,2026-08,5,2103.0,0.1017
+C03,Banco Meridia,2026-08,6,2103.0,0.1136
+C03,Banco Meridia,2026-08,7,2103.0,0.1341
+C03,Banco Meridia,2026-08,8,2103.0,0.1561
+C03,Banco Meridia,2026-08,9,2103.0,0.1728
+C03,Banco Meridia,2026-08,10,2103.0,0.193
+C03,Banco Meridia,2026-08,11,2103.0,0.2086
+C03,Banco Meridia,2026-08,12,2103.0,0.2278
+C03,Banco Meridia,2026-08,13,2103.0,0.2405
+C03,Banco Meridia,2026-08,14,2103.0,0.2488
+C03,Banco Meridia,2026-08,15,2103.0,0.2627
+C03,Banco Meridia,2026-08,16,2103.0,0.2705
+C03,Banco Meridia,2026-08,17,2103.0,0.2789
+C03,Banco Meridia,2026-08,18,2103.0,0.2849
+C03,Banco Meridia,2026-08,19,2103.0,0.2939
+C03,Banco Meridia,2026-08,20,2103.0,0.3015
+C03,Banco Meridia,2026-08,21,2103.0,0.3071
+C03,Banco Meridia,2026-08,22,2103.0,0.3139
+C03,Banco Meridia,2026-08,23,2103.0,0.3169
+C03,Banco Meridia,2026-08,24,2103.0,0.3224
+C03,Banco Meridia,2026-08,25,2103.0,0.3251
+C03,Banco Meridia,2026-08,26,2103.0,0.3294
+C03,Banco Meridia,2026-08,27,2103.0,0.3299
+C03,Banco Meridia,2026-08,28,2103.0,0.3339
+C03,Banco Meridia,2026-08,29,2103.0,0.3372
+C03,Banco Meridia,2026-08,30,2103.0,0.3394
+C03,Banco Meridia,2026-09,1,1402.0,0.0412
+C03,Banco Meridia,2026-09,2,1402.0,0.0628
+C03,Banco Meridia,2026-09,3,1402.0,0.0732
+C03,Banco Meridia,2026-09,4,1402.0,0.09
+C03,Banco Meridia,2026-09,5,1402.0,0.1042
+C03,Banco Meridia,2026-09,6,1402.0,0.125
+C03,Banco Meridia,2026-09,7,1402.0,0.1415
+C03,Banco Meridia,2026-09,8,1402.0,0.1664
+C03,Banco Meridia,2026-09,9,1402.0,0.1868
+C03,Banco Meridia,2026-09,10,1402.0,0.2098
+C03,Banco Meridia,2026-09,11,1402.0,0.225
+C03,Banco Meridia,2026-09,12,1402.0,0.2411
+C04,Lumen Pay,2026-06,1,2242.0,0.0283
+C04,Lumen Pay,2026-06,2,2242.0,0.0513
+C04,Lumen Pay,2026-06,3,2242.0,0.0703
+C04,Lumen Pay,2026-06,4,2242.0,0.0823
+C04,Lumen Pay,2026-06,5,2242.0,0.1099
+C04,Lumen Pay,2026-06,6,2242.0,0.1278
+C04,Lumen Pay,2026-06,7,2242.0,0.1421
+C04,Lumen Pay,2026-06,8,2242.0,0.1653
+C04,Lumen Pay,2026-06,9,2242.0,0.1877
+C04,Lumen Pay,2026-06,10,2242.0,0.2046
+C04,Lumen Pay,2026-06,11,2242.0,0.2176
+C04,Lumen Pay,2026-06,12,2242.0,0.2366
+C04,Lumen Pay,2026-06,13,2242.0,0.2538
+C04,Lumen Pay,2026-06,14,2242.0,0.2674
+C04,Lumen Pay,2026-06,15,2242.0,0.2796
+C04,Lumen Pay,2026-06,16,2242.0,0.2874
+C04,Lumen Pay,2026-06,17,2242.0,0.2925
+C04,Lumen Pay,2026-06,18,2242.0,0.3028
+C04,Lumen Pay,2026-06,19,2242.0,0.3102
+C04,Lumen Pay,2026-06,20,2242.0,0.3199
+C04,Lumen Pay,2026-06,21,2242.0,0.3265
+C04,Lumen Pay,2026-06,22,2242.0,0.3323
+C04,Lumen Pay,2026-06,23,2242.0,0.3413
+C04,Lumen Pay,2026-06,24,2242.0,0.3468
+C04,Lumen Pay,2026-06,25,2242.0,0.3528
+C04,Lumen Pay,2026-06,26,2242.0,0.3577
+C04,Lumen Pay,2026-06,27,2242.0,0.3652
+C04,Lumen Pay,2026-06,28,2242.0,0.3692
+C04,Lumen Pay,2026-06,29,2242.0,0.3759
+C04,Lumen Pay,2026-06,30,2242.0,0.3806
+C04,Lumen Pay,2026-06,31,2242.0,0.385
+C04,Lumen Pay,2026-06,32,2242.0,0.3931
+C04,Lumen Pay,2026-06,33,2242.0,0.3983
+C04,Lumen Pay,2026-06,34,2242.0,0.404
+C04,Lumen Pay,2026-06,35,2242.0,0.4074
+C04,Lumen Pay,2026-06,36,2242.0,0.4143
+C04,Lumen Pay,2026-06,37,2242.0,0.4214
+C04,Lumen Pay,2026-06,38,2242.0,0.4276
+C04,Lumen Pay,2026-06,39,2242.0,0.4329
+C04,Lumen Pay,2026-06,40,2242.0,0.4378
+C04,Lumen Pay,2026-06,41,2242.0,0.4446
+C04,Lumen Pay,2026-06,42,2242.0,0.4522
+C04,Lumen Pay,2026-06,43,2242.0,0.4562
+C04,Lumen Pay,2026-06,44,2242.0,0.4618
+C04,Lumen Pay,2026-06,45,2242.0,0.4651
+C04,Lumen Pay,2026-06,46,2242.0,0.4713
+C04,Lumen Pay,2026-06,47,2242.0,0.4726
+C04,Lumen Pay,2026-06,48,2242.0,0.4741
+C04,Lumen Pay,2026-06,49,2242.0,0.4747
+C04,Lumen Pay,2026-06,50,2242.0,0.476
+C04,Lumen Pay,2026-06,51,2242.0,0.4764
+C04,Lumen Pay,2026-06,52,2242.0,0.4768
+C04,Lumen Pay,2026-06,53,2242.0,0.4773
+C04,Lumen Pay,2026-06,54,2242.0,0.4775
+C04,Lumen Pay,2026-06,55,2242.0,0.4792
+C04,Lumen Pay,2026-06,56,2242.0,0.4797
+C04,Lumen Pay,2026-06,57,2242.0,0.4797
+C04,Lumen Pay,2026-06,58,2242.0,0.4798
+C04,Lumen Pay,2026-06,59,2242.0,0.4802
+C04,Lumen Pay,2026-06,60,2242.0,0.4802
+C04,Lumen Pay,2026-06,61,2242.0,0.4807
+C04,Lumen Pay,2026-06,62,2242.0,0.4809
+C04,Lumen Pay,2026-06,63,2242.0,0.4809
+C04,Lumen Pay,2026-06,64,2242.0,0.4809
+C04,Lumen Pay,2026-06,65,2242.0,0.4813
+C04,Lumen Pay,2026-06,66,2242.0,0.4817
+C04,Lumen Pay,2026-06,67,2242.0,0.4818
+C04,Lumen Pay,2026-06,68,2242.0,0.483
+C04,Lumen Pay,2026-06,69,2242.0,0.4833
+C04,Lumen Pay,2026-06,70,2242.0,0.4842
+C04,Lumen Pay,2026-06,71,2242.0,0.4856
+C04,Lumen Pay,2026-06,72,2242.0,0.4873
+C04,Lumen Pay,2026-06,73,2242.0,0.4883
+C04,Lumen Pay,2026-06,74,2242.0,0.4899
+C04,Lumen Pay,2026-06,75,2242.0,0.4906
+C04,Lumen Pay,2026-06,76,2242.0,0.4914
+C04,Lumen Pay,2026-06,77,2242.0,0.4924
+C04,Lumen Pay,2026-06,78,2242.0,0.4931
+C04,Lumen Pay,2026-06,79,2242.0,0.4938
+C04,Lumen Pay,2026-06,80,2242.0,0.4945
+C04,Lumen Pay,2026-06,81,2242.0,0.4946
+C04,Lumen Pay,2026-06,82,2242.0,0.4951
+C04,Lumen Pay,2026-06,83,2242.0,0.4955
+C04,Lumen Pay,2026-06,84,2242.0,0.4963
+C04,Lumen Pay,2026-06,85,2242.0,0.4964
+C04,Lumen Pay,2026-06,86,2242.0,0.4967
+C04,Lumen Pay,2026-06,87,2242.0,0.4974
+C04,Lumen Pay,2026-06,88,2242.0,0.4976
+C04,Lumen Pay,2026-06,89,2242.0,0.4977
+C04,Lumen Pay,2026-06,90,2242.0,0.4981
+C04,Lumen Pay,2026-07,1,2231.0,0.02
+C04,Lumen Pay,2026-07,2,2231.0,0.045
+C04,Lumen Pay,2026-07,3,2231.0,0.0633
+C04,Lumen Pay,2026-07,4,2231.0,0.0782
+C04,Lumen Pay,2026-07,5,2231.0,0.1003
+C04,Lumen Pay,2026-07,6,2231.0,0.1176
+C04,Lumen Pay,2026-07,7,2231.0,0.1373
+C04,Lumen Pay,2026-07,8,2231.0,0.1643
+C04,Lumen Pay,2026-07,9,2231.0,0.1888
+C04,Lumen Pay,2026-07,10,2231.0,0.2115
+C04,Lumen Pay,2026-07,11,2231.0,0.2292
+C04,Lumen Pay,2026-07,12,2231.0,0.2472
+C04,Lumen Pay,2026-07,13,2231.0,0.2592
+C04,Lumen Pay,2026-07,14,2231.0,0.2767
+C04,Lumen Pay,2026-07,15,2231.0,0.2924
+C04,Lumen Pay,2026-07,16,2231.0,0.3008
+C04,Lumen Pay,2026-07,17,2231.0,0.3081
+C04,Lumen Pay,2026-07,18,2231.0,0.3156
+C04,Lumen Pay,2026-07,19,2231.0,0.3236
+C04,Lumen Pay,2026-07,20,2231.0,0.3378
+C04,Lumen Pay,2026-07,21,2231.0,0.342
+C04,Lumen Pay,2026-07,22,2231.0,0.3495
+C04,Lumen Pay,2026-07,23,2231.0,0.355
+C04,Lumen Pay,2026-07,24,2231.0,0.356
+C04,Lumen Pay,2026-07,25,2231.0,0.3607
+C04,Lumen Pay,2026-07,26,2231.0,0.364
+C04,Lumen Pay,2026-07,27,2231.0,0.3689
+C04,Lumen Pay,2026-07,28,2231.0,0.3778
+C04,Lumen Pay,2026-07,29,2231.0,0.3811
+C04,Lumen Pay,2026-07,30,2231.0,0.3859
+C04,Lumen Pay,2026-07,31,2231.0,0.3901
+C04,Lumen Pay,2026-07,32,2231.0,0.3952
+C04,Lumen Pay,2026-07,33,2231.0,0.3984
+C04,Lumen Pay,2026-07,34,2231.0,0.4044
+C04,Lumen Pay,2026-07,35,2231.0,0.4097
+C04,Lumen Pay,2026-07,36,2231.0,0.4154
+C04,Lumen Pay,2026-07,37,2231.0,0.4219
+C04,Lumen Pay,2026-07,38,2231.0,0.4255
+C04,Lumen Pay,2026-07,39,2231.0,0.4302
+C04,Lumen Pay,2026-07,40,2231.0,0.4355
+C04,Lumen Pay,2026-07,41,2231.0,0.4433
+C04,Lumen Pay,2026-07,42,2231.0,0.4495
+C04,Lumen Pay,2026-07,43,2231.0,0.4562
+C04,Lumen Pay,2026-07,44,2231.0,0.4616
+C04,Lumen Pay,2026-07,45,2231.0,0.4643
+C04,Lumen Pay,2026-07,46,2231.0,0.4725
+C04,Lumen Pay,2026-07,47,2231.0,0.474
+C04,Lumen Pay,2026-07,48,2231.0,0.4759
+C04,Lumen Pay,2026-07,49,2231.0,0.4785
+C04,Lumen Pay,2026-07,50,2231.0,0.4792
+C04,Lumen Pay,2026-07,51,2231.0,0.4795
+C04,Lumen Pay,2026-07,52,2231.0,0.4799
+C04,Lumen Pay,2026-07,53,2231.0,0.4808
+C04,Lumen Pay,2026-07,54,2231.0,0.481
+C04,Lumen Pay,2026-07,55,2231.0,0.4821
+C04,Lumen Pay,2026-07,56,2231.0,0.4833
+C04,Lumen Pay,2026-07,57,2231.0,0.4835
+C04,Lumen Pay,2026-07,58,2231.0,0.4837
+C04,Lumen Pay,2026-07,59,2231.0,0.4837
+C04,Lumen Pay,2026-07,60,2231.0,0.4839
+C04,Lumen Pay,2026-07,61,2231.0,0.484
+C04,Lumen Pay,2026-08,1,2040.0,0.0248
+C04,Lumen Pay,2026-08,2,2040.0,0.0425
+C04,Lumen Pay,2026-08,3,2040.0,0.0597
+C04,Lumen Pay,2026-08,4,2040.0,0.0744
+C04,Lumen Pay,2026-08,5,2040.0,0.0926
+C04,Lumen Pay,2026-08,6,2040.0,0.1085
+C04,Lumen Pay,2026-08,7,2040.0,0.1281
+C04,Lumen Pay,2026-08,8,2040.0,0.1418
+C04,Lumen Pay,2026-08,9,2040.0,0.1669
+C04,Lumen Pay,2026-08,10,2040.0,0.183
+C04,Lumen Pay,2026-08,11,2040.0,0.2021
+C04,Lumen Pay,2026-08,12,2040.0,0.2218
+C04,Lumen Pay,2026-08,13,2040.0,0.2351
+C04,Lumen Pay,2026-08,14,2040.0,0.2457
+C04,Lumen Pay,2026-08,15,2040.0,0.2582
+C04,Lumen Pay,2026-08,16,2040.0,0.2684
+C04,Lumen Pay,2026-08,17,2040.0,0.2757
+C04,Lumen Pay,2026-08,18,2040.0,0.2844
+C04,Lumen Pay,2026-08,19,2040.0,0.2879
+C04,Lumen Pay,2026-08,20,2040.0,0.2997
+C04,Lumen Pay,2026-08,21,2040.0,0.3075
+C04,Lumen Pay,2026-08,22,2040.0,0.3124
+C04,Lumen Pay,2026-08,23,2040.0,0.3156
+C04,Lumen Pay,2026-08,24,2040.0,0.3186
+C04,Lumen Pay,2026-08,25,2040.0,0.322
+C04,Lumen Pay,2026-08,26,2040.0,0.325
+C04,Lumen Pay,2026-08,27,2040.0,0.331
+C04,Lumen Pay,2026-08,28,2040.0,0.3351
+C04,Lumen Pay,2026-08,29,2040.0,0.3411
+C04,Lumen Pay,2026-08,30,2040.0,0.3468
+C04,Lumen Pay,2026-09,1,1356.0,0.0252
+C04,Lumen Pay,2026-09,2,1356.0,0.0475
+C04,Lumen Pay,2026-09,3,1356.0,0.0698
+C04,Lumen Pay,2026-09,4,1356.0,0.0832
+C04,Lumen Pay,2026-09,5,1356.0,0.0954
+C04,Lumen Pay,2026-09,6,1356.0,0.1081
+C04,Lumen Pay,2026-09,7,1356.0,0.1261
+C04,Lumen Pay,2026-09,8,1356.0,0.1402
+C04,Lumen Pay,2026-09,9,1356.0,0.1595
+C04,Lumen Pay,2026-09,10,1356.0,0.1781
+C04,Lumen Pay,2026-09,11,1356.0,0.1985
+C04,Lumen Pay,2026-09,12,1356.0,0.2189
+</script>
+<script type="text/csv" data-dataset="experiment_curves">
+age_group,variant,day,recovery
+0 to 30 days,control,1,0.0395654739215112
+0 to 30 days,control,2,0.0805336120452159
+0 to 30 days,control,3,0.1011237090723626
+0 to 30 days,control,4,0.1184437390454152
+0 to 30 days,control,5,0.1469526731340302
+0 to 30 days,control,6,0.1664456498439856
+0 to 30 days,control,7,0.1918224310420854
+0 to 30 days,control,8,0.2241566748280779
+0 to 30 days,control,9,0.2484534155870028
+0 to 30 days,control,10,0.2628157407012014
+0 to 30 days,control,11,0.2855765480821105
+0 to 30 days,control,12,0.3142310179468017
+0 to 30 days,control,13,0.3367940184183645
+0 to 30 days,control,14,0.3535802081610038
+0 to 30 days,control,15,0.3705327021480508
+0 to 30 days,control,16,0.3800913238987157
+0 to 30 days,control,17,0.3888801636217284
+0 to 30 days,control,18,0.3987114496250171
+0 to 30 days,control,19,0.4080137976794289
+0 to 30 days,control,20,0.4119488674989996
+0 to 30 days,control,21,0.4187667220366095
+0 to 30 days,control,22,0.4275557778731752
+0 to 30 days,control,23,0.4312494849627727
+0 to 30 days,control,24,0.4359398499476172
+0 to 30 days,control,25,0.4384786243524667
+0 to 30 days,control,26,0.4455905633273589
+0 to 30 days,control,27,0.4488558682471265
+0 to 30 days,control,28,0.4513936719308067
+0 to 30 days,control,29,0.4550694340342647
+0 to 30 days,control,30,0.4551207123568034
+0 to 30 days,control,31,0.4581428820571607
+0 to 30 days,control,32,0.4623217636496696
+0 to 30 days,control,33,0.465495961988986
+0 to 30 days,control,34,0.4700091569167647
+0 to 30 days,control,35,0.4739921823211578
+0 to 30 days,control,36,0.4794459386860253
+0 to 30 days,control,37,0.4853187629737198
+0 to 30 days,control,38,0.4899089684167413
+0 to 30 days,control,39,0.4947314142350469
+0 to 30 days,control,40,0.5016981341925658
+0 to 30 days,control,41,0.5050115768924724
+0 to 30 days,control,42,0.5109542057227128
+0 to 30 days,control,43,0.5173565797568905
+0 to 30 days,control,44,0.522459098753639
+0 to 30 days,control,45,0.5309869974984323
+0 to 30 days,control,46,0.5370631825307326
+0 to 30 days,control,47,0.538623639903266
+0 to 30 days,control,48,0.5413376643466546
+0 to 30 days,control,49,0.5436159103282747
+0 to 30 days,control,50,0.5450313236849775
+0 to 30 days,control,51,0.5459457919744384
+0 to 30 days,control,52,0.5465445037158877
+0 to 30 days,control,53,0.5467338648043673
+0 to 30 days,control,54,0.5473360725511318
+0 to 30 days,control,55,0.5486573857230734
+0 to 30 days,control,56,0.5493628434852783
+0 to 30 days,control,57,0.5496313066688828
+0 to 30 days,control,58,0.5501912280298743
+0 to 30 days,control,59,0.5501912280298743
+0 to 30 days,control,60,0.5504284662008828
+0 to 30 days,treatment,1,0.0379241960126422
+0 to 30 days,treatment,2,0.0727110920497323
+0 to 30 days,treatment,3,0.0986436592694013
+0 to 30 days,treatment,4,0.1128510326091708
+0 to 30 days,treatment,5,0.1340632038290223
+0 to 30 days,treatment,6,0.1524094619229347
+0 to 30 days,treatment,7,0.1821834232588564
+0 to 30 days,treatment,8,0.2127255005916211
+0 to 30 days,treatment,9,0.237407073101013
+0 to 30 days,treatment,10,0.250565691544163
+0 to 30 days,treatment,11,0.2819227624870293
+0 to 30 days,treatment,12,0.305907452634272
+0 to 30 days,treatment,13,0.3240223832944424
+0 to 30 days,treatment,14,0.3431405486269476
+0 to 30 days,treatment,15,0.3560529449351649
+0 to 30 days,treatment,16,0.3638493397666318
+0 to 30 days,treatment,17,0.373646790285216
+0 to 30 days,treatment,18,0.3814468792945312
+0 to 30 days,treatment,19,0.3884815090251808
+0 to 30 days,treatment,20,0.3968366895313202
+0 to 30 days,treatment,21,0.403771040683603
+0 to 30 days,treatment,22,0.4075246366670524
+0 to 30 days,treatment,23,0.4136759791547453
+0 to 30 days,treatment,24,0.4186044326087431
+0 to 30 days,treatment,25,0.4229681519467235
+0 to 30 days,treatment,26,0.4273863747691042
+0 to 30 days,treatment,27,0.4312237691516399
+0 to 30 days,treatment,28,0.4365609296768525
+0 to 30 days,treatment,29,0.4430279586385767
+0 to 30 days,treatment,30,0.44815496660385
+0 to 30 days,treatment,31,0.4500077955525235
+0 to 30 days,treatment,32,0.4511067818692452
+0 to 30 days,treatment,33,0.455569779095155
+0 to 30 days,treatment,34,0.4629578459949928
+0 to 30 days,treatment,35,0.4689646461445891
+0 to 30 days,treatment,36,0.4724948869230952
+0 to 30 days,treatment,37,0.4789822627034965
+0 to 30 days,treatment,38,0.4819862892543912
+0 to 30 days,treatment,39,0.4901267790833267
+0 to 30 days,treatment,40,0.4949790715334443
+0 to 30 days,treatment,41,0.5007132629549751
+0 to 30 days,treatment,42,0.5055805168728856
+0 to 30 days,treatment,43,0.5138953675114556
+0 to 30 days,treatment,44,0.5215990329972443
+0 to 30 days,treatment,45,0.5257631235719277
+0 to 30 days,treatment,46,0.5314543107220895
+0 to 30 days,treatment,47,0.5336341229371689
+0 to 30 days,treatment,48,0.5349716302959563
+0 to 30 days,treatment,49,0.5364767178989771
+0 to 30 days,treatment,50,0.5377416733435358
+0 to 30 days,treatment,51,0.5385766216726877
+0 to 30 days,treatment,52,0.5394549277015581
+0 to 30 days,treatment,53,0.5407004121733047
+0 to 30 days,treatment,54,0.5416981764520806
+0 to 30 days,treatment,55,0.5423175503481301
+0 to 30 days,treatment,56,0.5422034468241149
+0 to 30 days,treatment,57,0.5426977378561213
+0 to 30 days,treatment,58,0.542752685169531
+0 to 30 days,treatment,59,0.5427812095451566
+0 to 30 days,treatment,60,0.5429164281203285
+31 to 90 days,control,1,0.0153597133341312
+31 to 90 days,control,2,0.0243210032435421
+31 to 90 days,control,3,0.0360626936841842
+31 to 90 days,control,4,0.0454206310654078
+31 to 90 days,control,5,0.0565014306669798
+31 to 90 days,control,6,0.0628559078539978
+31 to 90 days,control,7,0.0786017702025934
+31 to 90 days,control,8,0.0894152610209266
+31 to 90 days,control,9,0.1014416192157984
+31 to 90 days,control,10,0.1090679728511669
+31 to 90 days,control,11,0.1234859189123777
+31 to 90 days,control,12,0.1422358272510668
+31 to 90 days,control,13,0.1525982064051171
+31 to 90 days,control,14,0.1590990726754424
+31 to 90 days,control,15,0.1707077804579278
+31 to 90 days,control,16,0.1817705375288255
+31 to 90 days,control,17,0.188588220671617
+31 to 90 days,control,18,0.196305301369677
+31 to 90 days,control,19,0.2010587156202994
+31 to 90 days,control,20,0.2073377559423847
+31 to 90 days,control,21,0.2123672316642482
+31 to 90 days,control,22,0.2186849727389635
+31 to 90 days,control,23,0.223429097263686
+31 to 90 days,control,24,0.2275415869961616
+31 to 90 days,control,25,0.233043741298179
+31 to 90 days,control,26,0.2365830744643512
+31 to 90 days,control,27,0.2410056277615643
+31 to 90 days,control,28,0.2438874664510679
+31 to 90 days,control,29,0.2485814785935795
+31 to 90 days,control,30,0.2522371059495674
+31 to 90 days,control,31,0.2538545228488779
+31 to 90 days,control,32,0.2558963720419454
+31 to 90 days,control,33,0.2567346166367714
+31 to 90 days,control,34,0.2604054604135615
+31 to 90 days,control,35,0.2623447742226686
+31 to 90 days,control,36,0.2657418004149955
+31 to 90 days,control,37,0.2703388651293695
+31 to 90 days,control,38,0.2748447196956604
+31 to 90 days,control,39,0.277449929279067
+31 to 90 days,control,40,0.2804432490118545
+31 to 90 days,control,41,0.283426948973776
+31 to 90 days,control,42,0.2859862595008253
+31 to 90 days,control,43,0.2886749781291406
+31 to 90 days,control,44,0.2950850104837624
+31 to 90 days,control,45,0.3008027711906978
+31 to 90 days,control,46,0.30595063168878
+31 to 90 days,control,47,0.3070728346900963
+31 to 90 days,control,48,0.3086948134057777
+31 to 90 days,control,49,0.3096701889547765
+31 to 90 days,control,50,0.3115119423621794
+31 to 90 days,control,51,0.3123751064029613
+31 to 90 days,control,52,0.3128195310692647
+31 to 90 days,control,53,0.3131831442240199
+31 to 90 days,control,54,0.3135247006283967
+31 to 90 days,control,55,0.3148179064072572
+31 to 90 days,control,56,0.3151439644848999
+31 to 90 days,control,57,0.3153748595759023
+31 to 90 days,control,58,0.3156174593386909
+31 to 90 days,control,59,0.3158333432414573
+31 to 90 days,control,60,0.3160415134260405
+31 to 90 days,treatment,1,0.0095287308929885
+31 to 90 days,treatment,2,0.0188601096266397
+31 to 90 days,treatment,3,0.0274627474901588
+31 to 90 days,treatment,4,0.038449951434952
+31 to 90 days,treatment,5,0.0522580097117723
+31 to 90 days,treatment,6,0.0708891482417951
+31 to 90 days,treatment,7,0.0893225461897375
+31 to 90 days,treatment,8,0.1137046726849167
+31 to 90 days,treatment,9,0.1313397247940877
+31 to 90 days,treatment,10,0.1398306788759613
+31 to 90 days,treatment,11,0.1580773421472522
+31 to 90 days,treatment,12,0.1730767367533746
+31 to 90 days,treatment,13,0.1889710233166061
+31 to 90 days,treatment,14,0.2072347510237689
+31 to 90 days,treatment,15,0.2225395205755053
+31 to 90 days,treatment,16,0.2325099222092876
+31 to 90 days,treatment,17,0.2386672886424093
+31 to 90 days,treatment,18,0.2444403996890055
+31 to 90 days,treatment,19,0.2531552203475984
+31 to 90 days,treatment,20,0.2608619632631541
+31 to 90 days,treatment,21,0.2655381438289772
+31 to 90 days,treatment,22,0.2719521797083129
+31 to 90 days,treatment,23,0.2751524336755122
+31 to 90 days,treatment,24,0.2789902590318003
+31 to 90 days,treatment,25,0.2844951162080433
+31 to 90 days,treatment,26,0.290375670521363
+31 to 90 days,treatment,27,0.2922378677975292
+31 to 90 days,treatment,28,0.2965698577955732
+31 to 90 days,treatment,29,0.3017750045861266
+31 to 90 days,treatment,30,0.305326319223663
+31 to 90 days,treatment,31,0.3077089209654837
+31 to 90 days,treatment,32,0.3083314542931514
+31 to 90 days,treatment,33,0.3105989846968072
+31 to 90 days,treatment,34,0.3128812442667491
+31 to 90 days,treatment,35,0.3172039404240397
+31 to 90 days,treatment,36,0.3226243645907111
+31 to 90 days,treatment,37,0.3240560849218312
+31 to 90 days,treatment,38,0.3271333658914572
+31 to 90 days,treatment,39,0.3301097811551753
+31 to 90 days,treatment,40,0.3344604910098263
+31 to 90 days,treatment,41,0.3421229203840307
+31 to 90 days,treatment,42,0.3455706434695708
+31 to 90 days,treatment,43,0.3485487267276894
+31 to 90 days,treatment,44,0.3534084840058409
+31 to 90 days,treatment,45,0.35894505248266
+31 to 90 days,treatment,46,0.3631066390828862
+31 to 90 days,treatment,47,0.3640973047066796
+31 to 90 days,treatment,48,0.3669196486380405
+31 to 90 days,treatment,49,0.3689031836694421
+31 to 90 days,treatment,50,0.3701190605257197
+31 to 90 days,treatment,51,0.3718879020063383
+31 to 90 days,treatment,52,0.3721946671836315
+31 to 90 days,treatment,53,0.3735252512763384
+31 to 90 days,treatment,54,0.3737003873351774
+31 to 90 days,treatment,55,0.3742021458462206
+31 to 90 days,treatment,56,0.3744929611472107
+31 to 90 days,treatment,57,0.3747376607681011
+31 to 90 days,treatment,58,0.3752042270242046
+31 to 90 days,treatment,59,0.3752583350392772
+31 to 90 days,treatment,60,0.375337065754203
+</script>
+<script type="text/csv" data-dataset="experiment_results">
+metric_id,metric,kind,control,treatment,difference,ci_low,ci_high,p_value
+rec60,Recovery within 60 days (primary),primary,0.4350493562518592,0.4601880134947995,0.025496375873923,0.005726644118643,0.0451321704429702,0.012041550996778
+rec60_0_30,"Recovery within 60 days, 0 to 30 days past due",by debt age,0.5504284662008829,0.5429164281203286,-0.0071691702353257,-0.0377064547278806,0.0195215052458268,0.6221165414673104
+rec60_31_90,"Recovery within 60 days, 31 to 90 days past due",by debt age,0.3160415134260403,0.375337065754203,0.0590934670088124,0.0312112422605915,0.0875972684746069,4.321652855607425e-05
+rec30,Recovery within 30 days,secondary,0.3552494112737534,0.3776451651937208,0.0224412205624562,0.0040718008822108,0.0413617580344654,0.0207281753316355
+promise,"Promise made, of customers reached",secondary,0.519991355089691,0.6351234300563015,0.1151320749666104,0.0951317590765792,0.1351323908566417,1.5964757925027206e-29
+kept,First instalment kept,secondary,0.7103075644222776,0.6911012615069895,-0.0192063029152881,-0.0438672502152647,0.0054546443846884,0.1268912669301414
+reached,Reached the customer (guardrail),guardrail,0.613579100914998,0.614095744680851,0.000516643765853,-0.0150348181696715,0.0160681057013776,0.9480830346140994
+dispute,Dispute raised (guardrail),guardrail,0.0347434027317331,0.0190159574468085,-0.0157274452849246,-0.0208863153047014,-0.0105685752651479,2.296680378989119e-09
+</script>
+<script type="text/csv" data-dataset="experiment_split">
+stage,control,treatment,split_p_value
+assigned,7914,7520,0.0015168339000617218
+analysed,7541,7520,0.8641320066258908
+</script>
+<script type="text/csv" data-dataset="experiment_value">
+monthly_balance_31_90_eur,extra_collected_per_month_eur,minimum_detectable_effect_points,excluded_accounts
+5853097.03,345879.8,2.9195,373
+</script>
+<script type="text/csv" data-dataset="funnel">
+client_id,dpd_bucket,accounts_placed,called,reached,agreed_to_pay,paid_something,paid_in_full,avg_calls_to_reach
+C01,ALL,8900,8900,5407,3910,4881,2927,3.57
+C01,0_30,4467,4467,3122,2390,3015,1844,3.36
+C01,31_60,2637,2637,1506,1047,1255,755,3.75
+C01,61_90,1796,1796,779,473,611,328,4.05
+C02,ALL,7037,7037,4436,3182,3943,2371,3.5
+C02,0_30,3508,3508,2532,1925,2412,1500,3.27
+C02,31_60,2081,2081,1231,871,1033,602,3.72
+C02,61_90,1448,1448,673,386,498,269,3.94
+C03,ALL,6476,6476,4182,3023,3620,2120,3.46
+C03,0_30,3219,3219,2352,1790,2207,1313,3.19
+C03,31_60,1965,1965,1197,852,964,567,3.63
+C03,61_90,1292,1292,633,381,449,240,4.13
+C04,ALL,6513,6513,3677,2714,3818,2273,3.64
+C04,0_30,3272,3272,2129,1657,2409,1473,3.47
+C04,31_60,1916,1916,1038,741,948,552,3.71
+C04,61_90,1325,1325,510,316,461,248,4.19
+ALL,ALL,28926,28926,17702,12829,16262,9691,3.54
+</script>
+<script type="text/csv" data-dataset="invoices">
+invoice_number,client_name,contract_currency,success_fee_base,correction,invoice_currency,total_invoice_currency,total_eur
+INV-202609-C01,Northgate Bank,GBP,1823169.76,0.0,GBP,167085.28,195505.99
+INV-202609-C02,Desert Finance,AED,6738383.95,0.0,AED,554070.72,132867.49
+INV-202609-C03,Banco Meridia,EUR,1101954.9,-7755.59,EUR,147524.0,147524.0
+INV-202609-C04,Lumen Pay,MXN,4900334.69,0.0,USD,28072.14,24722.27
+</script>
+<script type="text/csv" data-dataset="market_scorecard">
+bank,country,accounts,reach_rate,calls_to_reach,promise_rate,paid_on_call_rate,first_instalment_kept,recovery_30d,dispute_rate,hardship_rate,talk_minutes_per_conversation
+Northgate Bank,GB,6510,0.6078341013824885,3.5825120040434677,0.4633451957295373,0.166073546856465,0.7227674190382728,0.3501559848013135,0.0337941628264208,0.0500768049155145,4.599395017793597
+Desert Finance,AE,5087,0.6316099862394339,3.4889511360099594,0.4279215240261587,0.1697469434176855,0.7292713567839196,0.3543821066296564,0.0332219382740318,0.0511106742677413,4.62473225286702
+Banco Meridia,ES,4778,0.6448304730012557,3.46867900032457,0.4546814238707747,0.1696081364044271,0.6837121212121212,0.351984527642457,0.0410213478442863,0.052113855169527,4.592357164223738
+Lumen Pay,MX,5031,0.5631087258994236,3.610660077656195,0.4665367121507472,0.1747888239116309,0.6961512491559757,0.3663516691308168,0.0290200755317034,0.043331345656927,4.62426900584796
+</script>
+<script type="text/csv" data-dataset="older_debt_by_market">
+bank,accounts,control,treatment,difference,ci_low,ci_high
+Banco Meridia,1678,0.3218255781227884,0.3808987529541869,0.0613612426170409,0.0076985191180491,0.1155048425738884
+Desert Finance,1870,0.3314992683433158,0.3685973244778638,0.0397240237703148,-0.009546735192178,0.0884594100884716
+Lumen Pay,1520,0.3478907475926445,0.3873634768509684,0.0452300143048316,-0.0114308378158832,0.1055288292973719
+Northgate Bank,2391,0.2978019816197125,0.3767114651618578,0.0744631229932223,0.0288411686849363,0.122115800120094
+</script>
+<script type="text/csv" data-dataset="uae_languages">
+language,conversations,promise_to_pay_rate,callback_rate,refused_rate,talk_minutes
+ar,2155,0.4510440835266821,0.0672853828306264,0.188399071925754,4.564787316318639
+en,1665,0.4534534534534534,0.0858858858858858,0.1693693693693693,4.54072072072072
+hi,707,0.3097595473833097,0.1923620933521923,0.2022630834512022,5.086845827439887
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+/* What the dashboard page normally gets from its viewer: the rows of each file, values worked
+   out from them (dash.calc), a redraw when the width changes (dash.onData), and series colours. */
+window.dash = (function () {
+  const store = {};
+  document.querySelectorAll('script[type="text/csv"]').forEach(function (s) {
+    const rows = d3.csvParse(s.textContent.trim());
+    store[s.dataset.dataset] = { status: 'ok', data: rows, columns: rows.columns, refreshing: false, meta: [] };
+  });
+  const missing = { status: 'missing', data: [], refreshing: false, meta: [] };
+  const listeners = [];
+  let lastWidth = 0;
+  function runAll() { listeners.forEach(function (fn) { try { fn(); } catch (e) { console.error(e); } }); }
+  function watch() {
+    const root = document.getElementById('dash-root');
+    if (window.ResizeObserver && root) {
+      new ResizeObserver(function () {
+        const w = root.clientWidth;
+        if (Math.abs(w - lastWidth) > 1) { lastWidth = w; runAll(); }
+      }).observe(root);
+    }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(runAll);
+  }
+  return {
+    data: function (id) { return store[id] || missing; },
+    calc: function (id, def) {
+      try {
+        const args = def.inputs.map(function (i) { return (store[i] || missing).data; });
+        store[id] = { status: 'ok', data: def.fn.apply(null, args), refreshing: false, meta: [] };
+      } catch (e) {
+        console.error('calc ' + id, e);
+        store[id] = { status: 'error', data: [], message: String(e), refreshing: false, meta: [] };
+      }
+    },
+    onData: function (fn) {
+      listeners.push(fn);
+      fn();
+      if (listeners.length === 1) watch();
+    },
+    colors: ['var(--series-1)', 'var(--series-2)', 'var(--series-3)', 'var(--series-4)',
+             'var(--series-5)', 'var(--series-6)', 'var(--series-7)', 'var(--series-8)'],
+    refresh: function () {}, setLink: function () {}, params: function () { return {}; },
+    setParams: function () {}, resetParams: function () {}
+  };
+})();
+</script>
+<style>
+/* Layout: summary tiles first, then recovery and drop off side by side, then the
+   monthly table, the v4.3 test, and invoices with data checks. One column when narrow. */
+.ca { display: grid; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); color: var(--color-fg); }
+.ca-head { display: grid; gap: var(--cds-gap-sm); max-width: 62rem; }
+.ca-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+.ca-lede { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); line-height: 1.55; max-width: 65ch; }
+.ca-lede b, .ca-dec b { font-weight: 600; color: var(--color-fg); }
+.ca-tiles { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); }
+.ca-tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-xs); align-content: start; }
+.ca-tile .lbl { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.ca-tile .big { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); line-height: 1.15; font-variant-numeric: tabular-nums; min-height: 1.2em; }
+.ca-tile .sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.ca-up { color: var(--color-ok); } .ca-down { color: var(--color-bad); }
+.ca-sec { display: grid; gap: var(--cds-gap-md); }
+.ca-sec > h2 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+.ca-grid { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); }
+.ca-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-sm); align-content: start; min-width: 0; }
+.ca-card h3 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+.ca-note { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.5; max-width: 70ch; }
+.ca-chips { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); }
+.ca-chip { font: inherit; font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-radius: 999px; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg-muted); cursor: pointer; }
+.ca-chip[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
+.ca-chip:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+.ca-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.ca-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.ca-legend i { width: 12px; height: 3px; border-radius: 2px; display: inline-block; }
+.ca-legend b { color: var(--color-fg); font-weight: 500; }
+.ca-chart { position: relative; min-height: 280px; }
+.ca-chart.small { min-height: 200px; }
+.ca-chart svg { display: block; overflow: visible; }
+.ca-chart text { fill: var(--color-fg-muted); font-size: 11px; font-family: var(--font-anthropic-sans); }
+.ca-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; white-space: nowrap; z-index: 2; }
+.ca-tip .t { color: var(--cds-text-secondary); margin-bottom: 2px; }
+.ca-tip .r { display: flex; align-items: center; gap: 6px; }
+.ca-tip .r i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.ca-fun { display: grid; gap: 2px; }
+.ca-step { display: grid; grid-template-columns: minmax(7rem, 9rem) 1fr; gap: var(--cds-gap-sm); align-items: center; font-size: var(--cds-font-size-caption); }
+.ca-step .name { color: var(--color-fg); }
+.ca-bar { position: relative; height: 22px; }
+.ca-bar > i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--ca-fill); }
+.ca-bar > span { position: absolute; top: 50%; transform: translateY(-50%); font-variant-numeric: tabular-nums; color: var(--color-fg); white-space: nowrap; padding-left: 6px; }
+.ca-loss { grid-column: 2; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); padding: 1px 0 3px; font-variant-numeric: tabular-nums; }
+.ca-loss.worst { color: var(--color-bad); }
+.ca-tbl { overflow-x: auto; max-width: 100%; }
+.ca-tbl table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.ca-tbl th { text-align: right; font-weight: 500; color: var(--color-fg-muted); padding: 6px 8px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; position: sticky; top: 0; background: var(--color-panel); }
+.ca-tbl td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.ca-tbl th:first-child, .ca-tbl td:first-child, .ca-tbl .l { text-align: left; }
+.ca-tbl td.wrap { white-space: normal; min-width: 14rem; color: var(--color-fg-muted); text-align: left; }
+.ca-pill { display: inline-flex; align-items: center; gap: 5px; font-weight: 500; }
+.ca-pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.ca-pill.pass { color: var(--color-ok); } .ca-pill.warn { color: var(--color-warn); } .ca-pill.fail { color: var(--color-bad); }
+.ca-exp { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
+.ca-dec { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.55; max-width: 70ch; }
+.ca-ivl { display: grid; gap: var(--cds-gap-sm); }
+.ca-ivl-row { display: grid; grid-template-columns: minmax(0, 15rem) minmax(8rem, 1fr) 7.5rem; gap: var(--cds-gap-sm); align-items: center; font-size: var(--cds-font-size-caption); }
+.ca-ivl-row .m { color: var(--color-fg); }
+.ca-ivl-row .m small { display: block; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.ca-track { position: relative; height: 18px; }
+.ca-track .zero { position: absolute; top: -4px; bottom: -4px; width: 1px; background: var(--cds-chart-axis); }
+.ca-track .grid { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--cds-chart-grid); }
+.ca-track .ci { position: absolute; top: 8px; height: 2px; border-radius: 1px; background: var(--ca-c); }
+.ca-track .dot { position: absolute; top: 4px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--ca-c); box-shadow: 0 0 0 2px var(--color-panel); }
+.ca-ivl-row .v { font-variant-numeric: tabular-nums; text-align: right; }
+.ca-ivl-row .v small { display: block; color: var(--color-fg-muted); }
+.ca-axis { position: relative; height: 16px; font-size: 11px; color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.ca-axis span { position: absolute; transform: translateX(-50%); }
+.ca-fail { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.ca-fail i { width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); display: inline-block; }
+.ca-hb { display: grid; gap: var(--cds-gap-sm); min-height: 14rem; }
+.ca-hb-group { display: grid; gap: 3px; }
+.ca-hb-title { font-size: var(--cds-font-size-caption); color: var(--color-fg); font-weight: 500; }
+.ca-hb-row { display: grid; grid-template-columns: 4.2rem 1fr 8.5rem; gap: var(--cds-gap-sm); align-items: center; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.ca-hb-row .k { color: var(--color-fg-muted); }
+.ca-hb-row .v { text-align: right; color: var(--color-fg); white-space: nowrap; }
+.ca-hb-row .v small { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.ca-hb-track { position: relative; height: 14px; }
+.ca-hb-track > i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--ca-fill); }
+.ca-hb-track > b { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--cds-chart-reference); }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+@media (max-width: 560px) {
+  .ca-ivl-row { grid-template-columns: 1fr 6.5rem; }
+  .ca-ivl-row .ca-track { grid-column: 1 / -1; grid-row: 2; }
+  .ca-axis-row { grid-template-columns: 1fr; }
+  .ca-axis-row > div:first-child, .ca-axis-row > div:last-child { display: none; }
+}
+</style>
+
+<div class="ca">
+  <header class="ca-head" id="summary">
+    <h1>Collections Analytics</h1>
+    <p class="ca-lede">An AI collections agent working for four banks: Northgate in the UK, Desert Finance in the UAE, Banco Meridia in Spain and Lumen Pay in Mexico, June to September 2026. Platform data is simulated; exchange rates, holidays and calling rules are real. Agent v4.3 added
+      <b class="dash-skeleton" data-source="experiment_results" data-field="difference" data-where="metric_id=rec60_31_90" data-fmt="pts">&nbsp;</b>
+      for debt 31 to 90 days past due and should go live there. In the UAE, Hindi conversations end in a promise only
+      <b class="dash-skeleton" data-source="uae_languages" data-field="promise_to_pay_rate" data-where="language=hi" data-fmt="pct">&nbsp;</b>
+      of the time, which explains the UAE's lower promise rate.</p>
+  </header>
+
+  <section class="ca-tiles" aria-label="Headline figures">
+    <div class="ca-tile">
+      <span class="lbl">Collected, all banks, 1 to 29 September</span>
+      <span class="big dash-skeleton" data-source="monthly_totals" data-field="net_collected_eur" data-where="month=2026-09" data-fmt="eur">&nbsp;</span>
+      <span class="sub">August, full month: <span class="dash-skeleton" data-source="monthly_totals" data-field="net_collected_eur" data-where="month=2026-08" data-fmt="eur">&nbsp;</span></span>
+    </div>
+    <div class="ca-tile">
+      <span class="lbl">Balance collected within 60 days, July cohort</span>
+      <span class="big dash-skeleton" data-source="cohort_recovery" data-field="recovery_rate" data-where="client_id=ALL&amp;placed_month=2026-07&amp;days_since_placement=60" data-fmt="pct">&nbsp;</span>
+      <span class="sub"><span class="dash-skeleton" id="t-rec-chg" data-source="rec60_change" data-fmt="ptsdelta">&nbsp;</span> against the June cohort</span>
+    </div>
+    <div class="ca-tile">
+      <span class="lbl">First instalments kept, due in September</span>
+      <span class="big dash-skeleton" data-source="monthly_totals" data-field="promise_kept_rate" data-where="month=2026-09" data-fmt="pct">&nbsp;</span>
+      <span class="sub"><span class="dash-skeleton" id="t-kept-chg" data-source="kept_change" data-fmt="ptsdelta">&nbsp;</span> against August</span>
+    </div>
+    <div class="ca-tile">
+      <span class="lbl">Invoiced for September, before tax</span>
+      <span class="big dash-skeleton" data-source="invoice_total" data-fmt="eur">&nbsp;</span>
+      <span class="sub">Includes a credit of <span class="dash-skeleton" data-source="invoices" data-field="correction" data-where="invoice_number=INV-202609-C03" data-fmt="eurabs">&nbsp;</span> to Banco Meridia for August</span>
+    </div>
+  </section>
+
+  <section class="ca-sec" id="markets">
+    <h2>Markets side by side</h2>
+    <div class="ca-card">
+      <p class="ca-note">Accounts on the current agent (v4.2) placed June to August, so every one has had 30 days. Promise rate and paid on the call are out of conversations with the customer.</p>
+      <div class="ca-tbl">
+        <table id="score-table" data-source="market_scorecard" data-row-key="bank">
+          <thead><tr>
+            <th data-field="bank">Bank</th>
+            <th data-field="country" class="l">Market</th>
+            <th data-field="accounts">Accounts</th>
+            <th data-field="reach_rate">Reached</th>
+            <th data-field="calls_to_reach">Calls to reach</th>
+            <th data-field="promise_rate">Promise rate</th>
+            <th data-field="paid_on_call_rate">Paid on the call</th>
+            <th data-field="first_instalment_kept">First instalment kept</th>
+            <th data-field="recovery_30d">Collected in 30 days</th>
+            <th data-field="dispute_rate">Disputes</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="ca-grid" aria-label="Recovery and drop off">
+    <div class="ca-card" id="recovery">
+      <h3>Recovery by placement month</h3>
+      <p class="ca-note">Share of the placed balance collected by each day after the bank placed the account, net of reversals. A line stops on the last day every account in that month has lived through.</p>
+      <div class="ca-chips" role="group" aria-label="Placement month" id="cohort-chips"></div>
+      <div class="ca-legend" id="cohort-legend" data-source="cohort_recovery"></div>
+      <div class="ca-chart" id="cohort-chart" data-source="cohort_recovery"></div>
+    </div>
+    <div class="ca-card" id="funnel">
+      <h3>Where accounts drop out</h3>
+      <p class="ca-note">Accounts placed June to August, outcomes to 29 September. The biggest drop between two steps is in red.</p>
+      <div class="ca-chips" role="group" aria-label="Bank" id="funnel-chips"></div>
+      <div class="ca-fun" id="funnel-steps" style="min-height: 280px"></div>
+    </div>
+  </section>
+
+  <section class="ca-sec" id="product">
+    <h2>Product findings</h2>
+    <div class="ca-grid">
+      <div class="ca-card" id="hindi">
+        <h3>The agent struggles in Hindi</h3>
+        <p class="ca-note">How conversations end at Desert Finance (UAE), by language. Hindi calls stall into "call me back" while refusals barely move, which points at speech recognition rather than the customers.</p>
+        <div class="ca-hb" id="hindi-bars" data-source="uae_languages"></div>
+      </div>
+      <div class="ca-card" id="hours">
+        <h3>Evening calls reach more people</h3>
+        <p class="ca-note">Reach at each local hour against what its mix of first and later calls predicts (1 is as expected). Raw numbers favour the afternoon only because first calls are made then.</p>
+        <div class="ca-hb" id="hour-bars" data-source="call_hours"></div>
+      </div>
+      <div class="ca-card" id="real-calls" style="grid-column: 1 / -1">
+        <h3>Each extra call is worth less, as in real bank data</h3>
+        <p class="ca-note">Chance a call reaches the customer, as a share of the first call's chance. The grey line is 41,188 real calls by a Portuguese bank (UCI Bank Marketing).</p>
+        <div class="ca-chart small" id="calls-chart" data-source="calls_vs_real"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ca-sec" id="by-bank">
+    <h2>Monthly numbers by bank</h2>
+    <div class="ca-card">
+      <p class="ca-note">Calendar months in each bank's own time zone. Reached per call: calls answered by the customer, out of all calls. Promise rate and paid on the call: out of calls that reached the customer. First instalment kept: out of first instalments due that month, paid within 3 days of the due date. September runs to the 29th.</p>
+      <div class="ca-chips" role="group" aria-label="Bank" id="month-chips"></div>
+      <div class="ca-tbl">
+        <table id="month-table" data-source="client_month" data-row-key="client_id,month">
+          <thead><tr>
+            <th data-field="client_name">Bank</th>
+            <th data-field="month">Month</th>
+            <th data-field="accounts_placed">Accounts placed</th>
+            <th data-field="calls">Calls</th>
+            <th data-field="rpc_rate_per_call">Reached per call</th>
+            <th data-field="promise_rate">Promise rate</th>
+            <th data-field="paid_on_call_rate">Paid on the call</th>
+            <th data-field="promise_kept_rate">First instalment kept</th>
+            <th data-field="net_collected_eur">Collected (EUR)</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="ca-sec" id="experiment">
+    <h2>Agent v4.3 test: affordability first negotiation</h2>
+    <div class="ca-exp">
+      <div class="ca-tile">
+        <span class="lbl">All debt (primary metric)</span>
+        <span class="big dash-skeleton" data-source="experiment_results" data-field="difference" data-where="metric_id=rec60" data-fmt="pts">&nbsp;</span>
+        <span class="sub" id="ci-rec60">&nbsp;</span>
+      </div>
+      <div class="ca-tile">
+        <span class="lbl">31 to 90 days past due</span>
+        <span class="big dash-skeleton" data-source="experiment_results" data-field="difference" data-where="metric_id=rec60_31_90" data-fmt="pts">&nbsp;</span>
+        <span class="sub" id="ci-rec60_31_90">&nbsp;</span>
+      </div>
+      <div class="ca-tile">
+        <span class="lbl">0 to 30 days past due</span>
+        <span class="big dash-skeleton" data-source="experiment_results" data-field="difference" data-where="metric_id=rec60_0_30" data-fmt="pts">&nbsp;</span>
+        <span class="sub" id="ci-rec60_0_30">&nbsp;</span>
+      </div>
+    </div>
+    <p class="ca-dec">Change in the share of balance collected within 60 days, v4.3 minus v4.2. Overall the interval still includes zero. Split the way we agreed before the test, older debt gains clearly and the newest debt does not. Going live for 31 to 90 days past due is worth about
+      <b class="dash-skeleton" data-source="experiment_value" data-field="extra_collected_per_month_eur" data-row="0" data-fmt="eur">&nbsp;</b>
+      more collected within 60 days for each month of placements.</p>
+    <div class="ca-grid">
+      <div class="ca-card" id="intervals">
+        <h3>Every metric, with its 95% interval</h3>
+        <p class="ca-note">Percentage points, v4.3 minus v4.2. Right of zero means v4.3 is higher. Promises jump, but the money moves far less than the promise rate suggests.</p>
+        <div class="ca-ivl" id="ivl" data-source="experiment_results"></div>
+      </div>
+      <div class="ca-card" id="arms">
+        <h3>Collected by day, each arm</h3>
+        <p class="ca-note">Share of placed balance, accounts placed 15 June to 31 July.</p>
+        <div class="ca-grid" style="--cds-gap-md: var(--cds-gap-sm)">
+          <div><p class="ca-note">0 to 30 days past due</p><div class="ca-chart small" id="arm-a" data-source="experiment_curves"></div></div>
+          <div><p class="ca-note">31 to 90 days past due</p><div class="ca-chart small" id="arm-b" data-source="experiment_curves"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="ca-card" id="exp-markets">
+      <h3>Older debt, market by market</h3>
+      <p class="ca-note">Recovery within 60 days for accounts 31 to 90 days past due. Not planned in advance and not sized per market, so this is a consistency check: positive everywhere, least certain in the UAE and Mexico.</p>
+      <div class="ca-tbl">
+        <table id="mkt-table" data-source="older_debt_by_market" data-row-key="bank">
+          <thead><tr>
+            <th data-field="bank">Bank</th>
+            <th data-field="accounts">Accounts</th>
+            <th data-field="control">v4.2</th>
+            <th data-field="treatment">v4.3</th>
+            <th data-field="difference">Difference</th>
+            <th data-field="ci_low">95% low</th>
+            <th data-field="ci_high">95% high</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <p class="ca-note">Split check: accounts were assigned
+      <span class="dash-skeleton" data-source="experiment_split" data-field="control" data-where="stage=assigned" data-fmt="int">&nbsp;</span> to v4.2 and
+      <span class="dash-skeleton" data-source="experiment_split" data-field="treatment" data-where="stage=assigned" data-fmt="int">&nbsp;</span> to v4.3, too uneven for a 50/50 split (p =
+      <span class="dash-skeleton" data-source="experiment_split" data-field="split_p_value" data-where="stage=assigned" data-fmt="p">&nbsp;</span>). A Lumen deploy sent every new account to v4.2 from 20 to 23 July, so those
+      <span class="dash-skeleton" data-source="experiment_value" data-field="excluded_accounts" data-row="0" data-fmt="int">&nbsp;</span> accounts are left out. After that the split is fine (p =
+      <span class="dash-skeleton" data-source="experiment_split" data-field="split_p_value" data-where="stage=analysed" data-fmt="p2">&nbsp;</span>). Before the test, random splits of June accounts showed the smallest lift it could reliably detect was
+      <span class="dash-skeleton" data-source="experiment_value" data-field="minimum_detectable_effect_points" data-row="0" data-fmt="ptsraw">&nbsp;</span>.</p>
+  </section>
+
+  <section class="ca-sec" aria-label="Invoices and data checks">
+    <div class="ca-card" id="invoices">
+      <h3>September invoices</h3>
+      <p class="ca-note">Success fee base is net money in the bank's own payment files dated in September. Each invoice is worked out in the contract currency and converted once at the 30 September rate.</p>
+      <div class="ca-tbl">
+        <table id="inv-table" data-source="invoices" data-row-key="invoice_number">
+          <thead><tr>
+            <th data-field="invoice_number">Invoice</th>
+            <th data-field="client_name" class="l">Bank</th>
+            <th data-field="success_fee_base">Fee base</th>
+            <th data-field="correction">Correction</th>
+            <th data-field="total_invoice_currency">Total</th>
+            <th data-field="total_eur">In EUR</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="ca-card" id="checks">
+      <h3>Data checks</h3>
+      <p class="ca-note"><span class="dash-skeleton" data-source="checks_summary" data-field="passed" data-row="0">&nbsp;</span> passed,
+        <span class="dash-skeleton" data-source="checks_summary" data-field="warnings" data-row="0">&nbsp;</span> warning,
+        <span class="dash-skeleton" data-source="checks_summary" data-field="failed" data-row="0">&nbsp;</span> failed. Each check returns the rows that break a rule; a warning is known and handled.</p>
+      <div class="ca-tbl" style="max-height: 26rem; overflow: auto">
+        <table id="chk-table" data-source="checks" data-row-key="check">
+          <thead><tr>
+            <th data-field="check">Check</th>
+            <th data-field="status" class="l">Result</th>
+            <th data-field="rows_found">Rows</th>
+            <th data-field="what_it_checks" class="l">What it checks</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+dash.calc('monthly_totals', {
+  inputs: ['client_month'],
+  title: 'All banks by month',
+  description: 'Euros collected and first instalments kept, added up across the four banks for each month.',
+  fn: (client_month) => {
+    const by = {};
+    for (const r of client_month) {
+      const m = r.month;
+      if (!by[m]) by[m] = { month: m, net_collected_eur: 0, first_instalments_due: 0, first_instalments_kept: 0 };
+      const due = Number(r.first_instalments_due) || 0;
+      by[m].net_collected_eur += Number(r.net_collected_eur) || 0;
+      by[m].first_instalments_due += due;
+      by[m].first_instalments_kept += Math.round((Number(r.promise_kept_rate) || 0) * due);
+    }
+    return Object.values(by).map(o => ({
+      month: o.month,
+      net_collected_eur: Math.round(o.net_collected_eur * 100) / 100,
+      first_instalments_due: o.first_instalments_due,
+      first_instalments_kept: o.first_instalments_kept,
+      promise_kept_rate: o.first_instalments_due ? o.first_instalments_kept / o.first_instalments_due : null
+    }));
+  }
+});
+
+dash.calc('rec60_change', {
+  inputs: ['cohort_recovery'],
+  title: '60 day recovery, July against June',
+  description: 'All banks: share of balance collected within 60 days, July cohort minus June cohort.',
+  fn: (cohort_recovery) => {
+    const at = m => Number(cohort_recovery.find(r => r.client_id === 'ALL' && r.placed_month === m && Number(r.days_since_placement) === 60).recovery_rate);
+    return at('2026-07') - at('2026-06');
+  }
+});
+
+dash.calc('kept_change', {
+  inputs: ['monthly_totals'],
+  title: 'First instalments kept, September against August',
+  description: 'All banks: share of first instalments kept in September minus August.',
+  fn: (monthly_totals) => {
+    const at = m => monthly_totals.find(r => r.month === m).promise_kept_rate;
+    return at('2026-09') - at('2026-08');
+  }
+});
+
+dash.calc('invoice_total', {
+  inputs: ['invoices'],
+  title: 'September invoices in euros',
+  description: 'The four September invoices added up, each converted to euros at the 30 September rate.',
+  fn: (invoices) => Math.round(invoices.reduce((s, r) => s + Number(r.total_eur), 0) * 100) / 100
+});
+
+dash.calc('funnel_steps', {
+  inputs: ['funnel'],
+  title: 'Funnel steps',
+  description: 'Each step as a share of accounts placed, and the share lost since the step before, per bank.',
+  fn: (funnel) => {
+    const steps = ['accounts_placed', 'called', 'reached', 'agreed_to_pay', 'paid_something', 'paid_in_full'];
+    const out = [];
+    for (const r of funnel.filter(r => r.dpd_bucket === 'ALL')) {
+      const placed = Number(r.accounts_placed);
+      steps.forEach((s, i) => {
+        const v = Number(r[s]);
+        const prev = i ? Number(r[steps[i - 1]]) : null;
+        out.push({ client_id: r.client_id, step: s, accounts: v, share_of_placed: v / placed,
+                   lost_from_previous: prev ? 1 - v / prev : null });
+      });
+    }
+    return out;
+  }
+});
+
+dash.calc('checks_summary', {
+  inputs: ['checks'],
+  title: 'Checks by result',
+  description: 'How many data checks passed, warned or failed on the last run.',
+  fn: (checks) => [{
+    passed: checks.filter(r => r.status === 'pass').length,
+    warnings: checks.filter(r => r.status === 'warn').length,
+    failed: checks.filter(r => r.status === 'fail').length
+  }]
+});
+
+(function () {
+  const BANKS = [['C01', 'Northgate Bank'], ['C02', 'Desert Finance'], ['C03', 'Banco Meridia'], ['C04', 'Lumen Pay']];
+  const MONTHS = [['2026-06', 'June'], ['2026-07', 'July'], ['2026-08', 'August'], ['2026-09', 'September']];
+  const MINUS = '−';
+  const pct = d3.format('.1%');
+  const int = d3.format(',');
+  const eurC = new Intl.NumberFormat('en', { style: 'currency', currency: 'EUR', notation: 'compact', maximumFractionDigits: 1 });
+  const eur0 = new Intl.NumberFormat('en', { maximumFractionDigits: 0 });
+  const signed = (v, d = 1) => (v > 0 ? '+' : v < 0 ? MINUS : '') + Math.abs(v).toFixed(d);
+  const pts = v => signed(v * 100) + ' pts';
+  const monthName = m => (MONTHS.find(x => x[0] === m) || [m, m])[1];
+  const state = { cohort: '2026-07', funnelBank: 'ALL', tableBank: 'ALL' };
+
+  const FMT = {
+    eur: v => eurC.format(v), eurabs: v => eurC.format(Math.abs(v)), pct: v => pct(v), int: v => int(v),
+    pts: v => pts(v), ptsraw: v => Number(v).toFixed(1) + ' pts',
+    p: v => (v < 0.0001 ? 'below 0.0001' : Number(Number(v).toPrecision(2)).toString()), p2: v => Number(v).toFixed(2),
+    ptsdelta: v => pts(v)
+  };
+
+  function ok(id) { return dash.data(id).status === 'ok'; }
+  function rows(id) { return ok(id) ? dash.data(id).data : []; }
+  function failedLine(el) {
+    el.textContent = '';
+    const s = document.createElement('span'); s.className = 'ca-fail';
+    const i = document.createElement('i'); s.append(i, document.createTextNode('Failed to load'));
+    el.append(s);
+  }
+  function settled(id) { const st = dash.data(id).status; return st === 'ok' || st === 'error' || st === 'missing'; }
+
+  function parseWhere(w) {
+    const o = {};
+    (w || '').split('&').forEach(p => { if (!p) return; const [k, v] = p.split('='); o[decodeURIComponent(k)] = decodeURIComponent(v); });
+    return o;
+  }
+  function lookup(el) {
+    const id = el.dataset.source.split(' ')[0];
+    const d = dash.data(id);
+    if (d.status !== 'ok') return { status: d.status };
+    let v = d.data;
+    if (Array.isArray(v)) {
+      let row;
+      if (el.dataset.row != null) row = v[Number(el.dataset.row)];
+      else if (el.dataset.where) { const w = parseWhere(el.dataset.where); row = v.find(r => Object.keys(w).every(k => String(r[k]) === w[k])); }
+      v = row && el.dataset.field ? row[el.dataset.field] : undefined;
+    } else if (el.dataset.field && v && typeof v === 'object') v = v[el.dataset.field];
+    return { status: 'ok', value: v };
+  }
+
+  // Single values marked in the markup
+  function fillValues() {
+    document.querySelectorAll('.ca [data-source]').forEach(el => {
+      if (el.tagName === 'TABLE' || el.classList.contains('ca-chart') || el.classList.contains('ca-legend') || el.classList.contains('ca-hb') || el.id === 'ivl') return;
+      const r = lookup(el);
+      if (r.status !== 'ok') { if (settled(el.dataset.source.split(' ')[0])) el.classList.remove('dash-skeleton'); if (r.status === 'error') el.textContent = ''; return; }
+      el.classList.remove('dash-skeleton');
+      if (r.value == null || r.value === '') { el.textContent = ''; return; }
+      const n = Number(r.value);
+      const f = FMT[el.dataset.fmt];
+      el.textContent = f && !Number.isNaN(n) ? f(n) : String(r.value);
+      if (el.dataset.fmt === 'ptsdelta') { el.classList.toggle('ca-up', n > 0); el.classList.toggle('ca-down', n < 0); }
+    });
+    for (const id of ['rec60', 'rec60_31_90', 'rec60_0_30']) {
+      const el = document.getElementById('ci-' + id);
+      const r = rows('experiment_results').find(x => x.metric_id === id);
+      if (!r) { el.textContent = ' '; continue; }
+      const lo = Number(r.ci_low), hi = Number(r.ci_high), p = Number(r.p_value);
+      el.textContent = `95% interval ${signed(lo * 100)} to ${signed(hi * 100)} pts, ${p < 0.0001 ? 'p below 0.0001' : 'p = ' + Number(p.toPrecision(2))}. ` +
+        (lo > 0 ? 'Clear gain.' : hi < 0 ? 'Clear loss.' : 'Includes zero.');
+    }
+  }
+
+  function chips(holderId, items, key, onPick) {
+    const holder = document.getElementById(holderId);
+    if (!holder.childElementCount) {
+      items.forEach(([v, label]) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'ca-chip'; b.textContent = label; b.dataset.v = v;
+        b.addEventListener('click', () => { state[key] = v; onPick(); });
+        holder.append(b);
+      });
+    }
+    holder.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === state[key])));
+  }
+
+  function tip(container) {
+    let t = container.querySelector('.ca-tip');
+    if (!t) { t = document.createElement('div'); t.className = 'ca-tip'; t.hidden = true; container.append(t); }
+    return t;
+  }
+
+  // Recovery curves by cohort
+  function drawCohort() {
+    chips('cohort-chips', MONTHS, 'cohort', drawCohort);
+    const el = document.getElementById('cohort-chart');
+    const legend = document.getElementById('cohort-legend');
+    el.querySelectorAll('svg').forEach(n => n.remove());
+    legend.textContent = '';
+    const st = dash.data('cohort_recovery').status;
+    if (st === 'error') { failedLine(el); return; }
+    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
+    el.classList.remove('dash-skeleton');
+    el.querySelectorAll('.ca-fail').forEach(n => n.remove());
+    const data = rows('cohort_recovery').filter(r => r.placed_month === state.cohort);
+    const series = [...BANKS, ['ALL', 'All banks']].map(([id, name], i) => ({
+      id, name, color: id === 'ALL' ? 'var(--color-fg)' : dash.colors[i],
+      pts: data.filter(r => r.client_id === id).map(r => ({ d: Number(r.days_since_placement), v: Number(r.recovery_rate) })).sort((a, b) => a.d - b.d)
+    })).filter(s => s.pts.length);
+    series.forEach(s => {
+      const last = s.pts[s.pts.length - 1];
+      const item = document.createElement('span');
+      const sw = document.createElement('i'); sw.style.background = s.color;
+      if (s.id === 'ALL') sw.style.height = '2px';
+      const b = document.createElement('b'); b.textContent = pct(last.v);
+      item.append(sw, document.createTextNode(s.name + ' '), b, document.createTextNode(` by day ${last.d}`));
+      legend.append(item);
+    });
+    const W = el.clientWidth; if (!W || !series.length) return;
+    const H = 280, m = { t: 10, r: 12, b: 26, l: 40 };
+    const maxD = d3.max(series, s => d3.max(s.pts, p => p.d));
+    const x = d3.scaleLinear([1, Math.max(maxD, 2)], [m.l, W - m.r]);
+    const y = d3.scaleLinear([0, Math.max(0.1, d3.max(series, s => d3.max(s.pts, p => p.v)) * 1.08)], [H - m.b, m.t]).nice();
+    const svg = d3.select(el).insert('svg', ':first-child').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    svg.append('g').selectAll('line').data(y.ticks(5)).join('line')
+      .attr('x1', m.l).attr('x2', W - m.r).attr('y1', d => y(d)).attr('y2', d => y(d)).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(y.ticks(5)).join('text')
+      .attr('x', m.l - 6).attr('y', d => y(d)).attr('dy', '0.32em').attr('text-anchor', 'end').text(d3.format('.0%'));
+    const xt = x.ticks(Math.max(2, Math.min(8, Math.floor(W / 70))));
+    svg.append('g').selectAll('text').data(xt).join('text')
+      .attr('x', d => x(d)).attr('y', H - 8).attr('text-anchor', 'middle').text(d => d === xt[xt.length - 1] ? `day ${d}` : d);
+    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', H - m.b).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-axis)');
+    const line = d3.line().x(p => x(p.d)).y(p => y(p.v));
+    series.forEach(s => svg.append('path').attr('d', line(s.pts)).attr('fill', 'none').attr('stroke', s.color)
+      .attr('stroke-width', s.id === 'ALL' ? 2 : 2).attr('stroke-dasharray', s.id === 'ALL' ? '5 4' : null)
+      .attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round'));
+    const rule = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-reference)').style('display', 'none');
+    const dots = svg.append('g');
+    const t = tip(el);
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).attr('fill', 'transparent')
+      .on('mousemove', (ev) => {
+        const [mx] = d3.pointer(ev);
+        const d = Math.max(1, Math.min(maxD, Math.round(x.invert(mx))));
+        rule.style('display', null).attr('x1', x(d)).attr('x2', x(d));
+        const at = series.map(s => ({ s, p: s.pts.find(p => p.d === d) })).filter(o => o.p);
+        dots.selectAll('circle').data(at).join('circle').attr('cx', o => x(o.p.d)).attr('cy', o => y(o.p.v)).attr('r', 4)
+          .attr('fill', o => o.s.color).attr('stroke', 'var(--color-panel)').attr('stroke-width', 2);
+        t.textContent = '';
+        const head = document.createElement('div'); head.className = 't'; head.textContent = `${monthName(state.cohort)} cohort, day ${d}`; t.append(head);
+        at.forEach(o => { const r = document.createElement('div'); r.className = 'r'; const i = document.createElement('i'); i.style.background = o.s.color; r.append(i, document.createTextNode(`${o.s.name}  ${pct(o.p.v)}`)); t.append(r); });
+        t.hidden = false;
+        const tw = t.offsetWidth;
+        t.style.left = Math.min(Math.max(0, x(d) + 12), W - tw) + 'px';
+        t.style.top = '8px';
+      })
+      .on('mouseleave', () => { rule.style('display', 'none'); dots.selectAll('circle').remove(); t.hidden = true; });
+  }
+
+  // Funnel
+  const STEP_NAMES = { accounts_placed: 'Placed', called: 'Called', reached: 'Reached the customer', agreed_to_pay: 'Agreed to pay', paid_something: 'Paid something', paid_in_full: 'Paid in full' };
+  function drawFunnel() {
+    chips('funnel-chips', [['ALL', 'All banks'], ...BANKS.map(([id, n]) => [id, n.split(' ')[0] === 'Banco' ? 'Meridia' : n.split(' ')[0]])], 'funnelBank', drawFunnel);
+    const el = document.getElementById('funnel-steps');
+    el.textContent = '';
+    const st = dash.data('funnel_steps').status;
+    if (st === 'error' || dash.data('funnel').status === 'error') { failedLine(el); return; }
+    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
+    el.classList.remove('dash-skeleton');
+    const steps = rows('funnel_steps').filter(r => r.client_id === state.funnelBank);
+    const worst = d3.max(steps, s => s.lost_from_previous || 0);
+    const where = `client_id=${state.funnelBank}&dpd_bucket=ALL`;
+    steps.forEach((s, i) => {
+      if (i) {
+        const loss = document.createElement('div');
+        loss.className = 'ca-loss' + (s.lost_from_previous === worst ? ' worst' : '');
+        const v = document.createElement('span');
+        v.dataset.source = 'funnel_steps'; v.dataset.field = 'lost_from_previous'; v.dataset.where = `client_id=${s.client_id}&step=${s.step}`;
+        v.textContent = pct(Math.abs(s.lost_from_previous));
+        if (s.lost_from_previous < 0) loss.append(document.createTextNode('↑ '), v, document.createTextNode(' more: some customers pay without agreeing first'));
+        else loss.append(document.createTextNode('↓ '), v, document.createTextNode(' lost'));
+        const row0 = document.createElement('div'); row0.className = 'ca-step';
+        row0.append(document.createElement('span'), loss);
+        el.append(row0);
+      }
+      const row = document.createElement('div'); row.className = 'ca-step';
+      const name = document.createElement('span'); name.className = 'name'; name.textContent = STEP_NAMES[s.step];
+      const bar = document.createElement('div'); bar.className = 'ca-bar';
+      const fill = document.createElement('i');
+      fill.style.width = (s.share_of_placed * 100) + '%';
+      fill.style.setProperty('--ca-fill', dash.colors[0]);
+      const lab = document.createElement('span');
+      lab.style.left = `min(${s.share_of_placed * 100}%, calc(100% - 8.5rem))`;
+      const n = document.createElement('span'); n.dataset.source = 'funnel'; n.dataset.field = s.step; n.dataset.where = where; n.textContent = int(s.accounts);
+      const sh = document.createElement('span'); sh.dataset.source = 'funnel_steps'; sh.dataset.field = 'share_of_placed'; sh.dataset.where = `client_id=${s.client_id}&step=${s.step}`; sh.textContent = pct(s.share_of_placed);
+      lab.append(n, document.createTextNode(i ? '  ·  ' : ''), i ? sh : document.createTextNode(''));
+      bar.append(fill, lab);
+      row.append(name, bar);
+      el.append(row);
+    });
+  }
+
+  // Monthly table
+  function drawMonthTable() {
+    chips('month-chips', [['ALL', 'All banks'], ...BANKS.map(([id, n]) => [id, n])], 'tableBank', drawMonthTable);
+    const tb = document.querySelector('#month-table tbody');
+    tb.textContent = '';
+    const st = dash.data('client_month').status;
+    if (st !== 'ok') { const tr = tb.insertRow(); const td = tr.insertCell(); td.colSpan = 9; td.style.minHeight = '3rem'; if (st === 'error') failedLine(td); return; }
+    const r = rows('client_month').filter(x => state.tableBank === 'ALL' || x.client_id === state.tableBank);
+    const P = v => (v === '' || v == null) ? 'n/a' : pct(Number(v));
+    r.forEach(x => {
+      const tr = tb.insertRow(); tr.dataset.key = `${x.client_id},${x.month}`;
+      const cells = [x.client_name, monthName(x.month), int(+x.accounts_placed), int(+x.calls), P(x.rpc_rate_per_call), P(x.promise_rate), P(x.paid_on_call_rate), P(x.promise_kept_rate), eur0.format(+x.net_collected_eur)];
+      cells.forEach(c => { tr.insertCell().textContent = c; });
+    });
+  }
+
+  // Interval chart
+  function drawIntervals() {
+    const el = document.getElementById('ivl');
+    el.textContent = '';
+    const st = dash.data('experiment_results').status;
+    if (st === 'error') { failedLine(el); return; }
+    if (st !== 'ok') { el.classList.add('dash-skeleton'); el.style.minHeight = '18rem'; return; }
+    el.classList.remove('dash-skeleton'); el.style.minHeight = '';
+    const r = rows('experiment_results');
+    const lo = Math.min(0, d3.min(r, x => +x.ci_low)) * 100, hi = Math.max(0, d3.max(r, x => +x.ci_high)) * 100;
+    const sc = d3.scaleLinear([lo, hi], [0, 100]).nice();
+    const pos = v => sc(v * 100) + '%';
+    const ticks = sc.ticks(5);
+    const KIND = { primary: 'Primary', 'by debt age': 'Agreed split', secondary: 'Secondary', guardrail: 'Guardrail' };
+    r.forEach(x => {
+      const row = document.createElement('div'); row.className = 'ca-ivl-row';
+      const m = document.createElement('div'); m.className = 'm';
+      const nm = x.metric.replace(' (primary)', '').replace(' (guardrail)', '');
+      const small = document.createElement('small'); small.textContent = KIND[x.kind] || '';
+      m.append(document.createTextNode(nm), small);
+      const tr = document.createElement('div'); tr.className = 'ca-track';
+      const good = +x.ci_low > 0 || +x.ci_high < 0;
+      const color = x.kind === 'guardrail' ? 'var(--cds-chart-muted)' : (good ? dash.colors[0] : 'var(--cds-chart-muted)');
+      tr.style.setProperty('--ca-c', color);
+      ticks.forEach(t => { const g = document.createElement('i'); g.className = 'grid'; g.style.left = sc(t) + '%'; tr.append(g); });
+      const z = document.createElement('i'); z.className = 'zero'; z.style.left = sc(0) + '%'; tr.append(z);
+      const ci = document.createElement('i'); ci.className = 'ci'; ci.style.left = pos(+x.ci_low); ci.style.width = `calc(${pos(+x.ci_high)} - ${pos(+x.ci_low)})`; tr.append(ci);
+      const dot = document.createElement('i'); dot.className = 'dot'; dot.style.left = pos(+x.difference); tr.append(dot);
+      const v = document.createElement('div'); v.className = 'v';
+      const dv = document.createElement('span'); dv.dataset.source = 'experiment_results'; dv.dataset.field = 'difference'; dv.dataset.where = `metric_id=${x.metric_id}`; dv.textContent = pts(+x.difference);
+      const sm = document.createElement('small'); sm.textContent = `${signed(+x.ci_low * 100)} to ${signed(+x.ci_high * 100)}`;
+      v.append(dv, sm);
+      row.append(m, tr, v);
+      el.append(row);
+    });
+    const axisRow = document.createElement('div'); axisRow.className = 'ca-ivl-row ca-axis-row';
+    const ax = document.createElement('div'); ax.className = 'ca-axis';
+    ticks.forEach(t => { const s = document.createElement('span'); s.style.left = sc(t) + '%'; s.textContent = t === 0 ? '0' : signed(t, 0); ax.append(s); });
+    axisRow.append(document.createElement('div'), ax, document.createElement('div'));
+    el.append(axisRow);
+  }
+
+  // Arms over time
+  function drawArm(id, group) {
+    const el = document.getElementById(id);
+    el.querySelectorAll('svg, .ca-fail').forEach(n => n.remove());
+    const st = dash.data('experiment_curves').status;
+    if (st === 'error') { failedLine(el); return; }
+    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
+    el.classList.remove('dash-skeleton');
+    const r = rows('experiment_curves').filter(x => x.age_group === group);
+    const arms = [['control', 'v4.2', 'var(--cds-chart-muted)'], ['treatment', 'v4.3', dash.colors[0]]].map(([v, label, color]) => ({
+      v, label, color, pts: r.filter(x => x.variant === v).map(x => ({ d: +x.day, y: +x.recovery })).sort((a, b) => a.d - b.d)
+    }));
+    const W = el.clientWidth; if (!W) return;
+    const H = 200;
+    const svg = d3.select(el).insert('svg', ':first-child').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    const labels = arms.map(a => `${a.label} ${pct(a.pts[a.pts.length - 1].y)}`);
+    const probe = svg.append('text').text(labels.reduce((a, b) => a.length > b.length ? a : b));
+    const lw = probe.node().getComputedTextLength(); probe.remove();
+    const m = { t: 8, r: lw + 10, b: 22, l: 34 };
+    const x = d3.scaleLinear([1, 60], [m.l, W - m.r]);
+    const y = d3.scaleLinear([0, 0.6], [H - m.b, m.t]);
+    svg.append('g').selectAll('line').data(y.ticks(3)).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', d => y(d)).attr('y2', d => y(d)).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(y.ticks(3)).join('text').attr('x', m.l - 6).attr('y', d => y(d)).attr('dy', '0.32em').attr('text-anchor', 'end').text(d3.format('.0%'));
+    svg.append('g').selectAll('text').data([1, 30, 60]).join('text').attr('x', d => x(d)).attr('y', H - 6).attr('text-anchor', 'middle').text(d => d === 60 ? 'day 60' : d);
+    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', H - m.b).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-axis)');
+    const line = d3.line().x(p => x(p.d)).y(p => y(p.y));
+    const ends = arms.map(a => y(a.pts[a.pts.length - 1].y));
+    if (Math.abs(ends[0] - ends[1]) < 14) { const mid = (ends[0] + ends[1]) / 2; const up = ends[0] < ends[1] ? 0 : 1; ends[up] = mid - 7; ends[1 - up] = mid + 7; }
+    arms.forEach((a, i) => {
+      svg.append('path').attr('d', line(a.pts)).attr('fill', 'none').attr('stroke', a.color).attr('stroke-width', 2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
+      svg.append('text').attr('x', W - m.r + 6).attr('y', ends[i]).attr('dy', '0.32em').style('fill', 'var(--color-fg)').text(labels[i]);
+    });
+  }
+
+  // Tables: invoices and checks
+  function drawInvoices() {
+    const tb = document.querySelector('#inv-table tbody'); tb.textContent = '';
+    const st = dash.data('invoices').status;
+    if (st !== 'ok') { const td = tb.insertRow().insertCell(); td.colSpan = 6; if (st === 'error') failedLine(td); return; }
+    const n2 = new Intl.NumberFormat('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    rows('invoices').forEach(x => {
+      const tr = tb.insertRow();
+      const c = Number(x.correction);
+      [x.invoice_number, x.client_name, `${x.contract_currency} ${n2.format(+x.success_fee_base)}`,
+       c ? `${x.contract_currency} ${c < 0 ? MINUS : ''}${n2.format(Math.abs(c))}` : 'None',
+       `${x.invoice_currency} ${n2.format(+x.total_invoice_currency)}`, n2.format(+x.total_eur)]
+        .forEach((v, i) => { const td = tr.insertCell(); td.textContent = v; if (i === 1) td.className = 'l'; });
+    });
+  }
+  function drawChecks() {
+    const tb = document.querySelector('#chk-table tbody'); tb.textContent = '';
+    const st = dash.data('checks').status;
+    if (st !== 'ok') { const td = tb.insertRow().insertCell(); td.colSpan = 4; if (st === 'error') failedLine(td); return; }
+    const order = { fail: 0, warn: 1, pass: 2 };
+    rows('checks').slice().sort((a, b) => order[a.status] - order[b.status]).forEach(x => {
+      const tr = tb.insertRow();
+      tr.insertCell().textContent = x.check;
+      const s = tr.insertCell(); s.className = 'l';
+      const pill = document.createElement('span'); pill.className = 'ca-pill ' + x.status;
+      pill.textContent = x.status === 'pass' ? 'Pass' : x.status === 'warn' ? 'Warning' : 'Failed';
+      s.append(pill);
+      tr.insertCell().textContent = int(+x.rows_found);
+      const w = tr.insertCell(); w.className = 'wrap'; w.textContent = x.what_it_checks;
+    });
+  }
+
+  // Markets table
+  function drawScorecard() {
+    const tb = document.querySelector('#score-table tbody'); tb.textContent = '';
+    const st = dash.data('market_scorecard').status;
+    if (st !== 'ok') { const td = tb.insertRow().insertCell(); td.colSpan = 10; if (st === 'error') failedLine(td); return; }
+    const MK = { GB: 'UK', AE: 'UAE', ES: 'Spain', MX: 'Mexico' };
+    rows('market_scorecard').forEach(x => {
+      const tr = tb.insertRow();
+      [x.bank, MK[x.country] || x.country, int(+x.accounts), pct(+x.reach_rate), (+x.calls_to_reach).toFixed(1), pct(+x.promise_rate),
+       pct(+x.paid_on_call_rate), pct(+x.first_instalment_kept), pct(+x.recovery_30d), pct(+x.dispute_rate)]
+        .forEach((v, i) => { const td = tr.insertCell(); td.textContent = v; if (i === 1) td.className = 'l'; });
+    });
+  }
+
+  function hbRow(holder, key, value, max, fill, label, small, mark, ref) {
+    const row = document.createElement('div'); row.className = 'ca-hb-row';
+    const k = document.createElement('span'); k.className = 'k'; k.textContent = key;
+    const tr = document.createElement('div'); tr.className = 'ca-hb-track';
+    const bar = document.createElement('i'); bar.style.width = Math.max(0, Math.min(1, value / max)) * 100 + '%'; bar.style.setProperty('--ca-fill', fill);
+    tr.append(bar);
+    if (ref != null) { const r = document.createElement('b'); r.style.left = (ref / max) * 100 + '%'; tr.append(r); }
+    const v = document.createElement('span'); v.className = 'v';
+    const vv = document.createElement('span'); Object.assign(vv.dataset, mark); vv.textContent = label;
+    v.append(vv);
+    if (small) { const sm = document.createElement('small'); sm.textContent = '  ' + small; v.append(sm); }
+    row.append(k, tr, v);
+    holder.append(row);
+  }
+
+  function drawHindi() {
+    const el = document.getElementById('hindi-bars'); el.textContent = '';
+    const st = dash.data('uae_languages').status;
+    if (st === 'error') { failedLine(el); return; }
+    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
+    el.classList.remove('dash-skeleton');
+    const r = rows('uae_languages');
+    const L = [['ar', 'Arabic'], ['en', 'English'], ['hi', 'Hindi']];
+    [['promise_to_pay_rate', 'Promise to pay'], ['callback_rate', 'Asked to call back'], ['refused_rate', 'Refused']].forEach(([f, title]) => {
+      const g = document.createElement('div'); g.className = 'ca-hb-group';
+      const t = document.createElement('div'); t.className = 'ca-hb-title'; t.textContent = title; g.append(t);
+      L.forEach(([code, name]) => {
+        const x = r.find(y => y.language === code); if (!x) return;
+        hbRow(g, name, +x[f], 0.5, code === 'hi' ? dash.colors[0] : 'var(--cds-chart-muted)', pct(+x[f]), null,
+              { source: 'uae_languages', field: f, where: `language=${code}` });
+      });
+      el.append(g);
+    });
+  }
+
+  function drawHours() {
+    const el = document.getElementById('hour-bars'); el.textContent = '';
+    const st = dash.data('call_hours').status;
+    if (st === 'error') { failedLine(el); return; }
+    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
+    el.classList.remove('dash-skeleton');
+    const g = document.createElement('div'); g.className = 'ca-hb-group';
+    rows('call_hours').slice().sort((a, b) => +a.local_hour - +b.local_hour).forEach(x => {
+      const v = +x.reach_vs_expected;
+      hbRow(g, `${String(x.local_hour).padStart(2, '0')}:00`, v, 1.5, v >= 1.1 ? dash.colors[0] : (v < 0.9 ? 'var(--cds-chart-status-critical)' : 'var(--cds-chart-muted)'),
+            v.toFixed(2), `${Math.round(+x.share_of_calls * 100)}% of calls`,
+            { source: 'call_hours', field: 'reach_vs_expected', where: `local_hour=${x.local_hour}` }, 1);
+    });
+    el.append(g);
+  }
+
+  function drawCallsVsReal() {
+    const el = document.getElementById('calls-chart');
+    el.querySelectorAll('svg, .ca-fail').forEach(n => n.remove());
+    const st = dash.data('calls_vs_real').status;
+    if (st === 'error') { failedLine(el); return; }
+    if (st !== 'ok') { el.classList.add('dash-skeleton'); return; }
+    el.classList.remove('dash-skeleton');
+    const r = rows('calls_vs_real').map(x => ({ k: +x.call_number, sim: +x.simulated_vs_first_call, real: +x.real_vs_first_call })).sort((a, b) => a.k - b.k);
+    const W = el.clientWidth; if (!W || !r.length) return;
+    const H = 200;
+    const svg = d3.select(el).insert('svg', ':first-child').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    const last = r[r.length - 1];
+    const labels = [`our calls ${pct(last.sim)}`, `real bank calls ${pct(last.real)}`];
+    const probe = svg.append('text').text(labels[1]); const lw = probe.node().getComputedTextLength(); probe.remove();
+    const m = { t: 8, r: lw + 12, b: 22, l: 36 };
+    const x = d3.scaleLinear([1, last.k], [m.l, W - m.r]);
+    const y = d3.scaleLinear([0, 1.05], [H - m.b, m.t]);
+    svg.append('g').selectAll('line').data([0, 0.5, 1]).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', d => y(d)).attr('y2', d => y(d)).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data([0, 0.5, 1]).join('text').attr('x', m.l - 6).attr('y', d => y(d)).attr('dy', '0.32em').attr('text-anchor', 'end').text(d3.format('.0%'));
+    svg.append('g').selectAll('text').data(r.map(p => p.k).filter(k => k === 1 || k % 3 === 1 || k === last.k)).join('text')
+      .attr('x', d => x(d)).attr('y', H - 6).attr('text-anchor', 'middle').text(d => d === last.k ? `call ${d}` : d);
+    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', H - m.b).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-axis)');
+    const ends = [y(last.sim), y(last.real)];
+    if (Math.abs(ends[0] - ends[1]) < 14) { const mid = (ends[0] + ends[1]) / 2; const up = ends[0] < ends[1] ? 0 : 1; ends[up] = mid - 7; ends[1 - up] = mid + 7; }
+    [['sim', dash.colors[0]], ['real', 'var(--cds-chart-muted)']].forEach(([f, color], i) => {
+      svg.append('path').attr('d', d3.line().x(p => x(p.k)).y(p => y(p[f]))(r)).attr('fill', 'none').attr('stroke', color)
+        .attr('stroke-width', 2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
+      svg.append('text').attr('x', W - m.r + 6).attr('y', ends[i]).attr('dy', '0.32em').style('fill', 'var(--color-fg)').text(labels[i]);
+    });
+  }
+
+  function drawMarketExp() {
+    const tb = document.querySelector('#mkt-table tbody'); tb.textContent = '';
+    const st = dash.data('older_debt_by_market').status;
+    if (st !== 'ok') { const td = tb.insertRow().insertCell(); td.colSpan = 7; if (st === 'error') failedLine(td); return; }
+    const order = BANKS.map(b => b[1]);
+    rows('older_debt_by_market').slice().sort((a, b) => order.indexOf(a.bank) - order.indexOf(b.bank)).forEach(x => {
+      const tr = tb.insertRow();
+      [x.bank, int(+x.accounts), pct(+x.control), pct(+x.treatment), pts(+x.difference), pts(+x.ci_low), pts(+x.ci_high)]
+        .forEach(v => { tr.insertCell().textContent = v; });
+    });
+  }
+
+  dash.onData(() => {
+    fillValues();
+    drawCohort();
+    drawFunnel();
+    drawMonthTable();
+    drawIntervals();
+    drawArm('arm-a', '0 to 30 days');
+    drawArm('arm-b', '31 to 90 days');
+    drawInvoices();
+    drawChecks();
+    drawScorecard();
+    drawHindi();
+    drawHours();
+    drawCallsVsReal();
+    drawMarketExp();
+  });
+})();
+</script>
+
+</main>
+<footer class="site-foot">
+  <span>The platform data (accounts, calls, promises, payments) is simulated, because call level collections data tied to payments is never published. Exchange rates are the ECB's daily reference rates, public holidays are the real 2026 calendars, and calling hours follow each market's rules.</span>
+  <span>How customers behave is calibrated on two real public datasets: UCI Bank Marketing (41,188 bank calls; Moro, Cortez and Rita, 2014) and UCI Default of Credit Card Clients (30,000 card customers; Yeh and Lien, 2009), both CC BY 4.0.</span>
+  <span>Every number here is produced by <code>python run_all.py</code> in the <a href="https://github.com/nishantrv333/Collections-Analytics">repository</a>.</span>
+</footer>
+</div>
+</body>
+</html>

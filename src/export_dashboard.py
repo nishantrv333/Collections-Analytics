@@ -71,7 +71,7 @@ def main():
     ]).to_csv(OUT / "experiment_split.csv", index=False)
     pd.DataFrame([dict(monthly_balance_31_90_eur=round(s["monthly_balance_31_90_eur"], 2),
                        extra_collected_per_month_eur=round(s["extra_collected_per_month_eur"], 2),
-                       minimum_detectable_effect_points=round(s["minimum_detectable_effect_points"], 2),
+                       minimum_detectable_effect_points=round(s["minimum_detectable_effect_points"], 4),
                        excluded_accounts=s["accounts_assigned"] - s["accounts_analysed"])]
                  ).to_csv(OUT / "experiment_value.csv", index=False)
 
